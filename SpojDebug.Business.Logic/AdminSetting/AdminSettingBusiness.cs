@@ -76,6 +76,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
             ParseUserSubmissions(tokenizer, contest.Users, contest.ProblemsInfo);
             
+            // Todo: Convert data to Entity and save to data base, then remove below line --> FileUltils.SaveFile
             FileUltils.SaveFile(Directory.GetCurrentDirectory(), "Data.json", JsonConvert.SerializeObject(contest, Formatting.Indented));
         }
 
