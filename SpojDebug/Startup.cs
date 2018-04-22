@@ -41,7 +41,7 @@ namespace SpojDebug
 
             services.AddAutoMapper();
 
-            // Ad app setting
+            // Add custom app settings
             services.AddCustomAppSettingConfigs(Configuration);
 
             // Add Repositories / "Scope"

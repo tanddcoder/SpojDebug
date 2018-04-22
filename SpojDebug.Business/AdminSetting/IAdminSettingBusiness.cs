@@ -5,8 +5,6 @@ namespace SpojDebug.Business.AdminSetting
 {
     public interface IAdminSettingBusiness : IBusiness<AdminSettingEntity>
     {
-        bool Login();
-
         void GetSpojInfo();
 
         void UpdateSetting();

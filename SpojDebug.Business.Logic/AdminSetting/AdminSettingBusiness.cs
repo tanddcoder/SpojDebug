@@ -79,6 +79,13 @@ namespace SpojDebug.Business.Logic.AdminSetting
             FileUltils.SaveFile(Directory.GetCurrentDirectory(), "Data.json", JsonConvert.SerializeObject(contest, Formatting.Indented));
         }
 
+        public void UpdateSetting()
+        {
+            throw new NotImplementedException();
+        }
+
+        #region Private
+
         public bool Login()
         {
             var (username, password) = GetAdminUsernameAndPassword();
@@ -108,13 +115,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 throw new SpojDebugException(e.Message);
             }
         }
-
-        public void UpdateSetting()
-        {
-            throw new NotImplementedException();
-        }
-
-        #region Private
 
         private (string, string) GetAdminUsernameAndPassword()
         {
