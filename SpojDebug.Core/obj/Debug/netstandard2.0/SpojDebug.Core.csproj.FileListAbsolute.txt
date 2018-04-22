@@ -1,0 +1,16 @@
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.deps.json
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.dll
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.pdb
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.csproj.CoreCompileInputs.cache
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.AssemblyInfoInputs.cache
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.AssemblyInfo.cs
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.dll
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.pdb
+D:\GitRepositories\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.deps.json
+D:\GitRepositories\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.dll
+D:\GitRepositories\SpojDebug\SpojDebug.Core\bin\Debug\netstandard2.0\SpojDebug.Core.pdb
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.csproj.CoreCompileInputs.cache
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.AssemblyInfoInputs.cache
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.AssemblyInfo.cs
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.dll
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.pdb

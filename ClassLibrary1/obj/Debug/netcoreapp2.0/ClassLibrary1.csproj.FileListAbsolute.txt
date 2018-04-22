@@ -1,0 +1,3 @@
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\ClassLibrary1\obj\Debug\netcoreapp2.0\ClassLibrary1.csproj.CoreCompileInputs.cache
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\ClassLibrary1\obj\Debug\netcoreapp2.0\ClassLibrary1.AssemblyInfoInputs.cache
+D:\CSharpPersonalSources\SpojDebug\SpojDebug\ClassLibrary1\obj\Debug\netcoreapp2.0\ClassLibrary1.AssemblyInfo.cs

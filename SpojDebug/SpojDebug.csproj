@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <UserSecretsId>aspnet-SpojDebug-96098552-9B95-4144-A263-419828C7CB42</UserSecretsId>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="HangFire" Version="1.6.17" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
+    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpojDebug.Business.Logic\SpojDebug.Business.Logic.csproj" />
+    <ProjectReference Include="..\SpojDebug.Business\SpojDebug.Business.csproj" />
+    <ProjectReference Include="..\SpojDebug.Core\SpojDebug.Core.csproj" />
+    <ProjectReference Include="..\SpojDebug.Data.EF\SpojDebug.Data.EF.csproj" />
+    <ProjectReference Include="..\SpojDebug.Data\SpojDebug.Data.csproj" />
+    <ProjectReference Include="..\SpojDebug.Mapper\SpojDebug.Mapper.csproj" />
+    <ProjectReference Include="..\SpojDebug.Service.Logic\SpojDebug.Service.Logic.csproj" />
+    <ProjectReference Include="..\SpojDebug.Service\SpojDebug.Service.csproj" />
+    <ProjectReference Include="..\SpojDebug.Ultil\SpojDebug.Ultil.csproj" />
+  </ItemGroup>
+</Project>

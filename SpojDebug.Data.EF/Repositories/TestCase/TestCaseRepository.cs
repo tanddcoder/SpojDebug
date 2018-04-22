@@ -1,0 +1,14 @@
+﻿using SpojDebug.Core.Entities.TestCase;
+using SpojDebug.Data.EF.Base;
+using SpojDebug.Data.EF.Contexts;
+using SpojDebug.Data.Repositories.TestCase;
+
+namespace SpojDebug.Data.EF.Repositories.TestCase
+{
+    public class TestCaseRepository : Repository<SpojDebugDbContext, TestCaseEntity>, ITestCaseRepository
+    {
+        public TestCaseRepository(SpojDebugDbContext context) : base(context)
+        {
+        }
+    }
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpojDebug.Business\SpojDebug.Business.csproj" />
+    <ProjectReference Include="..\SpojDebug.Core\SpojDebug.Core.csproj" />
+    <ProjectReference Include="..\SpojDebug.Data.EF\SpojDebug.Data.EF.csproj" />
+    <ProjectReference Include="..\SpojDebug.Data\SpojDebug.Data.csproj" />
+    <ProjectReference Include="..\SpojDebug.Ultil\SpojDebug.Ultil.csproj" />
+  </ItemGroup>
+
+</Project>
