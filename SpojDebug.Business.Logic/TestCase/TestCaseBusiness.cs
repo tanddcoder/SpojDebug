@@ -2,12 +2,13 @@
 using SpojDebug.Business.Logic.Base;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Data.Repositories.TestCase;
+using AutoMapper;
 
 namespace SpojDebug.Business.Logic.TestCase
 {
     public class TestCaseBusiness : Business<ITestCaseRepository, TestCaseEntity>, ITestCaseBusiness
     {
-        protected TestCaseBusiness(ITestCaseRepository repository) : base(repository)
+        protected TestCaseBusiness(ITestCaseRepository repository, IMapper mapper) : base(repository, mapper)
         {
         }
     }

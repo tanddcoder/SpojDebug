@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SpojDebug.Business\SpojDebug.Business.csproj" />
     <ProjectReference Include="..\SpojDebug.Core\SpojDebug.Core.csproj" />
     <ProjectReference Include="..\SpojDebug.Data.EF\SpojDebug.Data.EF.csproj" />

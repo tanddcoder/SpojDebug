@@ -14,3 +14,4 @@ D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.C
 D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.AssemblyInfo.cs
 D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.dll
 D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.pdb
+D:\GitRepositories\SpojDebug\SpojDebug.Core\obj\Debug\netstandard2.0\SpojDebug.Core.csprojResolveAssemblyReference.cache

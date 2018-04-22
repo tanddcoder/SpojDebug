@@ -17,3 +17,4 @@ D:\GitRepositories\SpojDebug\SpojDebug.Data\obj\Debug\netstandard2.0\SpojDebug.D
 D:\GitRepositories\SpojDebug\SpojDebug.Data\bin\Debug\netstandard2.0\SpojDebug.Core.dll
 D:\GitRepositories\SpojDebug\SpojDebug.Data\bin\Debug\netstandard2.0\SpojDebug.Core.pdb
 D:\GitRepositories\SpojDebug\SpojDebug.Data\obj\Debug\netstandard2.0\SpojDebug.Data.csproj.CopyComplete
+D:\GitRepositories\SpojDebug\SpojDebug.Data\obj\Debug\netstandard2.0\SpojDebug.Data.csprojResolveAssemblyReference.cache

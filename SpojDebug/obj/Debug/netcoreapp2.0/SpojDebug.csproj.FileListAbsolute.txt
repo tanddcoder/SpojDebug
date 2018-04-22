@@ -52,10 +52,10 @@ D:\GitRepositories\SpojDebug\SpojDebug\bin\Debug\netcoreapp2.0\SpojDebug.Service
 D:\GitRepositories\SpojDebug\SpojDebug\bin\Debug\netcoreapp2.0\SpojDebug.Ultil.pdb
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.csprojResolveAssemblyReference.cache
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.csproj.CoreCompileInputs.cache
-D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\UserSecretsAssemblyInfo.cs
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.AssemblyInfoInputs.cache
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.AssemblyInfo.cs
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.dll
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.pdb
 D:\GitRepositories\SpojDebug\SpojDebug\bin\Debug\netcoreapp2.0\SpojDebug.Data.EF.dll
 D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\SpojDebug.csproj.CopyComplete
+D:\GitRepositories\SpojDebug\SpojDebug\obj\Debug\netcoreapp2.0\UserSecretsAssemblyInfo.cs

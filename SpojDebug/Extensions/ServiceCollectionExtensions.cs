@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SpojDebug.Core.AppSetting;
+using SpojDebug.Core.Models.AdminSetting;
 using SpojDebug.Data.EF.Repositories.Account;
 using SpojDebug.Data.EF.Repositories.Problem;
 using SpojDebug.Data.EF.Repositories.Result;
@@ -39,6 +42,11 @@ namespace SpojDebug.Extensions
         public static void ResolveScopedBusiness(this IServiceCollection services)
         {
 
+        }
+        public static void AddCustomAppSettingConfigs(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton(configuration.GetSection("SpojKey").Get<SpojKey>());
+            services.AddSingleton(configuration.GetSection("SpojInfo").Get<SpojInfo>());
         }
     }
 }

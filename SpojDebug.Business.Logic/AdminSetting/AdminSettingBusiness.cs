@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
-using SpojDebug.Business.SPOJBusiness;
+﻿using AutoMapper;
+using Newtonsoft.Json;
+using SpojDebug.Business.Logic.Base;
+using SpojDebug.Business.AdminSetting;
 using SpojDebug.Core.Constant;
+using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Models.SpojModels;
+using SpojDebug.Data.Repositories.AdminSetting;
 using SpojDebug.Ultil.Spoj;
-using SpojDebug.Ultil.SpojDebugException;
+using SpojDebug.Ultil.Exception;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,16 +15,19 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
+using SpojDebug.Ultil.DataSecurity;
+using SpojDebug.Ultil.FileHelper;
+using SpojDebug.Core.AppSetting;
 
-namespace SpojDebug.Business.Logic.SPOJBusiness
+namespace SpojDebug.Business.Logic.AdminSetting
 {
-    public class SpojBusiness : ISpojBusiness
+    public class AdminSettingBusiness : Business<IAdminSettingRepository, AdminSettingEntity>, IAdminSettingBusiness
     {
-        private readonly static string _spojLoginUri = @"http://www.spoj.com/login/";
+        private readonly string _spojLoginUri;
 
-        private readonly static string s_downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", "EIUDISC2");
+        private readonly string _downloadUrl;
 
-        private readonly static string s_rankUrl = string.Format("http://www.spoj.com/{0}/ranks/", "EIUDISC2");
+        private readonly string _rankUrl;
 
         private HttpClient _client = null;
 
@@ -28,7 +35,11 @@ namespace SpojDebug.Business.Logic.SPOJBusiness
 
         private CookieContainer _cookieContainer = null;
 
-        public SpojBusiness()
+        private readonly SpojKey _spojKey;
+
+        private readonly SpojInfo _spojInfo;
+
+        protected AdminSettingBusiness(IAdminSettingRepository repository, IMapper mapper, SpojKey spojKey, SpojInfo spojInfo) : base(repository, mapper)
         {
             _cookieContainer = new CookieContainer();
 
@@ -40,19 +51,22 @@ namespace SpojDebug.Business.Logic.SPOJBusiness
             };
 
             _client = new HttpClient();
+            _spojKey = spojKey;
+            _spojInfo = spojInfo;
+            _spojLoginUri = @"http://www.spoj.com/login/";
+            _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", _spojInfo.ContestName);
+            _rankUrl = string.Format("http://www.spoj.com/{0}/ranks/", _spojInfo.ContestName);
         }
 
         public void GetSpojInfo()
         {
             var text = "";
-
-            // Todo: customize to get encode then decode in database
-            // Login()
+            
             Login();
 
-            text = GetText(s_rankUrl);
+            text = GetText(_rankUrl);
             Thread.Sleep(1000);
-            text = GetText(s_downloadUrl);
+            text = GetText(_downloadUrl);
 
             var tokenizer = new SpojDataTokenizer(text);
 
@@ -61,11 +75,8 @@ namespace SpojDebug.Business.Logic.SPOJBusiness
             contest.Users = ParseUsers(tokenizer);
 
             ParseUserSubmissions(tokenizer, contest.Users, contest.ProblemsInfo);
-
-            File.WriteAllText(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar +
-                    "Data.json",
-                    JsonConvert.SerializeObject(contest, Formatting.Indented)
-                );
+            
+            FileUltils.SaveFile(Directory.GetCurrentDirectory(), "Data.json", JsonConvert.SerializeObject(contest, Formatting.Indented));
         }
 
         public bool Login()
@@ -98,15 +109,17 @@ namespace SpojDebug.Business.Logic.SPOJBusiness
             }
         }
 
+        public void UpdateSetting()
+        {
+            throw new NotImplementedException();
+        }
+
         #region Private
 
         private (string, string) GetAdminUsernameAndPassword()
         {
-            // Todo: Get from data server and decode
-            var username = "user";
-            var password = "password";
-
-            return (username, password);
+            var setting = Repository.GetSingle();
+            return (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, _spojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, _spojKey.ForPassword));
         }
 
         private string GetText(string url)

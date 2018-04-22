@@ -28,3 +28,4 @@ D:\GitRepositories\SpojDebug\SpojDebug.Service.Logic\bin\Debug\netstandard2.0\Sp
 D:\GitRepositories\SpojDebug\SpojDebug.Service.Logic\bin\Debug\netstandard2.0\SpojDebug.Business.pdb
 D:\GitRepositories\SpojDebug\SpojDebug.Service.Logic\bin\Debug\netstandard2.0\SpojDebug.Ultil.pdb
 D:\GitRepositories\SpojDebug\SpojDebug.Service.Logic\bin\Debug\netstandard2.0\SpojDebug.Core.pdb
+D:\GitRepositories\SpojDebug\SpojDebug.Service.Logic\obj\Debug\netstandard2.0\SpojDebug.Service.Logic.csprojResolveAssemblyReference.cache

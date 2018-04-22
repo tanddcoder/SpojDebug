@@ -3,9 +3,9 @@ using SpojDebug.Core.Constant;
 using SpojDebug.Ultil.Reflection;
 using System;
 
-namespace SpojDebug.Ultil.SpojDebugException
+namespace SpojDebug.Ultil.Exception
 {
-    public class SpojDebugException : Exception
+    public class SpojDebugException : System.Exception
     {
         private const string _defaultSpojDebugException = "Super error occured";
 

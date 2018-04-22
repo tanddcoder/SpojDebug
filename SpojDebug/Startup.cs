@@ -12,6 +12,7 @@ using SpojDebug.Data.EF.Contexts;
 using SpojDebug.Service.SPOJExternal;
 using SpojDebug.Service.Logic.SPOJExternal;
 using SpojDebug.Extensions;
+using AutoMapper;
 
 namespace SpojDebug
 {
@@ -38,8 +39,19 @@ namespace SpojDebug
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            // Add Repositoris / life time "Scope"
+            services.AddAutoMapper();
+
+            // Ad app setting
+            services.AddCustomAppSettingConfigs(Configuration);
+
+            // Add Repositories / "Scope"
             services.ResolveRepositories();
+
+            // Add Businesses / "Scoped"
+            services.ResolveScopedBusiness();
+
+            // Add Services / "Scoped"
+            services.ResolveScopedServices();
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

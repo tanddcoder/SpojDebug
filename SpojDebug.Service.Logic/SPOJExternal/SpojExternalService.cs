@@ -1,7 +1,7 @@
-﻿using SpojDebug.Business.SPOJBusiness;
+﻿using SpojDebug.Business.AdminSetting;
 using SpojDebug.Core.Constant;
 using SpojDebug.Service.SPOJExternal;
-using SpojDebug.Ultil.SpojDebugException;
+using SpojDebug.Ultil.Exception;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -11,9 +11,9 @@ namespace SpojDebug.Service.Logic.SPOJExternal
 {
     public class SpojExternalService : HttpClient, ISpojExternalService
     {
-        private readonly ISpojBusiness _spojBusiness;
+        private readonly IAdminSettingBusiness _spojBusiness;
 
-        public SpojExternalService(ISpojBusiness spojBusiness)
+        public SpojExternalService(IAdminSettingBusiness spojBusiness)
         {
             _spojBusiness = spojBusiness;
         }
