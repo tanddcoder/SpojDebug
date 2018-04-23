@@ -39,7 +39,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly SpojInfo _spojInfo;
 
-        protected AdminSettingBusiness(IAdminSettingRepository repository, IMapper mapper, SpojKey spojKey, SpojInfo spojInfo) : base(repository, mapper)
+        public AdminSettingBusiness(IAdminSettingRepository repository, IMapper mapper, SpojKey spojKey, SpojInfo spojInfo) : base(repository, mapper)
         {
             _cookieContainer = new CookieContainer();
 

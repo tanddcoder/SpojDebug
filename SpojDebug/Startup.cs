@@ -60,7 +60,7 @@ namespace SpojDebug
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAdminSettingService adminService)
         {
             //GlobalConfiguration.Configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
 
@@ -89,14 +89,12 @@ namespace SpojDebug
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            //AppStartBackGroundJob(services);
+            AppStartBackGroundJob(adminService);
         }
 
-        private void AppStartBackGroundJob(IServiceProvider services)
+        private void AppStartBackGroundJob(IAdminSettingService adminservice)
         {
-            var spojExternalServices = services.GetService<IAdminSettingService>();
-
-            RecurringJob.AddOrUpdate("SPOJBackgroundRecurringJob", () => spojExternalServices.GetSpojInfo(), @"*/5 * * * *");
+            RecurringJob.AddOrUpdate("SPOJBackgroundRecurringJob", () => adminservice.GetSpojInfo(), @"*/5 * * * *");
         }
     }
 }
