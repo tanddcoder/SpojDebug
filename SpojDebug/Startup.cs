@@ -10,9 +10,10 @@ using SpojDebug.Service.Logic;
 using Hangfire;
 using SpojDebug.Data.EF.Contexts;
 using SpojDebug.Service.SPOJExternal;
-using SpojDebug.Service.Logic.SPOJExternal;
+using SpojDebug.Service.Logic.AdminSetting;
 using SpojDebug.Extensions;
 using AutoMapper;
+using System;
 
 namespace SpojDebug
 {
@@ -29,14 +30,11 @@ namespace SpojDebug
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("SpojDebug.Data.EF")));
-
             services.AddDbContext<SpojDebugDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("SpojDebug.Data.EF")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<SpojDebugDbContext>()
                 .AddDefaultTokenProviders();
 
             services.AddAutoMapper();
@@ -55,7 +53,6 @@ namespace SpojDebug
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
-            services.AddSingleton<ISpojExternalService, SpojExternalService>();
             //services.AddSingleton<BaseDbContext>();
 
             services.AddMvc();
@@ -63,7 +60,7 @@ namespace SpojDebug
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
         {
             //GlobalConfiguration.Configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
 
@@ -92,12 +89,12 @@ namespace SpojDebug
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            AppStartBackGroundJob(app);
+            //AppStartBackGroundJob(services);
         }
 
-        private void AppStartBackGroundJob(IApplicationBuilder app)
+        private void AppStartBackGroundJob(IServiceProvider services)
         {
-            var spojExternalServices = app.ApplicationServices.GetService<ISpojExternalService>();
+            var spojExternalServices = services.GetService<IAdminSettingService>();
 
             RecurringJob.AddOrUpdate("SPOJBackgroundRecurringJob", () => spojExternalServices.GetSpojInfo(), @"*/5 * * * *");
         }

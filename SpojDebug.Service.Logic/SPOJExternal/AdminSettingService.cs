@@ -1,13 +1,15 @@
 ﻿using SpojDebug.Business.AdminSetting;
+using SpojDebug.Core.Entities.AdminSetting;
+using SpojDebug.Service.Logic.Base;
 using SpojDebug.Service.SPOJExternal;
 
-namespace SpojDebug.Service.Logic.SPOJExternal
+namespace SpojDebug.Service.Logic.AdminSetting
 {
-    public class SpojExternalService : ISpojExternalService
+    public class AdminSettingService : Service<IAdminSettingBusiness, AdminSettingEntity>, IAdminSettingService
     {
         private readonly IAdminSettingBusiness _spojBusiness;
 
-        public SpojExternalService(IAdminSettingBusiness spojBusiness)
+        public AdminSettingService(IAdminSettingBusiness spojBusiness)
         {
             _spojBusiness = spojBusiness;
         }
