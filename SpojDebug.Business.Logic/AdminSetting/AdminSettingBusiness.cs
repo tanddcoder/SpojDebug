@@ -18,6 +18,7 @@ using System.Threading;
 using SpojDebug.Ultil.DataSecurity;
 using SpojDebug.Ultil.FileHelper;
 using SpojDebug.Core.AppSetting;
+using SpojDebug.Core.Models.AdminSetting;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -85,9 +86,24 @@ namespace SpojDebug.Business.Logic.AdminSetting
             throw new NotImplementedException();
         }
 
+        public AdminSettingResponseModel GetSpojAccount()
+        {
+            var (username, password) = GetAdminUsernameAndPassword();
+
+            return new AdminSettingResponseModel
+            {
+                UserName = username
+            };
+        }
+
+        public bool UpdateSpojAccount()
+        {
+            throw new NotImplementedException();
+        }
+
         #region Private
 
-        public bool Login()
+        private bool Login()
         {
             var (username, password) = GetAdminUsernameAndPassword();
 

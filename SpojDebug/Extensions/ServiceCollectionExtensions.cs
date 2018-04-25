@@ -37,6 +37,10 @@ using SpojDebug.Business.Logic.TestCase;
 using SpojDebug.Business.Logic.Problem;
 using SpojDebug.Business.Logic.Account;
 using SpojDebug.Business.Logic.Submission;
+using SpojDebug.Business;
+using SpojDebug.Business.Logic;
+using SpojDebug.Service;
+using SpojDebug.Service.Logic;
 
 namespace SpojDebug.Extensions
 {
@@ -67,6 +71,7 @@ namespace SpojDebug.Extensions
             services.AddScoped<IProblemService, ProblemService>();
             services.AddScoped<ITestCaseService, TestCaseService>();
             services.AddScoped<IAdminSettingService, AdminSettingService>();
+            services.AddScoped<ISeedDataService, SeedDataService>();
         }
 
         public static void ResolveScopedBusiness(this IServiceCollection services)
@@ -78,6 +83,7 @@ namespace SpojDebug.Extensions
             services.AddScoped<IProblemBusiness, ProblemBusiness>();
             services.AddScoped<ITestCaseBusiness, TestCaseBusiness>();
             services.AddScoped<IAdminSettingBusiness, AdminSettingBusiness>();
+            services.AddScoped<ISeedDataBusiness, SeedDataBusiness>();
         }
 
         public static void AddCustomAppSettingConfigs(this IServiceCollection services, IConfiguration configuration)

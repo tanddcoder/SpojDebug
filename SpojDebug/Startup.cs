@@ -10,10 +10,10 @@ using SpojDebug.Service.Logic;
 using Hangfire;
 using SpojDebug.Data.EF.Contexts;
 using SpojDebug.Service.SPOJExternal;
-using SpojDebug.Service.Logic.AdminSetting;
 using SpojDebug.Extensions;
 using AutoMapper;
-using System;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace SpojDebug
 {
@@ -55,8 +55,14 @@ namespace SpojDebug
             services.AddTransient<IEmailSender, EmailSender>();
             //services.AddSingleton<BaseDbContext>();
 
-            services.AddMvc();
+            services.AddMvc( config => 
+            {
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
             services.AddHangfire(option => option.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
