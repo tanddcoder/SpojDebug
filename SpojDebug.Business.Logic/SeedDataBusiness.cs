@@ -3,26 +3,23 @@ using SpojDebug.Core.Constant;
 using SpojDebug.Core.User;
 using SpojDebug.Data.EF.Contexts;
 using SpojDebug.Ultil.Reflection;
-using System;
 using System.Threading.Tasks;
 
 namespace SpojDebug.Business.Logic
 {
     public class SeedDataBusiness : ISeedDataBusiness
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly SpojDebugDbContext _spojDebugDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public SeedDataBusiness(IServiceProvider serviceProvider,
+        public SeedDataBusiness(
             SpojDebugDbContext spojDebugDbContext,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager)
         {
-            _serviceProvider = serviceProvider;
             _spojDebugDbContext = spojDebugDbContext;
             _userManager = userManager;
             _signInManager = signInManager;
