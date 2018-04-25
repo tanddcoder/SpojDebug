@@ -16,11 +16,11 @@ namespace SpojDebug.Service.Logic.AdminSetting
             _spojBusiness = spojBusiness;
         }
 
-        public ApplicationResult<AdminSettingResponseModel> GetSpojAccount()
+        public ApplicationResult<AdminSettingSpojAccountResponseModel> GetSpojAccount()
         {
             var response = _spojBusiness.GetSpojAccount();
 
-            return ApplicationResult<AdminSettingResponseModel>.Ok(response);
+            return ApplicationResult<AdminSettingSpojAccountResponseModel>.Ok(response);
         }
 
         public void GetSpojInfo()
@@ -28,9 +28,9 @@ namespace SpojDebug.Service.Logic.AdminSetting
             _spojBusiness.GetSpojInfo();
         }
 
-        public ApplicationResult UpdateSpojAccount()
+        public ApplicationResult UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model)
         {
-            var response = _spojBusiness.UpdateSpojAccount();
+            _spojBusiness.UpdateSpojAccount(model);
 
             return ApplicationResult.Ok();
         }

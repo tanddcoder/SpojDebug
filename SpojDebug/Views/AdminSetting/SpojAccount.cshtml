@@ -1,0 +1,11 @@
+﻿@model ApplicationResult<AdminSettingSpojAccountResponseModel>
+@{
+    ViewData["Title"] = "SpojAccount";
+}
+
+<h2>SpojAccount</h2>
+@Html.DisplayNameFor(x => Model.Data.UserName)
+@Html.DisplayFor(x => Model.Data.UserName)
+<br />
+@Html.DisplayNameFor(x => Model.Data.Password)
+@Html.DisplayFor(x => Model.Data.Password)

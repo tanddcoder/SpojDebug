@@ -8,10 +8,8 @@ namespace SpojDebug.Business.AdminSetting
     {
         void GetSpojInfo();
 
-        void UpdateSetting();
+        AdminSettingSpojAccountResponseModel GetSpojAccount();
 
-        AdminSettingResponseModel GetSpojAccount();
-
-        bool UpdateSpojAccount();
+        void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
     }
 }

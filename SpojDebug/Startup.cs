@@ -14,6 +14,7 @@ using SpojDebug.Extensions;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using SpojDebug.Service;
 
 namespace SpojDebug
 {
@@ -66,7 +67,7 @@ namespace SpojDebug
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAdminSettingService adminService)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAdminSettingService adminService, ISeedDataService seedDataService)
         {
             //GlobalConfiguration.Configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
 
@@ -96,6 +97,7 @@ namespace SpojDebug
             });
 
             AppStartBackGroundJob(adminService);
+            seedDataService.InitData();
         }
 
         private void AppStartBackGroundJob(IAdminSettingService adminservice)

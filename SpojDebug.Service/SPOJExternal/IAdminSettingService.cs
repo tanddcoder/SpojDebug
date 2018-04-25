@@ -10,8 +10,8 @@ namespace SpojDebug.Service.SPOJExternal
     {
         void GetSpojInfo();
 
-        ApplicationResult<AdminSettingResponseModel> GetSpojAccount();
+        ApplicationResult<AdminSettingSpojAccountResponseModel> GetSpojAccount();
 
-        ApplicationResult UpdateSpojAccount();
+        ApplicationResult UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
     }
 }

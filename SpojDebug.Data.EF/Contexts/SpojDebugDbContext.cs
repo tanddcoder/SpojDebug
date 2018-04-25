@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SpojDebug.Core.DbContextHelpers;
 using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Entities.Problem;
@@ -17,17 +18,20 @@ namespace SpojDebug.Data.EF.Contexts
             : base(options)
         {
         }
-
-        public DbSet<AccountEntity> Account { get; set; }
-        public DbSet<ProblemEntity> Problem { get; set; }
-        public DbSet<ResultEntity> Result { get; set; }
-        public DbSet<ResultDetailEntity> ResultDetail { get; set; }
-        public DbSet<SubmissionEntity> Submission { get; set; }
-        public DbSet<TestCaseEntity> TestCase { get; set; }
-        public DbSet<AdminSettingEntity> AdminSetting { get; set; }
+        
+        public DbSet<AccountEntity> Accounts { get; set; }
+        public DbSet<ProblemEntity> Problems { get; set; }
+        public DbSet<ResultEntity> Results { get; set; }
+        public DbSet<ResultDetailEntity> ResultDetails { get; set; }
+        public DbSet<SubmissionEntity> Submissions { get; set; }
+        public DbSet<TestCaseEntity> TestCases { get; set; }
+        public DbSet<AdminSettingEntity> AdminSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.SetTableNames();
+            builder.SetRuleForEntities();
+
             base.OnModelCreating(builder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.

@@ -28,7 +28,7 @@ namespace SpojDebug.Business.Logic
 
         public void InitData()
         {
-            var userTask = EnsureUser("addddddddddminnnnn", "passsssworrrrddddddd");
+            var userTask = EnsureUser("admin@spojdebug.com", "AdminPass123!@#");
             userTask.Wait();
 
             var roleTask =  EnsureRole(userTask.Result, Enums.UserRole.Admin.GetDisplayName());

@@ -2,7 +2,7 @@
 
 namespace SpojDebug.Core.Models.AdminSetting
 {
-    public class AdminSettingResponseModel
+    public class AdminSettingSpojAccountResponseModel
     {
         [Display(Name = "User Name")]
         public string UserName { get; set; }

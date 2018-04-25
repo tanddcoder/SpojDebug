@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SpojDebug.Core.Models.AdminSetting;
 using SpojDebug.Service.SPOJExternal;
 
 namespace SpojDebug.Controllers
@@ -21,11 +22,19 @@ namespace SpojDebug.Controllers
             return View(response);
         }
 
+        [HttpGet]
         public IActionResult UpdateSpojAccount()
         {
-            var response = _adminSettingService.UpdateSpojAccount();
+            return View();
+        }
 
-            return View(response);
+
+        [HttpPost]
+        public IActionResult UpdateSpojAccount([Bind("UserName,Password,ConfirmPassword")] AdminSettingSpojAccountUpdateModel model)
+        {
+            _adminSettingService.UpdateSpojAccount(model);
+
+            return View();
         }
     }
 }

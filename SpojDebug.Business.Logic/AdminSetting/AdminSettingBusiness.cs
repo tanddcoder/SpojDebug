@@ -51,7 +51,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 CookieContainer = _cookieContainer
             };
 
-            _client = new HttpClient();
+            _client = new HttpClient(_handler);
             _spojKey = spojKey;
             _spojInfo = spojInfo;
             _spojLoginUri = @"http://www.spoj.com/login/";
@@ -62,7 +62,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
         public void GetSpojInfo()
         {
             var text = "";
-            
+
             Login();
 
             text = GetText(_rankUrl);
@@ -76,29 +76,49 @@ namespace SpojDebug.Business.Logic.AdminSetting
             contest.Users = ParseUsers(tokenizer);
 
             ParseUserSubmissions(tokenizer, contest.Users, contest.ProblemsInfo);
-            
+
             // Todo: Convert data to Entity and save to data base, then remove below line --> FileUltils.SaveFile
             FileUltils.SaveFile(Directory.GetCurrentDirectory(), "Data.json", JsonConvert.SerializeObject(contest, Formatting.Indented));
         }
 
-        public void UpdateSetting()
+        public void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model)
         {
-            throw new NotImplementedException();
+            if (model == null || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.ConfirmPassword))
+                throw new SpojDebugException("Invalid model");
+
+            if (model.Password != model.ConfirmPassword)
+                throw new SpojDebugException("Invalid Password");
+
+            var setting = Repository.GetSingle();
+
+            if (setting == null)
+            {
+                setting = new AdminSettingEntity
+                {
+                    SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, _spojKey.ForUserName),
+                    SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, _spojKey.ForPassword)
+                };
+
+                Repository.Insert(setting);
+                Repository.SaveChanges();
+                return;
+            }
+
+
+            setting.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, _spojKey.ForUserName);
+            setting.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, _spojKey.ForPassword);
+            Repository.Update(setting);
+            Repository.SaveChanges();
         }
 
-        public AdminSettingResponseModel GetSpojAccount()
+        public AdminSettingSpojAccountResponseModel GetSpojAccount()
         {
             var (username, password) = GetAdminUsernameAndPassword();
 
-            return new AdminSettingResponseModel
+            return new AdminSettingSpojAccountResponseModel
             {
                 UserName = username
             };
-        }
-
-        public bool UpdateSpojAccount()
-        {
-            throw new NotImplementedException();
         }
 
         #region Private
@@ -136,6 +156,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private (string, string) GetAdminUsernameAndPassword()
         {
             var setting = Repository.GetSingle();
+            if (setting == null)
+                return (null, null);
             return (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, _spojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, _spojKey.ForPassword));
         }
 
