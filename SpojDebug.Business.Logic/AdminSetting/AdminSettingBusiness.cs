@@ -30,31 +30,14 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly string _rankUrl;
 
-        private HttpClient _client = null;
-
-        private HttpClientHandler _handler = null;
-
-        private CookieContainer _cookieContainer = null;
-
         private readonly SpojKey _spojKey;
 
         private readonly SpojInfo _spojInfo;
 
         public AdminSettingBusiness(IAdminSettingRepository repository, IMapper mapper, SpojKey spojKey, SpojInfo spojInfo) : base(repository, mapper)
         {
-            _cookieContainer = new CookieContainer();
-
-            _handler = new HttpClientHandler
-            {
-                UseCookies = true,
-                UseDefaultCredentials = true,
-                CookieContainer = _cookieContainer
-            };
-
-            _client = new HttpClient(_handler);
             _spojKey = spojKey;
             _spojInfo = spojInfo;
-            _spojLoginUri = @"http://www.spoj.com/login/";
             _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", _spojInfo.ContestName);
             _rankUrl = string.Format("http://www.spoj.com/{0}/ranks/", _spojInfo.ContestName);
         }
@@ -63,11 +46,16 @@ namespace SpojDebug.Business.Logic.AdminSetting
         {
             var text = "";
 
-            Login();
+            using (var client = new SpojClient())
+            {
 
-            text = GetText(_rankUrl);
-            Thread.Sleep(1000);
-            text = GetText(_downloadUrl);
+                var (username, password) = GetAdminUsernameAndPassword();
+                var result = client.LoginAsync(username, password);
+                result.Wait();
+                text = client.GetText(_rankUrl);
+                Thread.Sleep(1000);
+                text = client.GetText(_downloadUrl);
+            }
 
             var tokenizer = new SpojDataTokenizer(text);
 
@@ -122,37 +110,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
         }
 
         #region Private
-
-        private bool Login()
-        {
-            var (username, password) = GetAdminUsernameAndPassword();
-
-            try
-            {
-                var content = new FormUrlEncodedContent(new[]
-                {
-                    new KeyValuePair<string, string>("username", username),
-                    new KeyValuePair<string, string>("password", password)
-                });
-
-                var response = _client.PostAsync(_spojLoginUri, content);
-                response.Wait();
-
-                if (response.IsFaulted)
-                    throw new SpojDebugException(Error.Fault);
-
-                if (response.IsCanceled)
-                    throw new SpojDebugException(Error.Cancelled);
-
-                return true;
-            }
-            catch (Exception e)
-            {
-
-                throw new SpojDebugException(e.Message);
-            }
-        }
-
         private (string, string) GetAdminUsernameAndPassword()
         {
             var setting = Repository.GetSingle();
@@ -161,14 +118,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             return (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, _spojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, _spojKey.ForPassword));
         }
 
-        private string GetText(string url)
-        {
-            var response = _client.GetByteArrayAsync(url);
-            response.Wait();
-            var bytes = response.Result;
-            var textResult = Encoding.UTF8.GetString(bytes);
-            return textResult;
-        }
+        
 
         private SpojContestModel ParseContest(SpojDataTokenizer tokenizer)
         {
@@ -250,6 +200,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     case 10: languageText = "Java"; break;
                     case 27: languageText = "C#"; break;
                     case 32: languageText = "JS2"; break;
+                    default: languageText = "Other Languages"; break;
                 }
                 tokenizer.Skip(nLine - 9);
 
