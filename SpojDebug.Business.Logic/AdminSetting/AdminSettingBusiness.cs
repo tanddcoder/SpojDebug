@@ -19,6 +19,13 @@ using SpojDebug.Ultil.DataSecurity;
 using SpojDebug.Ultil.FileHelper;
 using SpojDebug.Core.AppSetting;
 using SpojDebug.Core.Models.AdminSetting;
+using SpojDebug.Data.Repositories.Problem;
+using SpojDebug.Data.Repositories.Account;
+using SpojDebug.Data.Repositories.Submission;
+using SpojDebug.Core.Entities.Problem;
+using SpojDebug.Core.Entities.Submission;
+using SpojDebug.Data.Repositories.Result;
+using SpojDebug.Core.Entities.Result;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -34,12 +41,37 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly SpojInfo _spojInfo;
 
-        public AdminSettingBusiness(IAdminSettingRepository repository, IMapper mapper, SpojKey spojKey, SpojInfo spojInfo) : base(repository, mapper)
+        private readonly IProblemRepository _problemRepository;
+
+        private readonly IAccountRepository _accountRepository;
+
+        private readonly ISubmissionRepository _submissionRepository;
+
+        private readonly IResultRepository _resultRepository;
+
+        private readonly IResultDetailRepository _resultDetailRepository;
+
+        public AdminSettingBusiness(
+            IAdminSettingRepository repository, 
+            IMapper mapper, 
+            SpojKey spojKey, 
+            SpojInfo spojInfo,
+            IProblemRepository problemRepository,
+            IAccountRepository accountRepository,
+            ISubmissionRepository submissionRepository,
+            IResultRepository resultRepository,
+            IResultDetailRepository resultDetailRepository) : base(repository, mapper)
         {
             _spojKey = spojKey;
             _spojInfo = spojInfo;
             _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", _spojInfo.ContestName);
             _rankUrl = string.Format("http://www.spoj.com/{0}/ranks/", _spojInfo.ContestName);
+
+            _problemRepository = problemRepository;
+            _accountRepository = accountRepository;
+            _submissionRepository = submissionRepository;
+            _resultRepository = resultRepository;
+            _resultDetailRepository = resultDetailRepository;
         }
 
         public void GetSpojInfo()
@@ -150,6 +182,15 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     Type = tokenizer.GetInt(),
                     ProblemSet = tokenizer.GetNext()
                 };
+
+                _problemRepository.Insert(new ProblemEntity
+                {
+                    SpojId = problem.Id,
+                    SpojCode = problem.Code,
+                    SpojLink = ""
+                });
+
+                _problemRepository.SaveChanges();
                 tokenizer.Skip(nLines - 6);
                 prolems[problem.Id] = problem;
             }
@@ -215,6 +256,26 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     RunTime = runTime,
                     Language = languageText
                 };
+
+
+                //Todo: use mapper
+                var submissionEntity = _submissionRepository.Insert(new SubmissionEntity
+                {
+                    SpojId = id,
+                    SubmitTime = time,
+                    Score = status == 15 && problemInfo.Type == 2 ? score : (status == 15 && problemInfo.Type == 0 ? 100 : 0),
+                    RunTime = runTime,
+                    Language = languageText
+                });
+
+                _resultRepository.Insert(new ResultEntity
+                {
+                    SubmmissionId = submissionEntity.Id
+                });
+
+                var problemEntity = _problemRepository.Get(x => x.SpojId == problemId);
+
+                _submissionRepository.SaveChanges();
 
                 SpojUserModel user = null;
                 if (users.TryGetValue(userId, out user))

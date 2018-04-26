@@ -18,7 +18,7 @@ namespace SpojDebug.Data.Base
 
         TEntity GetByID(object id);
 
-        void Insert(TEntity entity);
+        TEntity Insert(TEntity entity);
 
         void Delete(TEntity entityToDelete);
 
