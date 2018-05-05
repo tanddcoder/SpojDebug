@@ -298,7 +298,7 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<DateTimeOffset?>("LastUpdatedTime");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int>("SpojId");
 
                     b.Property<int>("ResultId");
 
@@ -308,7 +308,7 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("ProblemId");
+                    b.HasIndex("SpojId");
 
                     b.HasIndex("ResultId")
                         .IsUnique();
@@ -337,13 +337,13 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<string>("Output");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int>("SpojId");
 
                     b.Property<int>("SeqNum");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProblemId");
+                    b.HasIndex("SpojId");
 
                     b.ToTable("TestCase");
                 });
@@ -473,7 +473,7 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.HasOne("SpojDebug.Core.Entities.Problem.ProblemEntity", "Problem")
                         .WithMany("Submissions")
-                        .HasForeignKey("ProblemId")
+                        .HasForeignKey("SpojId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SpojDebug.Core.Entities.Result.ResultEntity", "Result")
@@ -486,7 +486,7 @@ namespace SpojDebug.Data.EF.Migrations
                 {
                     b.HasOne("SpojDebug.Core.Entities.Problem.ProblemEntity", "Problem")
                         .WithMany()
-                        .HasForeignKey("ProblemId")
+                        .HasForeignKey("SpojId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

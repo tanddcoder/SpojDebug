@@ -63,7 +63,7 @@ namespace SpojDebug.Data.EF.Base
                 query = query.Include(includeProperty);
             }
 
-            return query.SingleOrDefault();
+            return query.FirstOrDefault();
 
         }
 

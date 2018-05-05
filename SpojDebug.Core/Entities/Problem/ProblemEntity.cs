@@ -9,6 +9,6 @@ namespace SpojDebug.Core.Entities.Problem
         public string SpojCode { get; set; }
         public string SpojLink { get; set; }
 
-        public List<SubmissionEntity> Submissions { get; set; }
+        public List<SubmissionEntity> Submissions { get; set; } = new List<SubmissionEntity>();
     }
 }

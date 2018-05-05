@@ -10,6 +10,7 @@ namespace SpojDebug.Core.Entities.Submission
         public int AccountId { get; set; }
         public int ProblemId { get; set; }
         public int SpojId { get; set; }
+        public int SpojUserId { get; set; }
         public int ResultId { get; set; }
         public DateTime SubmitTime { get; set; }
         public float Score { get; set; }

@@ -409,7 +409,7 @@ namespace SpojDebug.Data.EF.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Submission_ProblemId",
                 table: "Submission",
-                column: "ProblemId");
+                column: "SpojId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Submission_ResultId",
@@ -420,7 +420,7 @@ namespace SpojDebug.Data.EF.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_TestCase_ProblemId",
                 table: "TestCase",
-                column: "ProblemId");
+                column: "SpojId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

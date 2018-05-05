@@ -16,7 +16,7 @@ namespace SpojDebug.Data.Base
             Expression<Func<TEntity, bool>> filter = null,
             params Expression<Func<TEntity, object>>[] includeProperties);
 
-        TEntity GetByID(object id);
+        TEntity GetById(object id);
 
         TEntity Insert(TEntity entity);
 
