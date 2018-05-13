@@ -9,9 +9,9 @@ namespace SpojDebug.Business.Logic
 {
     public class SeedDataBusiness : ISeedDataBusiness
     {
-        private readonly SpojDebugDbContext _spojDebugDbContext;
+        //private readonly SpojDebugDbContext _spojDebugDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        //private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public SeedDataBusiness(
@@ -20,9 +20,9 @@ namespace SpojDebug.Business.Logic
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager)
         {
-            _spojDebugDbContext = spojDebugDbContext;
+            //_spojDebugDbContext = spojDebugDbContext;
             _userManager = userManager;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
             _roleManager = roleManager;
         }
 

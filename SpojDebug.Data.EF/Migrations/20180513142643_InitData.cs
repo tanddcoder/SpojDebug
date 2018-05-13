@@ -21,6 +21,7 @@ namespace SpojDebug.Data.EF.Migrations
                     DeletedTime = table.Column<DateTimeOffset>(nullable: true),
                     LastUpdatedBy = table.Column<int>(nullable: true),
                     LastUpdatedTime = table.Column<DateTimeOffset>(nullable: true),
+                    LastedSpojSubmissionRecorded = table.Column<long>(nullable: false),
                     SpojPasswordEncode = table.Column<string>(nullable: true),
                     SpojUserNameEncode = table.Column<string>(nullable: true)
                 },
@@ -74,15 +75,19 @@ namespace SpojDebug.Data.EF.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(nullable: true),
                     CreatedBy = table.Column<int>(nullable: true),
                     CreatedTime = table.Column<DateTimeOffset>(nullable: true),
                     DeletedBy = table.Column<int>(nullable: true),
                     DeletedTime = table.Column<DateTimeOffset>(nullable: true),
                     LastUpdatedBy = table.Column<int>(nullable: true),
                     LastUpdatedTime = table.Column<DateTimeOffset>(nullable: true),
-                    SpojCode = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
                     SpojId = table.Column<int>(nullable: true),
-                    SpojLink = table.Column<string>(nullable: true)
+                    SpojLink = table.Column<string>(nullable: true),
+                    SpojProblemSet = table.Column<string>(nullable: true),
+                    TimeLimit = table.Column<float>(nullable: true),
+                    Type = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -142,13 +147,15 @@ namespace SpojDebug.Data.EF.Migrations
                     CreatedTime = table.Column<DateTimeOffset>(nullable: true),
                     DeletedBy = table.Column<int>(nullable: true),
                     DeletedTime = table.Column<DateTimeOffset>(nullable: true),
+                    DisplayName = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true),
                     LastUpdatedBy = table.Column<int>(nullable: true),
                     LastUpdatedTime = table.Column<DateTimeOffset>(nullable: true),
                     Phone = table.Column<string>(nullable: true),
                     SocialNetWorkType = table.Column<int>(nullable: false),
-                    SpojUserName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
+                    SpojUserId = table.Column<int>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
+                    UserName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -280,16 +287,20 @@ namespace SpojDebug.Data.EF.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    AccountId = table.Column<int>(nullable: false),
+                    AccountId = table.Column<int>(nullable: true),
                     CreatedBy = table.Column<int>(nullable: true),
                     CreatedTime = table.Column<DateTimeOffset>(nullable: true),
                     DeletedBy = table.Column<int>(nullable: true),
                     DeletedTime = table.Column<DateTimeOffset>(nullable: true),
+                    Language = table.Column<string>(nullable: true),
                     LastUpdatedBy = table.Column<int>(nullable: true),
                     LastUpdatedTime = table.Column<DateTimeOffset>(nullable: true),
-                    ProblemId = table.Column<int>(nullable: false),
-                    ResultId = table.Column<int>(nullable: false),
-                    SpojId = table.Column<int>(nullable: false)
+                    ProblemId = table.Column<int>(nullable: true),
+                    ResultId = table.Column<int>(nullable: true),
+                    RunTime = table.Column<float>(nullable: false),
+                    Score = table.Column<float>(nullable: false),
+                    SpojId = table.Column<int>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -299,19 +310,19 @@ namespace SpojDebug.Data.EF.Migrations
                         column: x => x.AccountId,
                         principalTable: "Account",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Submission_Problem_ProblemId",
                         column: x => x.ProblemId,
                         principalTable: "Problem",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Submission_Result_ResultId",
                         column: x => x.ResultId,
                         principalTable: "Result",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -409,18 +420,19 @@ namespace SpojDebug.Data.EF.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Submission_ProblemId",
                 table: "Submission",
-                column: "SpojId");
+                column: "ProblemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Submission_ResultId",
                 table: "Submission",
                 column: "ResultId",
-                unique: true);
+                unique: true,
+                filter: "[ResultId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TestCase_ProblemId",
                 table: "TestCase",
-                column: "SpojId");
+                column: "ProblemId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -12,6 +12,7 @@ using SpojDebug.Data.EF.Contexts;
 using SpojDebug.Service.SPOJExternal;
 using SpojDebug.Extensions;
 using AutoMapper;
+using Hangfire.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using SpojDebug.Service;
@@ -100,9 +101,9 @@ namespace SpojDebug
             seedDataService.InitData();
         }
 
-        private void AppStartBackGroundJob(IAdminSettingService adminservice)
+        private static void AppStartBackGroundJob(IAdminSettingService adminservice)
         {
-            RecurringJob.AddOrUpdate("SPOJBackgroundRecurringJob", () => adminservice.GetSpojInfo(), @"*/5 * * * *");
+            BackgroundJob.Enqueue(() => adminservice.GetSpojInfo());
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SpojDebug.Core.Entities.ProblemDetail;
 
 namespace SpojDebug.Core.Models.SpojModels
 {
@@ -9,7 +8,7 @@ namespace SpojDebug.Core.Models.SpojModels
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public string Name { get; set; }
-        public Dictionary<int, ProblemDetailEntity> ProblemsInfo { get; set; }
+        public Dictionary<int, SpojProblemInfoModel> ProblemsInfo { get; set; }
         public Dictionary<int, SpojUserModel> Users { get; set; }
         public DateTime LastUpdated { get; set; } = DateTime.Now;
 }

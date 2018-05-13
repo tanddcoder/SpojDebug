@@ -11,13 +11,13 @@ namespace SpojDebug.Data.EF.Base
         where TDbContext : DbContext
         where TEntity : class
     {
-        protected readonly TDbContext context;
-        protected readonly DbSet<TEntity> dbSet;
+        protected readonly TDbContext Context;
+        protected readonly DbSet<TEntity> DbSet;
 
-        public Repository(TDbContext context)
+        protected Repository(TDbContext context)
         {
-            this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            this.Context = context;
+            this.DbSet = context.Set<TEntity>();
         }
 
         public virtual IQueryable<TEntity> Get(
@@ -25,43 +25,30 @@ namespace SpojDebug.Data.EF.Base
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> query = DbSet;
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties)
-            {
-                query = query.Include(includeProperty);
-            }
+            query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
-            if (orderBy != null)
-            {
-                return orderBy(query);
-            }
-            else
-            {
-                return query;
-            }
+            return orderBy != null ? orderBy(query) : query;
         }
 
         public TEntity GetSingle(
             Expression<Func<TEntity, bool>> filter = null, 
             params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> query = DbSet;
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties)
-            {
-                query = query.Include(includeProperty);
-            }
+            query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             return query.FirstOrDefault();
 
@@ -69,38 +56,38 @@ namespace SpojDebug.Data.EF.Base
 
         public virtual TEntity GetById(object id)
         {
-            return dbSet.Find(id);
+            return DbSet.Find(id);
         }
 
         public virtual TEntity Insert(TEntity entity)
         {
-            return dbSet.Add(entity).Entity;
+            return DbSet.Add(entity).Entity;
         }
 
         public virtual void Delete(object id)
         {
-            TEntity entityToDelete = dbSet.Find(id);
+            var entityToDelete = DbSet.Find(id);
             Delete(entityToDelete);
         }
 
         public virtual void Delete(TEntity entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (Context.Entry(entityToDelete).State == EntityState.Detached)
             {
-                dbSet.Attach(entityToDelete);
+                DbSet.Attach(entityToDelete);
             }
-            dbSet.Remove(entityToDelete);
+            DbSet.Remove(entityToDelete);
         }
 
         public virtual void Update(TEntity entityToUpdate)
         {
-            dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
+            DbSet.Attach(entityToUpdate);
+            Context.Entry(entityToUpdate).State = EntityState.Modified;
         }
 
         public int SaveChanges()
         {
-            return context.SaveChanges();
+            return Context.SaveChanges();
         }
 
         

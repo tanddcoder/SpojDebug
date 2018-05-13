@@ -7,7 +7,7 @@ namespace SpojDebug.Data.EF.Repositories.Result
 {
     public class ResultRepository : Repository<SpojDebugDbContext, ResultEntity> ,IResultRepository
     {
-        protected ResultRepository(SpojDebugDbContext dbContext) : base(dbContext)
+        public ResultRepository(SpojDebugDbContext context) : base(context)
         {
 
         }
