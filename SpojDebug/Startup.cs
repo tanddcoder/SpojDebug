@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -57,11 +58,11 @@ namespace SpojDebug
             services.AddTransient<IEmailSender, EmailSender>();
             //services.AddSingleton<BaseDbContext>();
 
-            services.AddMvc( config => 
-            {
-                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-                config.Filters.Add(new AuthorizeFilter(policy));
-            });
+            services.AddMvc(config =>
+           {
+               var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+               config.Filters.Add(new AuthorizeFilter(policy));
+           });
 
             services.AddHangfire(option => option.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -96,14 +97,30 @@ namespace SpojDebug
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            AppStartBackGroundJob(adminService);
+            var monitor = JobStorage.Current.GetMonitoringApi();
+            AppStartBackGroundJob(adminService, monitor);
             seedDataService.InitData();
         }
 
-        private static void AppStartBackGroundJob(IAdminSettingService adminservice)
+        private static void AppStartBackGroundJob(IAdminSettingService adminservice, IMonitoringApi monitor)
         {
+            PurgeJobs(monitor);
             BackgroundJob.Enqueue(() => adminservice.GetSpojInfo());
+            BackgroundJob.Enqueue(() => adminservice.DownloadSpojTestCases());
+        }
+
+        public static void PurgeJobs(IMonitoringApi monitor)
+        {
+            var toDelete = new List<string>();
+            foreach (var queue in monitor.ProcessingJobs(0, (int)monitor.ProcessingCount()))
+            {
+                toDelete.Add(queue.Key);
+            }
+
+            foreach (var jobId in toDelete)
+            {
+                BackgroundJob.Delete(jobId);
+            }
         }
     }
 }

@@ -339,7 +339,7 @@ namespace SpojDebug.Data.EF.Migrations
                     b.ToTable("Submission");
                 });
 
-            modelBuilder.Entity("SpojDebug.Core.Entities.TestCase.TestCaseEntity", b =>
+            modelBuilder.Entity("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -368,7 +368,7 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.HasIndex("ProblemId");
 
-                    b.ToTable("TestCase");
+                    b.ToTable("TestCaseInfo");
                 });
 
             modelBuilder.Entity("SpojDebug.Core.User.ApplicationUser", b =>
@@ -481,7 +481,7 @@ namespace SpojDebug.Data.EF.Migrations
                         .HasForeignKey("ResultId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SpojDebug.Core.Entities.TestCase.TestCaseEntity", "TestCase")
+                    b.HasOne("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", "TestCaseInfo")
                         .WithMany()
                         .HasForeignKey("TestCaseId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -502,7 +502,7 @@ namespace SpojDebug.Data.EF.Migrations
                         .HasForeignKey("SpojDebug.Core.Entities.Submission.SubmissionEntity", "ResultId");
                 });
 
-            modelBuilder.Entity("SpojDebug.Core.Entities.TestCase.TestCaseEntity", b =>
+            modelBuilder.Entity("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", b =>
                 {
                     b.HasOne("SpojDebug.Core.Entities.Problem.ProblemEntity", "Problem")
                         .WithMany()

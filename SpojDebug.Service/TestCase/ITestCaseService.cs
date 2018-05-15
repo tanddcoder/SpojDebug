@@ -3,7 +3,7 @@ using SpojDebug.Core.Entities.TestCase;
 
 namespace SpojDebug.Service.TestCase
 {
-    public interface ITestCaseService : IService<TestCaseEntity>
+    public interface ITestCaseService : IService<TestCaseInfoEntity>
     {
         
     }

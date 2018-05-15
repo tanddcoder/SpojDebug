@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using SpojDebug.Business.Logic.Base;
 using SpojDebug.Business.AdminSetting;
 using SpojDebug.Core.Entities.AdminSetting;
@@ -7,6 +8,9 @@ using SpojDebug.Data.Repositories.AdminSetting;
 using SpojDebug.Ultil.Spoj;
 using SpojDebug.Ultil.Exception;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using SpojDebug.Ultil.DataSecurity;
@@ -18,6 +22,7 @@ using SpojDebug.Data.Repositories.Problem;
 using SpojDebug.Data.Repositories.Account;
 using SpojDebug.Data.Repositories.Submission;
 using SpojDebug.Core.Entities.Submission;
+using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Data.Repositories.Result;
 
 namespace SpojDebug.Business.Logic.AdminSetting
@@ -31,6 +36,14 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private readonly SpojKey _spojKey;
 
         private readonly SpojInfo _spojInfo;
+
+        private readonly string _submissionDetailUrl;
+
+        private readonly string _inputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.in";
+
+        private readonly string _outputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.out";
+
+        private readonly string _spojProblemInfoUrl = "http://www.spoj.com/problems/{0}/edit/";
 
         private readonly IProblemRepository _problemRepository;
 
@@ -57,6 +70,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _spojInfo = spojInfo;
             _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", _spojInfo.ContestName);
             _rankUrl = $"http://www.spoj.com/{_spojInfo.ContestName}/ranks/";
+            _submissionDetailUrl = "http://www.spoj.com/{0}/files/psinfo/{1}/";
 
             _problemRepository = problemRepository;
             _accountRepository = accountRepository;
@@ -75,7 +89,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 {
 
                     var (username, password) = GetAdminUsernameAndPassword();
-                    if(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                         continue;
                     var result = client.LoginAsync(username, password);
                     result.Wait();
@@ -124,6 +138,52 @@ namespace SpojDebug.Business.Logic.AdminSetting
             setting.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, _spojKey.ForPassword);
             Repository.Update(setting);
             Repository.SaveChanges();
+        }
+
+        public void DownloadSpojTestCases()
+        {
+            while (true)
+            {
+                var watch = Stopwatch.StartNew();
+                using (var client = new SpojClient())
+                {
+                    var (username, password) = GetAdminUsernameAndPassword();
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                        continue;
+
+                    while (true)
+                    {
+                        Thread.Sleep(60000);
+                        var problem = _problemRepository.Get(x => x.IsDownloadedTestCase != true).FirstOrDefault();
+                        if (problem == null) continue;
+
+                        var maxTestCase = client.GetTotalTestCase(problem.Code);
+                        var testCaseEntity = new TestCaseInfoEntity
+                        {
+                            ProblemId = problem.Id,
+                            TotalTestCase = maxTestCase
+                        };
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+
+
+                        for (var i = 0; i <= maxTestCase; i++)
+                        {
+                            var input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
+                            var output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                            File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
+                            File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
+                        }
+
+                        problem.IsDownloadedTestCase = true;
+                        problem.DownloadTestCaseTime = DateTime.Now;
+                        _problemRepository.Update(problem);
+
+                        var a = watch.ElapsedMilliseconds;
+                        if (a > 600000) break;
+                    }
+                }
+                watch.Stop();
+            }
         }
 
         public AdminSettingSpojAccountResponseModel GetSpojAccount()
@@ -256,7 +316,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 if (!problemsInfo.ContainsKey(spojProblemId)) continue;
                 var problemInfo = problemsInfo[spojProblemId];
-                
+
                 var submission = new SpojSubmissionModel
                 {
                     Id = id,
@@ -278,8 +338,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         Score = submission.Score,
                         RunTime = submission.RunTime,
                         Language = languageText,
-                        ProblemId = internalProblemId == 0 ? (int?) null : internalProblemId,
-                        AccountId = internalAccountId == 0 ? (int?) null : internalAccountId
+                        ProblemId = internalProblemId == 0 ? (int?)null : internalProblemId,
+                        AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
                     };
                     _submissionRepository.Insert(entity);
                     _submissionRepository.SaveChanges();

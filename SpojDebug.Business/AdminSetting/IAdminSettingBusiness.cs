@@ -11,5 +11,7 @@ namespace SpojDebug.Business.AdminSetting
         AdminSettingSpojAccountResponseModel GetSpojAccount();
 
         void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
+
+        void DownloadSpojTestCases();
     }
 }

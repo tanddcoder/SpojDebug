@@ -10,7 +10,7 @@ namespace SpojDebug.Core.Entities.ResultDetail
         public int TestCaseId { get; set; }
         public Enums.ResultType ResultType { get; set; }
 
-        public TestCaseEntity TestCase { get; set; }
+        public TestCaseInfoEntity TestCaseInfo { get; set; }
         public ResultEntity Result { get; set; }
 
     }

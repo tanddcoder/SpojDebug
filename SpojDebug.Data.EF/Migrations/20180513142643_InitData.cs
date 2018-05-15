@@ -254,7 +254,7 @@ namespace SpojDebug.Data.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestCase",
+                name: "TestCaseInfo",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -353,7 +353,7 @@ namespace SpojDebug.Data.EF.Migrations
                     table.ForeignKey(
                         name: "FK_ResultDetail_TestCase_TestCaseId",
                         column: x => x.TestCaseId,
-                        principalTable: "TestCase",
+                        principalTable: "TestCaseInfo",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -431,7 +431,7 @@ namespace SpojDebug.Data.EF.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_TestCase_ProblemId",
-                table: "TestCase",
+                table: "TestCaseInfo",
                 column: "ProblemId");
         }
 
@@ -465,7 +465,7 @@ namespace SpojDebug.Data.EF.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "TestCase");
+                name: "TestCaseInfo");
 
             migrationBuilder.DropTable(
                 name: "Account");

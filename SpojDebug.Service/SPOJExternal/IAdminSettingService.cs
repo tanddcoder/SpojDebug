@@ -13,5 +13,7 @@ namespace SpojDebug.Service.SPOJExternal
         ApplicationResult<AdminSettingSpojAccountResponseModel> GetSpojAccount();
 
         ApplicationResult UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
+
+        void DownloadSpojTestCases();
     }
 }

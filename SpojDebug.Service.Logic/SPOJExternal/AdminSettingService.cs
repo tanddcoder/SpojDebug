@@ -34,5 +34,10 @@ namespace SpojDebug.Service.Logic.AdminSetting
 
             return ApplicationResult.Ok();
         }
+
+        public void DownloadSpojTestCases()
+        {
+            _spojBusiness.DownloadSpojTestCases();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SpojDebug.Core.Entities.Submission;
+﻿using System;
+using SpojDebug.Core.Entities.Submission;
 using System.Collections.Generic;
 
 namespace SpojDebug.Core.Entities.Problem
@@ -12,6 +13,8 @@ namespace SpojDebug.Core.Entities.Problem
         public string Name { get; set; }
         public int Type { get; set; }
         public float? TimeLimit { get; set; }
+        public bool? IsDownloadedTestCase { get; set; }
+        public DateTime? DownloadTestCaseTime { get; set; }
 
         public List<SubmissionEntity> Submissions { get; set; } = new List<SubmissionEntity>();
     }

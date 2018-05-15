@@ -24,7 +24,7 @@ namespace SpojDebug.Data.EF.Contexts
         public DbSet<ResultEntity> Results { get; set; }
         public DbSet<ResultDetailEntity> ResultDetails { get; set; }
         public DbSet<SubmissionEntity> Submissions { get; set; }
-        public DbSet<TestCaseEntity> TestCases { get; set; }
+        public DbSet<TestCaseInfoEntity> TestCases { get; set; }
         public DbSet<AdminSettingEntity> AdminSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

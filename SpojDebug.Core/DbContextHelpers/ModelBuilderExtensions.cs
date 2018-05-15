@@ -19,7 +19,7 @@ namespace SpojDebug.Core.DbContextHelpers
             builder.Entity<ResultEntity>().ToTable("Result");
             builder.Entity<ResultDetailEntity>().ToTable("ResultDetail");
             builder.Entity<SubmissionEntity>().ToTable("Submission");
-            builder.Entity<TestCaseEntity>().ToTable("TestCase");
+            builder.Entity<TestCaseInfoEntity>().ToTable("TestCaseInfo");
             builder.Entity<AdminSettingEntity>().ToTable("AdminSetting");
         }
 

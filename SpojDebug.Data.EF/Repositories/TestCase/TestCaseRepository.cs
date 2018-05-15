@@ -5,7 +5,7 @@ using SpojDebug.Data.Repositories.TestCase;
 
 namespace SpojDebug.Data.EF.Repositories.TestCase
 {
-    public class TestCaseRepository : Repository<SpojDebugDbContext, TestCaseEntity>, ITestCaseRepository
+    public class TestCaseRepository : Repository<SpojDebugDbContext, TestCaseInfoEntity>, ITestCaseRepository
     {
         public TestCaseRepository(SpojDebugDbContext context) : base(context)
         {

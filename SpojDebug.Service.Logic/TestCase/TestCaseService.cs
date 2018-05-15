@@ -5,7 +5,7 @@ using SpojDebug.Service.TestCase;
 
 namespace SpojDebug.Service.Logic.TestCase
 {
-    public class TestCaseService : Service<ITestCaseBusiness, TestCaseEntity>, ITestCaseService
+    public class TestCaseService : Service<ITestCaseBusiness, TestCaseInfoEntity>, ITestCaseService
     {
         
     }
