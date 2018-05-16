@@ -15,6 +15,10 @@ namespace SpojDebug.Core.Entities.Submission
         public float Score { get; set; }
         public float RunTime { get; set; }
         public string Language { get; set; }
+        public bool? IsDownloadedInfo { get; set; }
+        public DateTime? DownloadedTime { get; set; }
+        public bool? IsNotHaveEnoughInfo { get; set; }
+        public int? TotalResult { get; set; }
 
         public AccountEntity Account { get; set; }
         public ProblemEntity Problem { get; set; }

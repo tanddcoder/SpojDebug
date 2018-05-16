@@ -8,12 +8,10 @@ namespace SpojDebug.Core.Entities.Result
     public class ResultEntity : BaseEntity<int>
     {
         public int SubmmissionId { get; set; }
-        public Enums.ResultType? FinalResult { get; set; }
-        public int? AcceptedResultCount { get; set; }
-        public int? TotalResult { get; set; }
+        public int TestCaseSeq { get; set; }
+        public Enums.ResultType Result { get; set; }
 
         public SubmissionEntity Submission { get; set; }
-        public List<ResultDetailEntity> ResultDetails { get; set; }
         
     }
 }

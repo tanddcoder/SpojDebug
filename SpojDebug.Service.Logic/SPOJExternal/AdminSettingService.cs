@@ -39,5 +39,10 @@ namespace SpojDebug.Service.Logic.AdminSetting
         {
             _spojBusiness.DownloadSpojTestCases();
         }
+
+        public void GetSubmissionInfo()
+        {
+            _spojBusiness.GetSubmissionInfo();
+        }
     }
 }

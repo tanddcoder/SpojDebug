@@ -107,6 +107,7 @@ namespace SpojDebug
             PurgeJobs(monitor);
             BackgroundJob.Enqueue(() => adminservice.GetSpojInfo());
             BackgroundJob.Enqueue(() => adminservice.DownloadSpojTestCases());
+            BackgroundJob.Enqueue(() => adminservice.GetSubmissionInfo());
         }
 
         public static void PurgeJobs(IMonitoringApi monitor)

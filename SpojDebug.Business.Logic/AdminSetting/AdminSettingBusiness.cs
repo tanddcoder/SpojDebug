@@ -12,11 +12,15 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 using SpojDebug.Ultil.DataSecurity;
 using SpojDebug.Core.AppSetting;
+using SpojDebug.Core.Constant;
 using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Entities.Problem;
+using SpojDebug.Core.Entities.Result;
 using SpojDebug.Core.Models.AdminSetting;
 using SpojDebug.Data.Repositories.Problem;
 using SpojDebug.Data.Repositories.Account;
@@ -24,6 +28,7 @@ using SpojDebug.Data.Repositories.Submission;
 using SpojDebug.Core.Entities.Submission;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Data.Repositories.Result;
+using SpojDebug.Data.Repositories.TestCase;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -37,13 +42,13 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly SpojInfo _spojInfo;
 
-        private readonly string _submissionDetailUrl;
-
         private readonly string _inputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.in";
 
         private readonly string _outputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.out";
 
         private readonly string _spojProblemInfoUrl = "http://www.spoj.com/problems/{0}/edit/";
+
+        private readonly string _submissionInfoUrl = "http://www.spoj.com/{0}/files/psinfo/{1}/";
 
         private readonly IProblemRepository _problemRepository;
 
@@ -55,6 +60,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly IResultDetailRepository _resultDetailRepository;
 
+        private readonly ITestCaseRepository _testCaseRepository;
+
         public AdminSettingBusiness(
             IAdminSettingRepository repository,
             IMapper mapper,
@@ -64,49 +71,56 @@ namespace SpojDebug.Business.Logic.AdminSetting
             IAccountRepository accountRepository,
             ISubmissionRepository submissionRepository,
             IResultRepository resultRepository,
-            IResultDetailRepository resultDetailRepository) : base(repository, mapper)
+            IResultDetailRepository resultDetailRepository, ITestCaseRepository testCaseRepository) : base(repository, mapper)
         {
             _spojKey = spojKey;
             _spojInfo = spojInfo;
             _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", _spojInfo.ContestName);
             _rankUrl = $"http://www.spoj.com/{_spojInfo.ContestName}/ranks/";
-            _submissionDetailUrl = "http://www.spoj.com/{0}/files/psinfo/{1}/";
 
             _problemRepository = problemRepository;
             _accountRepository = accountRepository;
             _submissionRepository = submissionRepository;
             _resultRepository = resultRepository;
             _resultDetailRepository = resultDetailRepository;
+            _testCaseRepository = testCaseRepository;
         }
 
         public void GetSpojInfo()
         {
             while (true)
             {
-                var text = "";
-
-                using (var client = new SpojClient())
+                try
                 {
+                    var text = "";
 
-                    var (username, password) = GetAdminUsernameAndPassword();
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                        continue;
-                    var result = client.LoginAsync(username, password);
-                    result.Wait();
-                    text = client.GetText(_rankUrl);
-                    Thread.Sleep(1000);
-                    text = client.GetText(_downloadUrl);
+                    using (var client = new SpojClient())
+                    {
+
+                        var (username, password) = GetAdminUsernameAndPassword();
+                        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                            continue;
+                        var result = client.LoginAsync(username, password);
+                        result.Wait();
+                        text = client.GetText(_rankUrl);
+                        Thread.Sleep(1000);
+                        text = client.GetText(_downloadUrl);
+                    }
+
+                    var tokenizer = new SpojDataTokenizer(text);
+
+                    var contest = ParseContest(tokenizer);
+                    contest.ProblemsInfo = ParseProblems(tokenizer);
+                    contest.Users = ParseUsers(tokenizer);
+
+                    ParseUserSubmissions(tokenizer, contest.Users, contest.ProblemsInfo);
+
+                    Thread.Sleep(300000);
                 }
-
-                var tokenizer = new SpojDataTokenizer(text);
-
-                var contest = ParseContest(tokenizer);
-                contest.ProblemsInfo = ParseProblems(tokenizer);
-                contest.Users = ParseUsers(tokenizer);
-
-                ParseUserSubmissions(tokenizer, contest.Users, contest.ProblemsInfo);
-
-                Thread.Sleep(300000);
+                catch (Exception e)
+                {
+                    //ignore
+                }
             }
         }
 
@@ -144,46 +158,143 @@ namespace SpojDebug.Business.Logic.AdminSetting
         {
             while (true)
             {
-                var watch = Stopwatch.StartNew();
-                using (var client = new SpojClient())
+                try
                 {
-                    var (username, password) = GetAdminUsernameAndPassword();
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                        continue;
-
-                    while (true)
+                    var watch = Stopwatch.StartNew();
+                    using (var client = new SpojClient())
                     {
-                        Thread.Sleep(60000);
-                        var problem = _problemRepository.Get(x => x.IsDownloadedTestCase != true).FirstOrDefault();
-                        if (problem == null) continue;
-
-                        var maxTestCase = client.GetTotalTestCase(problem.Code);
-                        var testCaseEntity = new TestCaseInfoEntity
+                        var (username, password) = GetAdminUsernameAndPassword();
+                        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                            continue;
+                        var result = client.LoginAsync(username, password);
+                        result.Wait();
+                        while (true)
                         {
-                            ProblemId = problem.Id,
-                            TotalTestCase = maxTestCase
-                        };
-                        var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+                            Thread.Sleep(60000);
+                            var problem = _problemRepository.Get(x => x.IsDownloadedTestCase != true).FirstOrDefault();
+                            if (problem == null) continue;
 
+                            var maxTestCase = client.GetTotalTestCase(problem.Code);
 
-                        for (var i = 0; i <= maxTestCase; i++)
-                        {
-                            var input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
-                            var output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
-                            File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
-                            File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
+                            var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+
+                            _testCaseRepository.Insert(new TestCaseInfoEntity
+                            {
+                                ProblemId = problem.Id,
+                                TotalTestCase = maxTestCase,
+                                Path = path
+                            });
+
+                            for (var i = 0; i <= maxTestCase; i++)
+                            {
+                                var input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
+                                var output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                                File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
+                                File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
+                            }
+
+                            problem.IsDownloadedTestCase = true;
+                            problem.DownloadTestCaseTime = DateTime.Now;
+                            _problemRepository.Update(problem);
+                            _problemRepository.SaveChanges();
+
+                            // after 10 minutes, we login again
+                            var a = watch.ElapsedMilliseconds;
+                            if (a > 600000) break;
                         }
-
-                        problem.IsDownloadedTestCase = true;
-                        problem.DownloadTestCaseTime = DateTime.Now;
-                        _problemRepository.Update(problem);
-
-                        var a = watch.ElapsedMilliseconds;
-                        if (a > 600000) break;
                     }
+                    watch.Stop();
                 }
-                watch.Stop();
+                catch (Exception e)
+                {
+                    // ignore
+                    Thread.Sleep(120000);
+                }
             }
+        }
+
+        public void GetSubmissionInfo()
+        {
+            while (true)
+            {
+                try
+                {
+                    var watch = Stopwatch.StartNew();
+                    using (var client = new SpojClient())
+                    {
+                        var (username, password) = GetAdminUsernameAndPassword();
+                        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                            continue;
+                        var result = client.LoginAsync(username, password);
+                        result.Wait();
+
+                        while (true)
+                        {
+                            Thread.Sleep(60000);
+                            var submission = _submissionRepository.Get(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true).Include(x => x.Problem).FirstOrDefault();
+                            if (submission == null) continue;
+                            if (submission.Problem == null)
+                            {
+                                submission.IsNotHaveEnoughInfo = true;
+                                _submissionRepository.Update(submission);
+                                _submissionRepository.SaveChanges();
+                                continue;
+                            }
+
+                            var plaintext = client.GetText(string.Format(_submissionInfoUrl, submission.Problem.Code, submission.SpojId));
+                            var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
+                            
+                            foreach (Match match in matches)
+                            {
+                                var resultType = GetResultType(match.Groups[2].Value);
+
+                                _resultRepository.Insert(new ResultEntity
+                                {
+                                    SubmmissionId = submission.Id,
+                                    TestCaseSeq = int.Parse(match.Groups[1].Value),
+                                    Result = resultType
+                                });
+
+                                _resultRepository.SaveChanges();
+                            }
+
+                            submission.IsDownloadedInfo = true;
+                            submission.DownloadedTime = DateTime.Now;
+                            _submissionRepository.Update(submission);
+
+                            // after 10 minutes, we login again
+                            var a = watch.ElapsedMilliseconds;
+                            if (a > 600000) break;
+                        }
+                    }
+                    watch.Stop();
+                }
+                catch (Exception e)
+                {
+                    // ignore / writelog
+                    Thread.Sleep(120000);
+                }
+            }
+        }
+
+        private Enums.ResultType GetResultType(string resultString)
+        {
+            switch (resultString)
+            {
+                case "AC":
+                    return Enums.ResultType.Accepted;
+
+                case "WA":
+                    return Enums.ResultType.WrongAnswer;
+
+                case "TLE":
+                    return Enums.ResultType.TimeLimited;
+
+                case "RE":
+                    return Enums.ResultType.RuntimeError;
+            }
+
+            return Enums.ResultType.Unknown;
         }
 
         public AdminSettingSpojAccountResponseModel GetSpojAccount()
@@ -343,12 +454,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     };
                     _submissionRepository.Insert(entity);
                     _submissionRepository.SaveChanges();
-                    //GetSubmissionResult(submission.Id);
                 }
-                //_resultRepository.Insert(new ResultEntity
-                //{
-                //    SubmmissionId = submissionEntity.Id
-                //});
 
                 SpojUserModel user = null;
                 if (users.TryGetValue(userId, out user))

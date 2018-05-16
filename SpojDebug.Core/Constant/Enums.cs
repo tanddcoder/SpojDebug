@@ -32,6 +32,9 @@ namespace SpojDebug.Core.Constant
 
             [Display(Name = "Accepted")]
             Accepted = 6,
+
+            [Display(Name = "Unknown")]
+            Unknown = 7,
         }
 
         public enum UserRole
