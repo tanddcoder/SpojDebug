@@ -24,7 +24,7 @@ namespace SpojDebug.Business.Logic.Base
 
         public virtual List<TModel> Get<TModel>(Expression<Func<TEntity, bool>> expression, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, params Expression<Func<TEntity, object>>[] includeProperties) where TModel : class
         {
-            var query = Repository.Get(expression,null, includeProperties);
+            var query = Repository.Get(expression);
             var result = _mapper.Map<List<TModel>>(query.ToList());
             return result;
         }

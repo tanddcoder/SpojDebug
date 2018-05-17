@@ -210,6 +210,12 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedTime");
 
+                    b.Property<DateTime?>("DownloadTestCaseTime");
+
+                    b.Property<bool?>("IsDownloadedTestCase");
+
+                    b.Property<bool?>("IsSkip");
+
                     b.Property<int?>("LastUpdatedBy");
 
                     b.Property<DateTimeOffset?>("LastUpdatedTime");
@@ -236,8 +242,6 @@ namespace SpojDebug.Data.EF.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("AcceptedResultCount");
-
                     b.Property<int?>("CreatedBy");
 
                     b.Property<DateTimeOffset?>("CreatedTime");
@@ -246,51 +250,19 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedTime");
 
-                    b.Property<int?>("FinalResult");
-
                     b.Property<int?>("LastUpdatedBy");
 
                     b.Property<DateTimeOffset?>("LastUpdatedTime");
 
+                    b.Property<int>("Result");
+
                     b.Property<int>("SubmmissionId");
 
-                    b.Property<int?>("TotalResult");
+                    b.Property<int>("TestCaseSeq");
 
                     b.HasKey("Id");
 
                     b.ToTable("Result");
-                });
-
-            modelBuilder.Entity("SpojDebug.Core.Entities.ResultDetail.ResultDetailEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("CreatedBy");
-
-                    b.Property<DateTimeOffset?>("CreatedTime");
-
-                    b.Property<int?>("DeletedBy");
-
-                    b.Property<DateTimeOffset?>("DeletedTime");
-
-                    b.Property<int?>("LastUpdatedBy");
-
-                    b.Property<DateTimeOffset?>("LastUpdatedTime");
-
-                    b.Property<int>("ResultId");
-
-                    b.Property<int>("ResultType");
-
-                    b.Property<int>("TestCaseId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ResultId");
-
-                    b.HasIndex("TestCaseId");
-
-                    b.ToTable("ResultDetail");
                 });
 
             modelBuilder.Entity("SpojDebug.Core.Entities.Submission.SubmissionEntity", b =>
@@ -307,6 +279,12 @@ namespace SpojDebug.Data.EF.Migrations
                     b.Property<int?>("DeletedBy");
 
                     b.Property<DateTimeOffset?>("DeletedTime");
+
+                    b.Property<DateTime?>("DownloadedTime");
+
+                    b.Property<bool?>("IsDownloadedInfo");
+
+                    b.Property<bool?>("IsNotHaveEnoughInfo");
 
                     b.Property<string>("Language");
 
@@ -326,6 +304,8 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<DateTime>("SubmitTime");
 
+                    b.Property<int?>("TotalResult");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -339,7 +319,7 @@ namespace SpojDebug.Data.EF.Migrations
                     b.ToTable("Submission");
                 });
 
-            modelBuilder.Entity("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", b =>
+            modelBuilder.Entity("SpojDebug.Core.Entities.TestCase.TestCaseInfoEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -352,17 +332,15 @@ namespace SpojDebug.Data.EF.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedTime");
 
-                    b.Property<string>("Input");
-
                     b.Property<int?>("LastUpdatedBy");
 
                     b.Property<DateTimeOffset?>("LastUpdatedTime");
 
-                    b.Property<string>("Output");
+                    b.Property<string>("Path");
 
                     b.Property<int>("ProblemId");
 
-                    b.Property<int>("SeqNum");
+                    b.Property<int>("TotalTestCase");
 
                     b.HasKey("Id");
 
@@ -474,19 +452,6 @@ namespace SpojDebug.Data.EF.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("SpojDebug.Core.Entities.ResultDetail.ResultDetailEntity", b =>
-                {
-                    b.HasOne("SpojDebug.Core.Entities.Result.ResultEntity", "Result")
-                        .WithMany("ResultDetails")
-                        .HasForeignKey("ResultId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", "TestCaseInfo")
-                        .WithMany()
-                        .HasForeignKey("TestCaseId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("SpojDebug.Core.Entities.Submission.SubmissionEntity", b =>
                 {
                     b.HasOne("SpojDebug.Core.Entities.Account.AccountEntity", "Account")
@@ -502,7 +467,7 @@ namespace SpojDebug.Data.EF.Migrations
                         .HasForeignKey("SpojDebug.Core.Entities.Submission.SubmissionEntity", "ResultId");
                 });
 
-            modelBuilder.Entity("SpojDebug.Core.Entities.TestCaseInfo.TestCaseInfoEntity", b =>
+            modelBuilder.Entity("SpojDebug.Core.Entities.TestCase.TestCaseInfoEntity", b =>
                 {
                     b.HasOne("SpojDebug.Core.Entities.Problem.ProblemEntity", "Problem")
                         .WithMany()

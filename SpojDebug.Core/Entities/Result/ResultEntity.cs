@@ -1,5 +1,4 @@
 ﻿using SpojDebug.Core.Constant;
-using SpojDebug.Core.Entities.ResultDetail;
 using SpojDebug.Core.Entities.Submission;
 using System.Collections.Generic;
 

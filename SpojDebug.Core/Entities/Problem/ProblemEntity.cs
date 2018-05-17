@@ -15,6 +15,7 @@ namespace SpojDebug.Core.Entities.Problem
         public float? TimeLimit { get; set; }
         public bool? IsDownloadedTestCase { get; set; }
         public DateTime? DownloadTestCaseTime { get; set; }
+        public bool? IsSkip { get; set; }
 
         public List<SubmissionEntity> Submissions { get; set; } = new List<SubmissionEntity>();
     }

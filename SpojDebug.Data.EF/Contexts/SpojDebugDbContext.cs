@@ -5,7 +5,6 @@ using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Entities.Problem;
 using SpojDebug.Core.Entities.Result;
-using SpojDebug.Core.Entities.ResultDetail;
 using SpojDebug.Core.Entities.Submission;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Core.User;
@@ -22,7 +21,6 @@ namespace SpojDebug.Data.EF.Contexts
         public DbSet<AccountEntity> Accounts { get; set; }
         public DbSet<ProblemEntity> Problems { get; set; }
         public DbSet<ResultEntity> Results { get; set; }
-        public DbSet<ResultDetailEntity> ResultDetails { get; set; }
         public DbSet<SubmissionEntity> Submissions { get; set; }
         public DbSet<TestCaseInfoEntity> TestCases { get; set; }
         public DbSet<AdminSettingEntity> AdminSettings { get; set; }
@@ -30,7 +28,12 @@ namespace SpojDebug.Data.EF.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.SetTableNames();
-            builder.SetRuleForEntities();
+
+            builder.Entity<ProblemEntity>().HasIndex(x => x.SpojId).IsUnique();
+            builder.Entity<ResultEntity>().HasIndex(x => x.SubmmissionId).IsUnique();
+            builder.Entity<SubmissionEntity>().HasIndex(x => x.SpojId).IsUnique();
+            builder.Entity<TestCaseInfoEntity>().HasIndex(x => x.ProblemId).IsUnique();
+            builder.Entity<AccountEntity>().HasIndex(x => x.SpojUserId).IsUnique();
 
             base.OnModelCreating(builder);
             // Customize the ASP.NET Identity model and override the defaults if needed.

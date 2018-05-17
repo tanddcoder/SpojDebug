@@ -14,4 +14,3 @@ D:\GitRepositories\SpojDebug\SpojDebug.Mapper\obj\Debug\netstandard2.0\SpojDebug
 D:\GitRepositories\SpojDebug\SpojDebug.Mapper\obj\Debug\netstandard2.0\SpojDebug.Mapper.AssemblyInfo.cs
 D:\GitRepositories\SpojDebug\SpojDebug.Mapper\obj\Debug\netstandard2.0\SpojDebug.Mapper.dll
 D:\GitRepositories\SpojDebug\SpojDebug.Mapper\obj\Debug\netstandard2.0\SpojDebug.Mapper.pdb
-D:\GitRepositories\SpojDebug\SpojDebug.Mapper\obj\Debug\netstandard2.0\SpojDebug.Mapper.csprojResolveAssemblyReference.cache

@@ -21,34 +21,28 @@ namespace SpojDebug.Data.EF.Base
         }
 
         public virtual IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            params Expression<Func<TEntity, object>>[] includeProperties)
+            Expression<Func<TEntity, bool>> filter = null)
         {
-            IQueryable<TEntity> query = DbSet;
-
+            var query = DbSet.AsNoTracking();
+            
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
-
-            return orderBy != null ? orderBy(query) : query;
+            return query;
         }
 
         public TEntity GetSingle(
-            Expression<Func<TEntity, bool>> filter = null, 
-            params Expression<Func<TEntity, object>>[] includeProperties)
+            Expression<Func<TEntity, bool>> filter = null)
         {
-            IQueryable<TEntity> query = DbSet;
-
+            
+            var query = DbSet.AsNoTracking();
+            
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-
-            query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
 
             return query.FirstOrDefault();
 
@@ -79,10 +73,18 @@ namespace SpojDebug.Data.EF.Base
             DbSet.Remove(entityToDelete);
         }
 
-        public virtual void Update(TEntity entityToUpdate)
+        public virtual bool TryToUpdate(TEntity entityToUpdate)
         {
-            DbSet.Attach(entityToUpdate);
-            Context.Entry(entityToUpdate).State = EntityState.Modified;
+            TryAttach(entityToUpdate);
+            try
+            {
+                Context.Entry(entityToUpdate).State = EntityState.Modified;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public int SaveChanges()
@@ -90,6 +92,20 @@ namespace SpojDebug.Data.EF.Base
             return Context.SaveChanges();
         }
 
-        
+        private bool TryAttach(TEntity entity)
+        {
+            try
+            {
+                if (Context.Entry(entity).State == EntityState.Detached)
+                    DbSet.Attach(entity);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
     }
 }

@@ -3,7 +3,6 @@ using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Entities.Problem;
 using SpojDebug.Core.Entities.Result;
-using SpojDebug.Core.Entities.ResultDetail;
 using SpojDebug.Core.Entities.Submission;
 using SpojDebug.Core.Entities.TestCase;
 
@@ -17,7 +16,6 @@ namespace SpojDebug.Core.DbContextHelpers
             builder.Entity<AccountEntity>().ToTable("Account");
             builder.Entity<ProblemEntity>().ToTable("Problem");
             builder.Entity<ResultEntity>().ToTable("Result");
-            builder.Entity<ResultDetailEntity>().ToTable("ResultDetail");
             builder.Entity<SubmissionEntity>().ToTable("Submission");
             builder.Entity<TestCaseInfoEntity>().ToTable("TestCaseInfo");
             builder.Entity<AdminSettingEntity>().ToTable("AdminSetting");

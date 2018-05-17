@@ -49,7 +49,6 @@ namespace SpojDebug.Extensions
         public static void ResolveRepositories(this IServiceCollection services)
         {
             services.AddScoped<IResultRepository, ResultRepository>();
-            services.AddScoped<IResultDetailRepository, ResultDetailRepository>();
             services.AddScoped<ISubmissionRepository, SubmissionRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IProblemRepository, ProblemRepository>();
@@ -65,7 +64,6 @@ namespace SpojDebug.Extensions
         public static void ResolveScopedServices(this IServiceCollection services)
         {
             services.AddScoped<IResultService, ResultService>();
-            services.AddScoped<IResultDetailService, ResultDetailService>();
             services.AddScoped<ISubmissionService, SubmissionService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IProblemService, ProblemService>();
@@ -77,7 +75,6 @@ namespace SpojDebug.Extensions
         public static void ResolveScopedBusiness(this IServiceCollection services)
         {
             services.AddScoped<IResultBusiness, ResultBusiness>();
-            services.AddScoped<IResultDetailBusiness, ResultDetailBusiness>();
             services.AddScoped<ISubmissionBusiness, SubmissionBusiness>();
             services.AddScoped<IAccountBusiness, AccountBusiness>();
             services.AddScoped<IProblemBusiness, ProblemBusiness>();

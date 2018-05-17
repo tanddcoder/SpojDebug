@@ -58,8 +58,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly IResultRepository _resultRepository;
 
-        private readonly IResultDetailRepository _resultDetailRepository;
-
         private readonly ITestCaseRepository _testCaseRepository;
 
         public AdminSettingBusiness(
@@ -71,7 +69,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             IAccountRepository accountRepository,
             ISubmissionRepository submissionRepository,
             IResultRepository resultRepository,
-            IResultDetailRepository resultDetailRepository, ITestCaseRepository testCaseRepository) : base(repository, mapper)
+            ITestCaseRepository testCaseRepository) : base(repository, mapper)
         {
             _spojKey = spojKey;
             _spojInfo = spojInfo;
@@ -82,7 +80,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _accountRepository = accountRepository;
             _submissionRepository = submissionRepository;
             _resultRepository = resultRepository;
-            _resultDetailRepository = resultDetailRepository;
             _testCaseRepository = testCaseRepository;
         }
 
@@ -120,6 +117,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 catch (Exception e)
                 {
                     //ignore
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Log/Error.txt");
+                    File.AppendAllText(path, e.StackTrace);
                 }
             }
         }
@@ -150,7 +149,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
             setting.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, _spojKey.ForUserName);
             setting.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, _spojKey.ForPassword);
-            Repository.Update(setting);
+            Repository.TryToUpdate(setting);
             Repository.SaveChanges();
         }
 
@@ -171,12 +170,30 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         while (true)
                         {
                             Thread.Sleep(60000);
-                            var problem = _problemRepository.Get(x => x.IsDownloadedTestCase != true).FirstOrDefault();
-                            if (problem == null) continue;
+                            var aa = _problemRepository.Get();
+                            var problem = _problemRepository.Get().FirstOrDefault(x => x.IsDownloadedTestCase != true && x.IsSkip != true);
+                            if (problem == null)
+                                continue;
+                            if (!Regex.IsMatch(problem.Code, "^EI\\w+"))
+                            {
+                                problem.IsSkip = true;
+                                _problemRepository.TryToUpdate(problem);
+                                _problemRepository.SaveChanges();
+                                continue;
+                            }
 
-                            var maxTestCase = client.GetTotalTestCase(problem.Code);
+                            var maxTestCase = 0;
+                            try
+                            {
+                                maxTestCase = client.GetTotalTestCase(problem.Code);
+                            }
+                            catch (Exception e)
+                            {
+                                
+                            }
 
                             var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+                            Directory.CreateDirectory(path);
 
                             _testCaseRepository.Insert(new TestCaseInfoEntity
                             {
@@ -187,15 +204,24 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                             for (var i = 0; i <= maxTestCase; i++)
                             {
-                                var input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
-                                var output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                                var input = "";
+                                var output = "";
+                                try
+                                {
+                                    input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
+                                    output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                                }
+                                catch (Exception e)
+                                {
+                                    
+                                }
                                 File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
                                 File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
                             }
 
                             problem.IsDownloadedTestCase = true;
                             problem.DownloadTestCaseTime = DateTime.Now;
-                            _problemRepository.Update(problem);
+                            _problemRepository.TryToUpdate(problem);
                             _problemRepository.SaveChanges();
 
                             // after 10 minutes, we login again
@@ -208,6 +234,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 catch (Exception e)
                 {
                     // ignore
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
+                    File.AppendAllText(path, e.StackTrace);
                     Thread.Sleep(120000);
                 }
             }
@@ -231,19 +259,29 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         while (true)
                         {
                             Thread.Sleep(60000);
-                            var submission = _submissionRepository.Get(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true).Include(x => x.Problem).FirstOrDefault();
+                            var aa = _submissionRepository.Get()
+                                .Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true)
+                                .Include(x => x.Problem).ToList(); ;
+                            var submission = _submissionRepository.Get().Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true).Include(x => x.Problem).FirstOrDefault();
                             if (submission == null) continue;
                             if (submission.Problem == null)
                             {
                                 submission.IsNotHaveEnoughInfo = true;
-                                _submissionRepository.Update(submission);
+                                _submissionRepository.TryToUpdate(submission);
                                 _submissionRepository.SaveChanges();
                                 continue;
                             }
+                            if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
+                            {
+                                submission.Problem.IsSkip = true;
+                                _problemRepository.TryToUpdate(submission.Problem);
+                                _problemRepository.SaveChanges();
+                                continue;
+                            }
 
-                            var plaintext = client.GetText(string.Format(_submissionInfoUrl, submission.Problem.Code, submission.SpojId));
+                            var plaintext = client.GetText(string.Format(_submissionInfoUrl, _spojInfo.ContestName, submission.SpojId));
                             var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
-                            
+
                             foreach (Match match in matches)
                             {
                                 var resultType = GetResultType(match.Groups[2].Value);
@@ -260,7 +298,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                             submission.IsDownloadedInfo = true;
                             submission.DownloadedTime = DateTime.Now;
-                            _submissionRepository.Update(submission);
+                            _submissionRepository.TryToUpdate(submission);
 
                             // after 10 minutes, we login again
                             var a = watch.ElapsedMilliseconds;
@@ -272,6 +310,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 catch (Exception e)
                 {
                     // ignore / writelog
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
+                    File.AppendAllText(path, e.StackTrace);
                     Thread.Sleep(120000);
                 }
             }

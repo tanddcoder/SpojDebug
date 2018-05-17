@@ -8,13 +8,10 @@ namespace SpojDebug.Data.Base
     public interface IRepository<TEntity> where TEntity : class
     {
         IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            params Expression<Func<TEntity, object>>[] includeProperties);
+            Expression<Func<TEntity, bool>> filter = null);
 
         TEntity GetSingle(
-            Expression<Func<TEntity, bool>> filter = null,
-            params Expression<Func<TEntity, object>>[] includeProperties);
+            Expression<Func<TEntity, bool>> filter = null);
 
         TEntity GetById(object id);
 
@@ -22,7 +19,7 @@ namespace SpojDebug.Data.Base
 
         void Delete(TEntity entityToDelete);
 
-        void Update(TEntity entityToUpdate);
+        bool TryToUpdate(TEntity entityToUpdate);
 
         int SaveChanges();
     }
