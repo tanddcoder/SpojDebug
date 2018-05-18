@@ -87,6 +87,7 @@ namespace SpojDebug.Extensions
         {
             services.AddSingleton(configuration.GetSection("SpojKey").Get<SpojKey>());
             services.AddSingleton(configuration.GetSection("SpojInfo").Get<SpojInfo>());
+            services.AddSingleton(configuration.GetSection("SystemInfo").Get<SystemInfo>());
         }
     }
 }

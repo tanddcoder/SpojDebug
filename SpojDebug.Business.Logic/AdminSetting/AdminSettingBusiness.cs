@@ -142,7 +142,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 };
 
                 Repository.Insert(setting);
-                Repository.SaveChanges();
+                Repository.TryToSaveChanges();
                 return;
             }
 
@@ -150,7 +150,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             setting.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, _spojKey.ForUserName);
             setting.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, _spojKey.ForPassword);
             Repository.TryToUpdate(setting);
-            Repository.SaveChanges();
+            Repository.TryToSaveChanges();
         }
 
         public void DownloadSpojTestCases()
@@ -169,7 +169,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         result.Wait();
                         while (true)
                         {
-                            Thread.Sleep(60000);
+                            Thread.Sleep(1000);
                             var aa = _problemRepository.Get();
                             var problem = _problemRepository.Get().FirstOrDefault(x => x.IsDownloadedTestCase != true && x.IsSkip != true);
                             if (problem == null)
@@ -178,7 +178,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             {
                                 problem.IsSkip = true;
                                 _problemRepository.TryToUpdate(problem);
-                                _problemRepository.SaveChanges();
+                                _problemRepository.TryToSaveChanges();
                                 continue;
                             }
 
@@ -222,7 +222,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             problem.IsDownloadedTestCase = true;
                             problem.DownloadTestCaseTime = DateTime.Now;
                             _problemRepository.TryToUpdate(problem);
-                            _problemRepository.SaveChanges();
+                            _problemRepository.TryToSaveChanges();
 
                             // after 10 minutes, we login again
                             var a = watch.ElapsedMilliseconds;
@@ -236,7 +236,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     // ignore
                     var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
                     File.AppendAllText(path, e.StackTrace);
-                    Thread.Sleep(120000);
+                    Thread.Sleep(30000);
                 }
             }
         }
@@ -258,7 +258,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                         while (true)
                         {
-                            Thread.Sleep(60000);
+                            Thread.Sleep(1000);
                             var aa = _submissionRepository.Get()
                                 .Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true)
                                 .Include(x => x.Problem).ToList(); ;
@@ -268,14 +268,14 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             {
                                 submission.IsNotHaveEnoughInfo = true;
                                 _submissionRepository.TryToUpdate(submission);
-                                _submissionRepository.SaveChanges();
+                                _submissionRepository.TryToSaveChanges();
                                 continue;
                             }
                             if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
                             {
                                 submission.Problem.IsSkip = true;
                                 _problemRepository.TryToUpdate(submission.Problem);
-                                _problemRepository.SaveChanges();
+                                _problemRepository.TryToSaveChanges();
                                 continue;
                             }
 
@@ -293,7 +293,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                                     Result = resultType
                                 });
 
-                                _resultRepository.SaveChanges();
+                                _resultRepository.TryToSaveChanges();
                             }
 
                             submission.IsDownloadedInfo = true;
@@ -312,7 +312,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     // ignore / writelog
                     var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
                     File.AppendAllText(path, e.StackTrace);
-                    Thread.Sleep(120000);
+                    Thread.Sleep(30000);
                 }
             }
         }
@@ -398,7 +398,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         Type = problemDetail.Type,
                         SpojProblemSet = problemDetail.ProblemSet
                     });
-                    _problemRepository.SaveChanges();
+                    _problemRepository.TryToSaveChanges();
                 }
                 tokenizer.Skip(nLines - 6);
                 prolems[problemDetail.Id] = problemDetail;
@@ -433,7 +433,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     });
             }
 
-            _accountRepository.SaveChanges();
+            _accountRepository.TryToSaveChanges();
             return users;
         }
 
@@ -493,7 +493,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
                     };
                     _submissionRepository.Insert(entity);
-                    _submissionRepository.SaveChanges();
+                    _submissionRepository.TryToSaveChanges();
                 }
 
                 SpojUserModel user = null;

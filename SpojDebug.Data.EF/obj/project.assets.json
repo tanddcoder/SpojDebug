@@ -3087,6 +3087,34 @@
         "runtime": {
           "bin/placeholder/SpojDebug.Data.dll": {}
         }
+      },
+      "SpojDebug.Service/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "dependencies": {
+          "SpojDebug.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/SpojDebug.Service.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SpojDebug.Service.dll": {}
+        }
+      },
+      "SpojDebug.Ultil/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc": "2.0.3",
+          "SpojDebug.Core": "1.0.0",
+          "SpojDebug.Service": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/SpojDebug.Ultil.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SpojDebug.Ultil.dll": {}
+        }
       }
     }
   },
@@ -8544,6 +8572,16 @@
       "type": "project",
       "path": "../SpojDebug.Data/SpojDebug.Data.csproj",
       "msbuildProject": "../SpojDebug.Data/SpojDebug.Data.csproj"
+    },
+    "SpojDebug.Service/1.0.0": {
+      "type": "project",
+      "path": "../SpojDebug.Service/SpojDebug.Service.csproj",
+      "msbuildProject": "../SpojDebug.Service/SpojDebug.Service.csproj"
+    },
+    "SpojDebug.Ultil/1.0.0": {
+      "type": "project",
+      "path": "../SpojDebug.Ultil/SpojDebug.Ultil.csproj",
+      "msbuildProject": "../SpojDebug.Ultil/SpojDebug.Ultil.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -8555,7 +8593,8 @@
       "Microsoft.EntityFrameworkCore.SqlServer.Design >= 1.1.5",
       "NETStandard.Library >= 2.0.1",
       "SpojDebug.Core >= 1.0.0",
-      "SpojDebug.Data >= 1.0.0"
+      "SpojDebug.Data >= 1.0.0",
+      "SpojDebug.Ultil >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -8593,6 +8632,9 @@
             },
             "D:\\GitRepositories\\SpojDebug\\SpojDebug.Data\\SpojDebug.Data.csproj": {
               "projectPath": "D:\\GitRepositories\\SpojDebug\\SpojDebug.Data\\SpojDebug.Data.csproj"
+            },
+            "D:\\GitRepositories\\SpojDebug\\SpojDebug.Ultil\\SpojDebug.Ultil.csproj": {
+              "projectPath": "D:\\GitRepositories\\SpojDebug\\SpojDebug.Ultil\\SpojDebug.Ultil.csproj"
             }
           }
         }

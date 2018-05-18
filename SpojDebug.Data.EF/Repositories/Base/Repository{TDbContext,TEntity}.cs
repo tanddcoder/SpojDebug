@@ -4,20 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using SpojDebug.Core.AppSetting;
+using SpojDebug.Core.Entities;
+using SpojDebug.Ultil.Logger;
 
 namespace SpojDebug.Data.EF.Base
 {
     public abstract class Repository<TDbContext,TEntity> : IRepository<TEntity> 
         where TDbContext : DbContext
-        where TEntity : class
+        where TEntity : BaseEntity<int>
     {
         protected readonly TDbContext Context;
         protected readonly DbSet<TEntity> DbSet;
+        protected readonly SystemInfo SystemInfo;
 
-        protected Repository(TDbContext context)
+        protected Repository(TDbContext context, SystemInfo systemInfo)
         {
             this.Context = context;
             this.DbSet = context.Set<TEntity>();
+            SystemInfo = systemInfo;
         }
 
         public virtual IQueryable<TEntity> Get(
@@ -87,9 +92,18 @@ namespace SpojDebug.Data.EF.Base
             }
         }
 
-        public int SaveChanges()
+        public int TryToSaveChanges()
         {
-            return Context.SaveChanges();
+            try
+            {
+                return Context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                //write log here
+
+                return 0;
+            }
         }
 
         private bool TryAttach(TEntity entity)
@@ -100,8 +114,10 @@ namespace SpojDebug.Data.EF.Base
                     DbSet.Attach(entity);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                //Writelog here
+                LogHepler.WriteErrorLog(e.Message, SystemInfo.ErrorLogFilePath);
                 return false;
             }
         }

@@ -3133,7 +3133,8 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "2.0.2",
           "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.5",
           "SpojDebug.Core": "1.0.0",
-          "SpojDebug.Data": "1.0.0"
+          "SpojDebug.Data": "1.0.0",
+          "SpojDebug.Ultil": "1.0.0"
         },
         "compile": {
           "bin/placeholder/SpojDebug.Data.EF.dll": {}
