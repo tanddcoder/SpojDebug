@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SpojDebug.Core\SpojDebug.Core.csproj" />
     <ProjectReference Include="..\SpojDebug.Data\SpojDebug.Data.csproj" />
+    <ProjectReference Include="..\SpojDebug.Ultil\SpojDebug.Ultil.csproj" />
   </ItemGroup>
   
   <PropertyGroup>

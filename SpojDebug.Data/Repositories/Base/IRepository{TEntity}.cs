@@ -16,9 +16,9 @@ namespace SpojDebug.Data.Base
 
         TEntity GetById(object id);
 
-        TEntity Insert(TEntity entity);
+        bool Insert(TEntity entity);
 
-        void Delete(TEntity entityToDelete);
+        void Remove(TEntity entityToDelete);
 
         bool TryToUpdate(TEntity entityToUpdate);
 

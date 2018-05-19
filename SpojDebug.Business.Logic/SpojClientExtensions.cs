@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SpojDebug.Ultil.Logger;
 
 namespace SpojDebug.Business.Logic
 {
@@ -26,7 +27,7 @@ namespace SpojDebug.Business.Logic
                 }
                 catch (Exception e)
                 {
-                    //ignore
+                    LogHepler.WriteCustomErrorLog(e, "Logger/SpojClient");
                 }
             }
 

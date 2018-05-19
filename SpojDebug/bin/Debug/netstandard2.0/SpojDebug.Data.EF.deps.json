@@ -16,7 +16,8 @@
           "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.5",
           "NETStandard.Library": "2.0.1",
           "SpojDebug.Core": "1.0.0",
-          "SpojDebug.Data": "1.0.0"
+          "SpojDebug.Data": "1.0.0",
+          "SpojDebug.Ultil": "1.0.0"
         },
         "runtime": {
           "SpojDebug.Data.EF.dll": {}
@@ -2033,6 +2034,24 @@
         "runtime": {
           "SpojDebug.Data.dll": {}
         }
+      },
+      "SpojDebug.Service/1.0.0": {
+        "dependencies": {
+          "SpojDebug.Core": "1.0.0"
+        },
+        "runtime": {
+          "SpojDebug.Service.dll": {}
+        }
+      },
+      "SpojDebug.Ultil/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc": "2.0.3",
+          "SpojDebug.Core": "1.0.0",
+          "SpojDebug.Service": "1.0.0"
+        },
+        "runtime": {
+          "SpojDebug.Ultil.dll": {}
+        }
       }
     }
   },
@@ -3476,6 +3495,16 @@
       "sha512": ""
     },
     "SpojDebug.Data/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SpojDebug.Service/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SpojDebug.Ultil/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -8,7 +8,6 @@ namespace SpojDebug.Core.Entities.Problem
     {
         public int? SpojId { get; set; }
         public string SpojProblemSet { get; set; }
-        public string SpojLink { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public int Type { get; set; }

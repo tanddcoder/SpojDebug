@@ -29,6 +29,7 @@ using SpojDebug.Core.Entities.Submission;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Data.Repositories.Result;
 using SpojDebug.Data.Repositories.TestCase;
+using SpojDebug.Ultil.Logger;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -60,6 +61,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly ITestCaseRepository _testCaseRepository;
 
+        private readonly SystemInfo _systemInfo;
+
         public AdminSettingBusiness(
             IAdminSettingRepository repository,
             IMapper mapper,
@@ -69,7 +72,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             IAccountRepository accountRepository,
             ISubmissionRepository submissionRepository,
             IResultRepository resultRepository,
-            ITestCaseRepository testCaseRepository) : base(repository, mapper)
+            ITestCaseRepository testCaseRepository, SystemInfo systemInfo) : base(repository, mapper)
         {
             _spojKey = spojKey;
             _spojInfo = spojInfo;
@@ -81,6 +84,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _submissionRepository = submissionRepository;
             _resultRepository = resultRepository;
             _testCaseRepository = testCaseRepository;
+            _systemInfo = systemInfo;
         }
 
         public void GetSpojInfo()
@@ -116,9 +120,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
                 catch (Exception e)
                 {
-                    //ignore
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Log/Error.txt");
-                    File.AppendAllText(path, e.StackTrace);
+                    LogHepler.WriteSystemErrorLog(e, _systemInfo.ErrorLogFolderPath);
                 }
             }
         }
@@ -189,7 +191,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             }
                             catch (Exception e)
                             {
-                                
+                                LogHepler.WriteSystemErrorLog(e, _systemInfo.ErrorLogFolderPath);
                             }
 
                             var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
@@ -210,13 +212,13 @@ namespace SpojDebug.Business.Logic.AdminSetting
                                 {
                                     input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
                                     output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                                    File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
+                                    File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
                                 }
                                 catch (Exception e)
                                 {
-                                    
+                                    LogHepler.WriteSystemErrorLog(e, _systemInfo.ErrorLogFolderPath);
                                 }
-                                File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
-                                File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
                             }
 
                             problem.IsDownloadedTestCase = true;
@@ -233,9 +235,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
                 catch (Exception e)
                 {
-                    // ignore
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
-                    File.AppendAllText(path, e.StackTrace);
+                    LogHepler.WriteSystemErrorLog(e, _systemInfo.ErrorLogFolderPath);
                     Thread.Sleep(30000);
                 }
             }
@@ -299,19 +299,18 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             submission.IsDownloadedInfo = true;
                             submission.DownloadedTime = DateTime.Now;
                             _submissionRepository.TryToUpdate(submission);
-
+                            _submissionRepository.TryToSaveChanges();
                             // after 10 minutes, we login again
                             var a = watch.ElapsedMilliseconds;
                             if (a > 600000) break;
                         }
+
                     }
                     watch.Stop();
                 }
                 catch (Exception e)
                 {
-                    // ignore / writelog
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"Error.txt");
-                    File.AppendAllText(path, e.StackTrace);
+                    LogHepler.WriteSystemErrorLog(e, _systemInfo.ErrorLogFolderPath);
                     Thread.Sleep(30000);
                 }
             }
@@ -398,11 +397,14 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         Type = problemDetail.Type,
                         SpojProblemSet = problemDetail.ProblemSet
                     });
-                    _problemRepository.TryToSaveChanges();
+
+                    Thread.Sleep(500);
                 }
                 tokenizer.Skip(nLines - 6);
                 prolems[problemDetail.Id] = problemDetail;
             }
+
+            _problemRepository.TryToSaveChanges();
             return prolems;
         }
 
@@ -431,6 +433,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         DisplayName = user.DisplayName,
                         Email = user.Email
                     });
+
+                Thread.Sleep(500);
             }
 
             _accountRepository.TryToSaveChanges();
@@ -493,7 +497,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
                     };
                     _submissionRepository.Insert(entity);
-                    _submissionRepository.TryToSaveChanges();
                 }
 
                 SpojUserModel user = null;
@@ -508,11 +511,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     problem.Submissions.Add(submission);
                 }
             }
-        }
 
-        private void GetSubmissionResult(int spojId)
-        {
-            throw new System.NotImplementedException();
+            _submissionRepository.TryToSaveChanges();
         }
 
         #endregion

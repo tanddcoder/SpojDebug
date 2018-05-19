@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SpojDebug.Core.AppSetting;
 using SpojDebug.Core.Entities;
 using SpojDebug.Ultil.Logger;
 
 namespace SpojDebug.Data.EF.Base
 {
-    public abstract class Repository<TDbContext,TEntity> : IRepository<TEntity> 
+    public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
         where TDbContext : DbContext
         where TEntity : BaseEntity<int>
     {
@@ -29,7 +30,9 @@ namespace SpojDebug.Data.EF.Base
             Expression<Func<TEntity, bool>> filter = null)
         {
             var query = DbSet.AsNoTracking();
-            
+
+            query = query.Where(x => x.DeletedTime == null);
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -41,9 +44,10 @@ namespace SpojDebug.Data.EF.Base
         public TEntity GetSingle(
             Expression<Func<TEntity, bool>> filter = null)
         {
-            
             var query = DbSet.AsNoTracking();
-            
+
+            query = query.Where(x => x.DeletedTime == null);
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -58,18 +62,27 @@ namespace SpojDebug.Data.EF.Base
             return DbSet.Find(id);
         }
 
-        public virtual TEntity Insert(TEntity entity)
+        public virtual bool Insert(TEntity entity)
         {
-            return DbSet.Add(entity).Entity;
+
+            entity.CreatedTime = DateTime.Now;
+            DbSet.Add(entity);
+            return true;
         }
 
-        public virtual void Delete(object id)
+        public virtual void Delete(TEntity entity)
+        {
+            entity.DeletedTime = DateTime.Now;
+            TryToUpdate(entity);
+        }
+
+        public virtual void Remove(object id)
         {
             var entityToDelete = DbSet.Find(id);
-            Delete(entityToDelete);
+            Remove(entityToDelete);
         }
 
-        public virtual void Delete(TEntity entityToDelete)
+        public virtual void Remove(TEntity entityToDelete)
         {
             if (Context.Entry(entityToDelete).State == EntityState.Detached)
             {
@@ -81,15 +94,8 @@ namespace SpojDebug.Data.EF.Base
         public virtual bool TryToUpdate(TEntity entityToUpdate)
         {
             TryAttach(entityToUpdate);
-            try
-            {
-                Context.Entry(entityToUpdate).State = EntityState.Modified;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            Context.Entry(entityToUpdate).State = EntityState.Modified;
+            return true;
         }
 
         public int TryToSaveChanges()
@@ -100,8 +106,8 @@ namespace SpojDebug.Data.EF.Base
             }
             catch (Exception e)
             {
-                //write log here
 
+                LogHepler.WriteCustomErrorLog(e, "Logger/Data/SaveChanges");
                 return 0;
             }
         }
@@ -116,8 +122,9 @@ namespace SpojDebug.Data.EF.Base
             }
             catch (Exception e)
             {
+
                 //Writelog here
-                LogHepler.WriteErrorLog(e.Message, SystemInfo.ErrorLogFilePath);
+                LogHepler.WriteDataErrorLog(e, entity, SystemInfo.DataError);
                 return false;
             }
         }

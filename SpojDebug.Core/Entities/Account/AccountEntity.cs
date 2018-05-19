@@ -12,7 +12,6 @@ namespace SpojDebug.Core.Entities.Account
         public string DisplayName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public Enums.SocialNetworkType SocialNetWorkType { get; set; }
 
         public List<SubmissionEntity> Submissions { get; set; }
         public ApplicationUser User { get; set; }

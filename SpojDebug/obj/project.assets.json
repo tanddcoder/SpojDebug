@@ -67,18 +67,18 @@
           "lib/netstandard1.3/Dapper.dll": {}
         }
       },
-      "Hangfire/1.6.17": {
+      "Hangfire/1.6.19": {
         "type": "package",
         "dependencies": {
-          "Hangfire.AspNetCore": "[1.6.17]",
-          "Hangfire.Core": "[1.6.17]",
-          "Hangfire.SqlServer": "[1.6.17]"
+          "Hangfire.AspNetCore": "[1.6.19]",
+          "Hangfire.Core": "[1.6.19]",
+          "Hangfire.SqlServer": "[1.6.19]"
         }
       },
-      "Hangfire.AspNetCore/1.6.17": {
+      "Hangfire.AspNetCore/1.6.19": {
         "type": "package",
         "dependencies": {
-          "Hangfire.Core": "[1.6.17]",
+          "Hangfire.Core": "[1.6.19]",
           "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
           "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
@@ -94,7 +94,7 @@
           "lib/netstandard1.3/Hangfire.AspNetCore.dll": {}
         }
       },
-      "Hangfire.Core/1.6.17": {
+      "Hangfire.Core/1.6.19": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
@@ -112,16 +112,19 @@
           "lib/netstandard1.3/es/Hangfire.Core.resources.dll": {
             "locale": "es"
           },
+          "lib/netstandard1.3/zh-TW/Hangfire.Core.resources.dll": {
+            "locale": "zh-TW"
+          },
           "lib/netstandard1.3/zh/Hangfire.Core.resources.dll": {
             "locale": "zh"
           }
         }
       },
-      "Hangfire.SqlServer/1.6.17": {
+      "Hangfire.SqlServer/1.6.19": {
         "type": "package",
         "dependencies": {
           "Dapper": "1.50.1",
-          "Hangfire.Core": "[1.6.17]",
+          "Hangfire.Core": "[1.6.19]",
           "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0",
@@ -5273,6 +5276,7 @@
         "framework": ".NETStandard,Version=v2.0",
         "dependencies": {
           "AutoMapper": "6.2.2",
+          "HangFire": "1.6.19",
           "SpojDebug.Business": "1.0.0",
           "SpojDebug.Core": "1.0.0",
           "SpojDebug.Data": "1.0.0",
@@ -5439,22 +5443,22 @@
         "lib/netstandard1.3/Dapper.xml"
       ]
     },
-    "Hangfire/1.6.17": {
-      "sha512": "b3nb1d1471c+X5TtmByohsoTeGa5jj7dNj2V9gxNFa6WijUNg7vTNQk/zWYqRatUgwBeW5Gof6GdLarFpBDokg==",
+    "Hangfire/1.6.19": {
+      "sha512": "nUUxKDCcH4kC1pF+IWLY2H7tZ+0DvXTZlY5ZZ0mHG0TPhVoC6qswOMhAiywHNZLxEimH9X6Pov7wVg1HiQjXSw==",
       "type": "package",
-      "path": "hangfire/1.6.17",
+      "path": "hangfire/1.6.19",
       "files": [
-        "hangfire.1.6.17.nupkg.sha512",
+        "hangfire.1.6.19.nupkg.sha512",
         "hangfire.nuspec",
         "readme.txt"
       ]
     },
-    "Hangfire.AspNetCore/1.6.17": {
-      "sha512": "vyplbohNRCftM+TvAD2L0jyqWqfoWoZ57A5mgPfrSfRDCmrZfitQcLO2aQPdqHYaA2F9AAoMUGNRncHqE/1J4w==",
+    "Hangfire.AspNetCore/1.6.19": {
+      "sha512": "4bQDr16WDTTnpBqa1PZyiebuYMe0tU6NvjwFZqSNG3rp7jFZldM/teDR97tNECOplxlmhUxoy35wsLwZcJQ4Xg==",
       "type": "package",
-      "path": "hangfire.aspnetcore/1.6.17",
+      "path": "hangfire.aspnetcore/1.6.19",
       "files": [
-        "hangfire.aspnetcore.1.6.17.nupkg.sha512",
+        "hangfire.aspnetcore.1.6.19.nupkg.sha512",
         "hangfire.aspnetcore.nuspec",
         "lib/net451/Hangfire.AspNetCore.dll",
         "lib/net451/Hangfire.AspNetCore.xml",
@@ -5462,29 +5466,31 @@
         "lib/netstandard1.3/Hangfire.AspNetCore.xml"
       ]
     },
-    "Hangfire.Core/1.6.17": {
-      "sha512": "zthN3NcyxObUpqv3UJRpL8bjANOloIHcFL2SrD+AjvIJoFDCiy/PDh0sVPIO4r6aXZ+KjlNpyB1PMfD5PKCpfw==",
+    "Hangfire.Core/1.6.19": {
+      "sha512": "DIzJnkaO+zlPvW03CZpmumYAlJ4A+TFM0gOetRV8Ard7yIALToHukb1HsGavYeosDBH3G0odheMXlOTqxu47zg==",
       "type": "package",
-      "path": "hangfire.core/1.6.17",
+      "path": "hangfire.core/1.6.19",
       "files": [
-        "hangfire.core.1.6.17.nupkg.sha512",
+        "hangfire.core.1.6.19.nupkg.sha512",
         "hangfire.core.nuspec",
         "lib/net45/Hangfire.Core.dll",
         "lib/net45/Hangfire.Core.xml",
         "lib/net45/es/Hangfire.Core.resources.dll",
+        "lib/net45/zh-TW/Hangfire.Core.resources.dll",
         "lib/net45/zh/Hangfire.Core.resources.dll",
         "lib/netstandard1.3/Hangfire.Core.dll",
         "lib/netstandard1.3/Hangfire.Core.xml",
         "lib/netstandard1.3/es/Hangfire.Core.resources.dll",
+        "lib/netstandard1.3/zh-TW/Hangfire.Core.resources.dll",
         "lib/netstandard1.3/zh/Hangfire.Core.resources.dll"
       ]
     },
-    "Hangfire.SqlServer/1.6.17": {
-      "sha512": "zfQsPbBQ3Z9qGKG9NJdyXln0O/9uv0nYoTeMI58E9kJt1olPkEqMkNn8UUKoQERU4Z3NR29J+49IxToydQ/0nA==",
+    "Hangfire.SqlServer/1.6.19": {
+      "sha512": "9bmCaT+mv5shp7VbnJXz64CJGHiMLsBevnglh2QsGLtdAOldUXENLQTCe+kcNqen45KibyzriJoucVOBL+dQGA==",
       "type": "package",
-      "path": "hangfire.sqlserver/1.6.17",
+      "path": "hangfire.sqlserver/1.6.19",
       "files": [
-        "hangfire.sqlserver.1.6.17.nupkg.sha512",
+        "hangfire.sqlserver.1.6.19.nupkg.sha512",
         "hangfire.sqlserver.nuspec",
         "lib/net45/Hangfire.SqlServer.dll",
         "lib/net45/Hangfire.SqlServer.xml",
@@ -13819,7 +13825,7 @@
     ".NETCoreApp,Version=v2.0": [
       "AutoMapper >= 6.2.2",
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 3.2.0",
-      "HangFire >= 1.6.17",
+      "HangFire >= 1.6.19",
       "Microsoft.AspNetCore.All >= 2.0.6",
       "Microsoft.AspNetCore.Hosting >= 2.0.2",
       "Microsoft.NETCore.App >= 2.0.0",
@@ -13914,7 +13920,7 @@
           },
           "HangFire": {
             "target": "Package",
-            "version": "[1.6.17, )"
+            "version": "[1.6.19, )"
           },
           "Microsoft.AspNetCore.All": {
             "target": "Package",

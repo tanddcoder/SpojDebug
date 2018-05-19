@@ -2,6 +2,7 @@
 {
     public class SystemInfo
     {
-        public string ErrorLogFilePath { get; set; }
+        public string ErrorLogFolderPath { get; set; }
+        public string DataError { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SpojDebug.Core.Entities.Account;
 using System.Collections.Generic;
-using SpojDebug.Core.Entities.Problem;
 
 namespace SpojDebug.Core.User
 {
