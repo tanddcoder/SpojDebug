@@ -17,7 +17,7 @@ namespace SpojDebug.Ultil.Logger
 
                 Directory.CreateDirectory(path);
                 File.AppendAllText(Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), path.Trim('/').Trim('\\')), "Error.log"),
-                    $"==============================================================\r\n---------------------------{DateTime.Now.ToLongDateString()}-------------------------\r\n{e.Message}\r\n{e.StackTrace}\r\n\r\n");
+                    $"==============================================================\r\n---------------------------{DateTime.Now:dd/MM/yyyy hh:mm:ss}-------------------------\r\n{e.Message}\r\n{e.StackTrace}\r\n\r\n");
             }
         }
 
@@ -30,7 +30,7 @@ namespace SpojDebug.Ultil.Logger
                 var info = new StringBuilder();
                 info.Append("==============================================================\r\n");
                 info.Append(
-                    $"---------------------------{DateTime.Now.ToLongDateString()}-------------------------\r\n");
+                    $"---------------------------{DateTime.Now:dd/MM/yyyy hh:mm:ss}-------------------------\r\n");
                 info.Append($"{e.Message}\r\n{e.StackTrace}\r\nData:\r\n");
 
                 var myEntityType = entity.GetType();
@@ -38,7 +38,7 @@ namespace SpojDebug.Ultil.Logger
 
                 foreach (var property in properties)
                 {
-                    info.Append($"      {property.Name}: {property.GetValue(entity, null)}");
+                    info.Append($"      {property.Name}: {property.GetValue(entity, null)}\r\n");
                 }
 
                 info.Append("+++++++++++++++++++++++++++++++++++++++++++++++\r\n\r\n");
@@ -50,7 +50,7 @@ namespace SpojDebug.Ultil.Logger
         {
             Directory.CreateDirectory(path);
             File.AppendAllText(Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), path.Trim('/').Trim('\\')), "Error.log"),
-               $"==============================================================\r\n---------------------------{DateTime.Now.ToLongDateString()}-------------------------\r\n{e.Message}\r\n{e.StackTrace}\r\n\r\n");
+               $"==============================================================\r\n---------------------------{DateTime.Now:dd/MM/yyyy hh:mm:ss}-------------------------\r\n{e.Message}\r\n{e.StackTrace}\r\n\r\n");
 
         }
     }

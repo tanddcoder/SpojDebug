@@ -9,5 +9,7 @@ namespace SpojDebug.Core.Models.SpojModels
         public float Score { get; set; }
         public float RunTime { get; set; }
         public string Language { get; set; }
+        public int UserId { get; set; }
+        public int ProblemId { get; set; }
     }
 }

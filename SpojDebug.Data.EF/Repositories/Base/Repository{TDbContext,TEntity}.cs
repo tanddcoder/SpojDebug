@@ -62,18 +62,31 @@ namespace SpojDebug.Data.EF.Base
             return DbSet.Find(id);
         }
 
-        public virtual bool Insert(TEntity entity)
+        public virtual TEntity Insert(TEntity entity)
         {
+            entity.DeletedTime = null;
+            entity.LastUpdatedTime = null;
+            entity.CreatedTime = entity.CreatedTime ?? DateTime.Now;
+            entity.CreatedTime = entity.CreatedTime == default(DateTime) ? DateTime.Now : entity.CreatedTime;
 
-            entity.CreatedTime = DateTime.Now;
-            DbSet.Add(entity);
-            return true;
+            entity = DbSet.Add(entity).Entity;
+            return entity;
+        }
+
+        public virtual void InsertRange(IEnumerable<TEntity> entities)
+        {
+            var enumerable = entities as TEntity[] ?? entities.ToArray();
+            foreach (var entity in enumerable)
+            {
+                entity.CreatedTime = DateTime.Now;
+                Insert(entity);
+            }
         }
 
         public virtual void Delete(TEntity entity)
         {
             entity.DeletedTime = DateTime.Now;
-            TryToUpdate(entity);
+            Update(entity);
         }
 
         public virtual void Remove(object id)
@@ -91,25 +104,25 @@ namespace SpojDebug.Data.EF.Base
             DbSet.Remove(entityToDelete);
         }
 
-        public virtual bool TryToUpdate(TEntity entityToUpdate)
+        public virtual void Update(TEntity entity, params Expression<Func<TEntity, object>>[] changedProperties)
         {
-            TryAttach(entityToUpdate);
-            Context.Entry(entityToUpdate).State = EntityState.Modified;
-            return true;
+            TryAttach(entity);
+            changedProperties = changedProperties?.Distinct().ToArray();
+
+            if (changedProperties?.Any() == true)
+            {
+                foreach (var property in changedProperties)
+                {
+                    Context.Entry(entity).Property(property).IsModified = true;
+                }
+            }
+            else
+                Context.Entry(entity).State = EntityState.Modified;
         }
 
-        public int TryToSaveChanges()
+        public int SaveChanges()
         {
-            try
-            {
-                return Context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-
-                LogHepler.WriteCustomErrorLog(e, "Logger/Data/SaveChanges");
-                return 0;
-            }
+            return Context.SaveChanges();
         }
 
         private bool TryAttach(TEntity entity)
@@ -120,11 +133,8 @@ namespace SpojDebug.Data.EF.Base
                     DbSet.Attach(entity);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
-
-                //Writelog here
-                LogHepler.WriteDataErrorLog(e, entity, SystemInfo.DataError);
                 return false;
             }
         }

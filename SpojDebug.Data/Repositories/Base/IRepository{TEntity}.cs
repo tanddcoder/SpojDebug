@@ -16,12 +16,14 @@ namespace SpojDebug.Data.Base
 
         TEntity GetById(object id);
 
-        bool Insert(TEntity entity);
+        TEntity Insert(TEntity entity);
 
         void Remove(TEntity entityToDelete);
 
-        bool TryToUpdate(TEntity entityToUpdate);
+        void Update(TEntity entity, params Expression<Func<TEntity, object>>[] changedProperties);
 
-        int TryToSaveChanges();
+        int SaveChanges();
+
+        void InsertRange(IEnumerable<TEntity> entities);
     }
 }
