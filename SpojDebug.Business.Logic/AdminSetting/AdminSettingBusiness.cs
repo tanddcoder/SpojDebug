@@ -10,7 +10,6 @@ using SpojDebug.Ultil.Exception;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -50,6 +49,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private readonly string _spojProblemInfoUrl = "http://www.spoj.com/problems/{0}/edit/";
 
         private readonly string _submissionInfoUrl = "http://www.spoj.com/{0}/files/psinfo/{1}/";
+
+        private readonly string _testCasePostUrl = "http://www.spoj.com/problems/{0}/edit2/";
 
         private readonly IProblemRepository _problemRepository;
 
@@ -287,13 +288,75 @@ namespace SpojDebug.Business.Logic.AdminSetting
                         while (true)
                         {
                             Thread.Sleep(1000);
-                            var submission = _submissionRepository.Get().Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true && x.Problem.IsSkip != true).Include(x => x.Problem).FirstOrDefault();
-                            if (submission == null) continue;
-                            if (submission.Problem == null)
-                            {
-                                submission.IsNotHaveEnoughInfo = true;
-                                _submissionRepository.Update(submission, x => x.IsNotHaveEnoughInfo);
+                            var submissions = _submissionRepository.Get()
+                                .Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true &&
+                                            x.Problem.IsSkip != true).Include(x => x.Problem).Take(1000);
 
+                            foreach (var submission in submissions)
+                            {
+                                if (submission == null) continue;
+                                if (submission.Problem == null)
+                                {
+                                    submission.IsNotHaveEnoughInfo = true;
+                                    _submissionRepository.Update(submission, x => x.IsNotHaveEnoughInfo);
+
+                                    try
+                                    {
+                                        _submissionRepository.SaveChanges();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        LogHepler.WriteDataErrorLog(e, submission, _systemInfo.DataError + "/SaveChanges");
+                                    }
+                                    continue;
+                                }
+                                if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
+                                {
+                                    submission.Problem.IsSkip = true;
+                                    _problemRepository.Update(submission.Problem, x => x.IsSkip);
+                                    try
+                                    {
+                                        _problemRepository.SaveChanges();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        LogHepler.WriteDataErrorLog(e, submission.Problem, _systemInfo.DataError + "/SaveChanges");
+                                    }
+                                    continue;
+                                }
+
+                                var plaintext = client.GetText(string.Format(_submissionInfoUrl, _spojInfo.ContestName, submission.SpojId));
+                                var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
+
+                                var listResultEnities = new List<ResultEntity>();
+
+                                foreach (Match match in matches)
+                                {
+                                    var resultType = GetResultType(match.Groups[2].Value);
+
+                                    listResultEnities.Add(new ResultEntity
+                                    {
+                                        SubmmissionId = submission.Id,
+                                        TestCaseSeq = int.Parse(match.Groups[1].Value),
+                                        Result = resultType
+                                    });
+                                }
+
+                                _resultRepository.InsertRange(listResultEnities);
+
+                                try
+                                {
+                                    _resultRepository.SaveChanges();
+                                }
+                                catch (Exception e)
+                                {
+                                    LogHepler.WriteCustomErrorLog(e, _systemInfo.DataError + "/SaveChanges");
+                                }
+                                Thread.Sleep(5000);
+
+                                submission.IsDownloadedInfo = true;
+                                submission.DownloadedTime = DateTime.Now;
+                                _submissionRepository.Update(submission, x => x.IsDownloadedInfo, x => x.DownloadedTime);
                                 try
                                 {
                                     _submissionRepository.SaveChanges();
@@ -302,59 +365,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                                 {
                                     LogHepler.WriteDataErrorLog(e, submission, _systemInfo.DataError + "/SaveChanges");
                                 }
-                                continue;
-                            }
-                            if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
-                            {
-                                submission.Problem.IsSkip = true;
-                                _problemRepository.Update(submission.Problem, x => x.IsSkip);
-                                try
-                                {
-                                    _problemRepository.SaveChanges();
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteDataErrorLog(e, submission.Problem, _systemInfo.DataError + "/SaveChanges");
-                                }
-                                continue;
                             }
 
-                            var plaintext = client.GetText(string.Format(_submissionInfoUrl, _spojInfo.ContestName, submission.SpojId));
-                            var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
-
-                            foreach (Match match in matches)
-                            {
-                                var resultType = GetResultType(match.Groups[2].Value);
-                                var dta = new ResultEntity
-                                {
-                                    SubmmissionId = submission.Id,
-                                    TestCaseSeq = int.Parse(match.Groups[1].Value),
-                                    Result = resultType
-                                };
-                                _resultRepository.Insert(dta);
-
-                                try
-                                {
-                                    _resultRepository.SaveChanges();
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteDataErrorLog(e, dta, _systemInfo.DataError + "/SaveChanges");
-                                }
-                                Thread.Sleep(200);
-                            }
-
-                            submission.IsDownloadedInfo = true;
-                            submission.DownloadedTime = DateTime.Now;
-                            _submissionRepository.Update(submission, x => x.IsDownloadedInfo, x => x.DownloadedTime);
-                            try
-                            {
-                                _submissionRepository.SaveChanges();
-                            }
-                            catch (Exception e)
-                            {
-                                LogHepler.WriteDataErrorLog(e, submission, _systemInfo.DataError + "/SaveChanges");
-                            }
                             // after 10 minutes, we login again
                             var a = watch.ElapsedMilliseconds;
                             if (a > 600000) break;
@@ -469,7 +481,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     listCheckingIds = new List<int>();
                 }
 
-                Thread.Sleep(200);
+                Thread.Sleep(5000);
                 tokenizer.Skip(nLines - 6);
                 prolems[problemModel.Id] = problemModel;
             }
@@ -520,7 +532,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     listChunkIds = new List<int>();
                 }
 
-                Thread.Sleep(200);
+                Thread.Sleep(5000);
             }
             return users;
         }
@@ -531,7 +543,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             var nLine = tokenizer.GetInt();
             tokenizer.Skip(1);
             var nSubmissions = tokenizer.GetInt();
-            
+
             var listChunk = new List<SpojSubmissionModel>();
             var listChunkIds = new List<int>();
 
@@ -583,18 +595,18 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     var listNotExist = listChunk.Where(x => !listExist.Contains(x.Id));
 
                     var listEntities = (from item in listNotExist
-                        let internalProblemId = _problemRepository.Get(x => x.SpojId == item.ProblemId).Select(x => x.Id).FirstOrDefault()
-                        let internalAccountId = _accountRepository.Get(x => x.SpojUserId == item.UserId).Select(x => x.Id).FirstOrDefault()
-                        select new SubmissionEntity
-                        {
-                            SpojId = item.Id,
-                            SubmitTime = item.Time,
-                            Score = item.Score,
-                            RunTime = item.RunTime,
-                            Language = item.Language,
-                            ProblemId = internalProblemId == 0 ? (int?) null : internalProblemId,
-                            AccountId = internalAccountId == 0 ? (int?) null : internalAccountId
-                        }).ToList();
+                                        let internalProblemId = _problemRepository.Get(x => x.SpojId == item.ProblemId).Select(x => x.Id).FirstOrDefault()
+                                        let internalAccountId = _accountRepository.Get(x => x.SpojUserId == item.UserId).Select(x => x.Id).FirstOrDefault()
+                                        select new SubmissionEntity
+                                        {
+                                            SpojId = item.Id,
+                                            SubmitTime = item.Time,
+                                            Score = item.Score,
+                                            RunTime = item.RunTime,
+                                            Language = item.Language,
+                                            ProblemId = internalProblemId == 0 ? (int?)null : internalProblemId,
+                                            AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
+                                        }).ToList();
                     _submissionRepository.InsertRange(listEntities);
                     _submissionRepository.SaveChanges();
 
@@ -602,7 +614,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     listChunkIds = new List<int>();
                 }
 
-                Thread.Sleep(200);
+                Thread.Sleep(5000);
                 SpojUserModel user = null;
                 if (users.TryGetValue(userId, out user))
                 {

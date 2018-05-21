@@ -66,8 +66,8 @@ namespace SpojDebug.Data.EF.Base
         {
             entity.DeletedTime = null;
             entity.LastUpdatedTime = null;
-            entity.CreatedTime = entity.CreatedTime ?? DateTime.Now;
-            entity.CreatedTime = entity.CreatedTime == default(DateTime) ? DateTime.Now : entity.CreatedTime;
+
+            entity.CreatedTime = DateTime.Now;
 
             entity = DbSet.Add(entity).Entity;
             return entity;
@@ -78,7 +78,6 @@ namespace SpojDebug.Data.EF.Base
             var enumerable = entities as TEntity[] ?? entities.ToArray();
             foreach (var entity in enumerable)
             {
-                entity.CreatedTime = DateTime.Now;
                 Insert(entity);
             }
         }
