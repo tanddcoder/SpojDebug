@@ -39,8 +39,14 @@ using SpojDebug.Business.Logic.Account;
 using SpojDebug.Business.Logic.Submission;
 using SpojDebug.Business;
 using SpojDebug.Business.Logic;
+using SpojDebug.Business.Logic.User;
+using SpojDebug.Business.User;
+using SpojDebug.Data.EF.Repositories.User;
+using SpojDebug.Data.Repositories.User;
 using SpojDebug.Service;
 using SpojDebug.Service.Logic;
+using SpojDebug.Service.Logic.User;
+using SpojDebug.Service.User;
 
 namespace SpojDebug.Extensions
 {
@@ -54,6 +60,7 @@ namespace SpojDebug.Extensions
             services.AddScoped<IProblemRepository, ProblemRepository>();
             services.AddScoped<ITestCaseRepository, TestCaseRepository>();
             services.AddScoped<IAdminSettingRepository, AdminSettingRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
         public static void ResolveSingleTonServices(this IServiceCollection services)
@@ -70,6 +77,7 @@ namespace SpojDebug.Extensions
             services.AddScoped<ITestCaseService, TestCaseService>();
             services.AddScoped<IAdminSettingService, AdminSettingService>();
             services.AddScoped<ISeedDataService, SeedDataService>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         public static void ResolveScopedBusiness(this IServiceCollection services)
@@ -81,13 +89,19 @@ namespace SpojDebug.Extensions
             services.AddScoped<ITestCaseBusiness, TestCaseBusiness>();
             services.AddScoped<IAdminSettingBusiness, AdminSettingBusiness>();
             services.AddScoped<ISeedDataBusiness, SeedDataBusiness>();
+            services.AddScoped<IUserBusiness, UserBusiness>();
         }
-
-        public static void AddCustomAppSettingConfigs(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton(configuration.GetSection("SpojKey").Get<SpojKey>());
-            services.AddSingleton(configuration.GetSection("SpojInfo").Get<SpojInfo>());
-            services.AddSingleton(configuration.GetSection("SystemInfo").Get<SystemInfo>());
-        }
+        
     }
+
+    public static class StartingApp
+    {
+        public static void GetAppSettingConfigs(IConfiguration configuration)
+        {
+            ApplicationConfigs.SpojKey = configuration.GetSection("SpojKey").Get<SpojKey>();
+            ApplicationConfigs.SpojInfo = configuration.GetSection("SpojInfo").Get<SpojInfo>();
+            ApplicationConfigs.SystemInfo = configuration.GetSection("SystemInfo").Get<SystemInfo>();
+            ApplicationConfigs.ConnectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
+        }
+    } 
 }

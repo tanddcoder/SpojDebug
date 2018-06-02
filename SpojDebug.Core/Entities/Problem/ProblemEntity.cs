@@ -1,6 +1,7 @@
 ﻿using System;
 using SpojDebug.Core.Entities.Submission;
 using System.Collections.Generic;
+using SpojDebug.Core.Entities.TestCase;
 
 namespace SpojDebug.Core.Entities.Problem
 {
@@ -16,6 +17,7 @@ namespace SpojDebug.Core.Entities.Problem
         public DateTime? DownloadTestCaseTime { get; set; }
         public bool? IsSkip { get; set; }
 
-        public List<SubmissionEntity> Submissions { get; set; } = new List<SubmissionEntity>();
+        public virtual ICollection<TestCaseEntity> Submissions { get; set; }
+        public virtual ICollection<TestCaseInfoEntity> TestCaseInfos { get; set; }
     }
 }

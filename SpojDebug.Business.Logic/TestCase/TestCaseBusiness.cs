@@ -8,7 +8,7 @@ namespace SpojDebug.Business.Logic.TestCase
 {
     public class TestCaseBusiness : Business<ITestCaseRepository, TestCaseInfoEntity>, ITestCaseBusiness
     {
-        protected TestCaseBusiness(ITestCaseRepository repository, IMapper mapper) : base(repository, mapper)
+        public TestCaseBusiness(ITestCaseRepository repository, IMapper mapper) : base(repository, mapper)
         {
         }
     }

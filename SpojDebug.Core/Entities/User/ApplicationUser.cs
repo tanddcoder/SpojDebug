@@ -6,6 +6,6 @@ namespace SpojDebug.Core.User
 {
     public class ApplicationUser : IdentityUser
     {
-        public List<AccountEntity> Accounts { get; set; }
+        public virtual ICollection<AccountEntity> Accounts { get; set; }
     }
 }

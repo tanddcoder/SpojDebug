@@ -16,7 +16,7 @@ namespace SpojDebug.Core.DbContextHelpers
             builder.Entity<AccountEntity>().ToTable("Account");
             builder.Entity<ProblemEntity>().ToTable("Problem");
             builder.Entity<ResultEntity>().ToTable("Result");
-            builder.Entity<SubmissionEntity>().ToTable("Submission");
+            builder.Entity<TestCaseEntity>().ToTable("Submission");
             builder.Entity<TestCaseInfoEntity>().ToTable("TestCaseInfo");
             builder.Entity<AdminSettingEntity>().ToTable("AdminSetting");
         }

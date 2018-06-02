@@ -8,7 +8,7 @@ namespace SpojDebug.Business.Logic.Account
 {
     public class AccountBusiness : Business<IAccountRepository, AccountEntity>, IAccountBusiness
     {
-        protected AccountBusiness(IAccountRepository repository, IMapper mapper) : base(repository, mapper)
+        public AccountBusiness(IAccountRepository repository, IMapper mapper) : base(repository, mapper)
         {
         }
     }

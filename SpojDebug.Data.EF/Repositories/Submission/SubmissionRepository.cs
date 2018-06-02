@@ -6,9 +6,9 @@ using SpojDebug.Data.Repositories.Submission;
 
 namespace SpojDebug.Data.EF.Repositories.Submission
 {
-    public class SubmissionRepository : Repository<SpojDebugDbContext, SubmissionEntity>, ISubmissionRepository
+    public class SubmissionRepository : Repository<SpojDebugDbContext, TestCaseEntity>, ISubmissionRepository
     {
-        public SubmissionRepository(SpojDebugDbContext context, SystemInfo systemInfo) : base(context, systemInfo)
+        public SubmissionRepository(SpojDebugDbContext context) : base(context)
         {
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SpojDebug.Core.AppSetting;
 using SpojDebug.Core.DbContextHelpers;
 using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Entities.AdminSetting;
@@ -17,11 +18,21 @@ namespace SpojDebug.Data.EF.Contexts
             : base(options)
         {
         }
-        
+
+        public SpojDebugDbContext()
+        {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(ApplicationConfigs.ConnectionStrings.DefaultConnection);
+            base.OnConfiguring(optionsBuilder);
+        }
+
         public DbSet<AccountEntity> Accounts { get; set; }
         public DbSet<ProblemEntity> Problems { get; set; }
         public DbSet<ResultEntity> Results { get; set; }
-        public DbSet<SubmissionEntity> Submissions { get; set; }
+        public DbSet<TestCaseEntity> Submissions { get; set; }
         public DbSet<TestCaseInfoEntity> TestCases { get; set; }
         public DbSet<AdminSettingEntity> AdminSettings { get; set; }
 
@@ -29,43 +40,32 @@ namespace SpojDebug.Data.EF.Contexts
         {
             builder.SetTableNames();
 
+            //builder.Entity<ProblemEntity>().HasKey(x => x.Id);
             builder.Entity<ProblemEntity>().HasIndex(x => x.SpojId).IsUnique();
+
+            //builder.Entity<ResultEntity>().HasKey(x => x.Id);
             builder.Entity<ResultEntity>().HasIndex(x => new {x.TestCaseSeq, x.SubmmissionId}).IsUnique();
-            builder.Entity<SubmissionEntity>().HasIndex(x => x.SpojId).IsUnique();
+            builder.Entity<ResultEntity>().HasOne(x => x.Submission).WithMany(x => x.Results).HasForeignKey(x => x.SubmmissionId);
+
+            //builder.Entity<SubmissionEntity>().HasKey(x => x.Id);
+            builder.Entity<TestCaseEntity>().HasIndex(x => x.SpojId).IsUnique();
+            builder.Entity<TestCaseEntity>().HasOne(x => x.Account).WithMany(x => x.Submissions).HasForeignKey(x => x.AccountId);
+            builder.Entity<TestCaseEntity>().HasOne(x => x.Problem).WithMany(x => x.Submissions).HasForeignKey(x => x.ProblemId);
+            //builder.Entity<SubmissionEntity>().HasMany(x => x.Results);
+
+            //builder.Entity<TestCaseInfoEntity>().HasKey(x => x.Id);
             builder.Entity<TestCaseInfoEntity>().HasIndex(x => x.ProblemId).IsUnique();
+            builder.Entity<TestCaseInfoEntity>().HasOne(x => x.Problem).WithMany(x => x.TestCaseInfos).HasForeignKey(x => x.ProblemId);
+
+            //builder.Entity<AccountEntity>().HasKey(x => x.Id);
             builder.Entity<AccountEntity>().HasIndex(x => x.SpojUserId).IsUnique();
+            //builder.Entity<AccountEntity>().HasMany(x => x.Submissions);
+            builder.Entity<AccountEntity>().HasOne(x => x.User).WithMany(x => x.Accounts).HasForeignKey(x => x.UserId);
 
             base.OnModelCreating(builder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
-
-        //public override int SaveChanges()
-        //{
-        //    //var modifiedEntities = ChangeTracker.Entries().Where(p => p.State == EntityState.Modified).ToList();
-        //    //var now = DateTime.Now;
-        //    //foreach (var change in modifiedEntities)
-        //    //{
-        //    //    var entityName = change.Entity.GetType().Name;
-        //    //    var primaryKey = GetPrimaryKeyValue(change);
-
-        //    //    foreach (var prop in change.OriginalValues.Properties)
-        //    //    {
-        //    //        var originalValue = change.OriginalValues[prop].ToString();
-        //    //        var currntValue = change.CurrentValues[prop].ToString();
-        //    //            //do more
-        //    //    }
-        //    //}
-
-        //    return base.SaveChanges();
-        //}
-
-        //private object GetPrimaryKeyValue(EntityEntry entry)
-        //{
-        //    var objectStateEntry =
-        //        ((IObjectContextAdapter) this).ObjectContext.ObjectStateManager.GetObjectStateEntry(entry.Entity);
-        //    return objectStateEntry.EntityKey.EntityKeyValues[0].Value;
-        //}
     }
 }

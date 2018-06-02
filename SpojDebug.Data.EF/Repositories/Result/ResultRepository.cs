@@ -8,7 +8,7 @@ namespace SpojDebug.Data.EF.Repositories.Result
 {
     public class ResultRepository : Repository<SpojDebugDbContext, ResultEntity> ,IResultRepository
     {
-        public ResultRepository(SpojDebugDbContext context, SystemInfo systemInfo) : base(context, systemInfo)
+        public ResultRepository(SpojDebugDbContext context) : base(context)
         {
 
         }

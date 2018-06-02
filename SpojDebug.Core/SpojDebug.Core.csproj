@@ -14,10 +14,8 @@
 
   <ItemGroup>
     <Folder Include="Entities\AccountDetail\" />
-    <Folder Include="Models\Account\" />
     <Folder Include="Models\User\" />
     <Folder Include="Models\TestCase\" />
-    <Folder Include="Models\Submission\" />
     <Folder Include="Models\ResultDetail\" />
     <Folder Include="Models\Result\" />
     <Folder Include="Models\Problem\" />

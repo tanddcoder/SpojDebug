@@ -6,7 +6,7 @@ using SpojDebug.Core.Entities;
 
 namespace SpojDebug.Data.Base
 {
-    public interface IRepository<TEntity> where TEntity : BaseEntity<int>
+    public interface IRepository<TEntity> : IDisposable where TEntity : BaseEntity<int>
     {
         IQueryable<TEntity> Get(
             Expression<Func<TEntity, bool>> filter = null);

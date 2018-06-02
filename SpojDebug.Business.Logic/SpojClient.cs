@@ -34,23 +34,12 @@ namespace SpojDebug.Business.Logic
             return textResult;
         }
 
-
-        //public async Task<bool> IsLogin()
-        //{
-        //    var matches = await MatchesHtmlAndPatternAsync("http://www.spoj.com/", "<a href=\"#\" class=\"username_dropdown dropdown-toggle\" data-toggle=\"dropdown\">");
-        //    if (matches.Count > 0)
-        //    {
-        //        return true;
-        //    }
-        //    else return false;
-        //}
-
-        //public async Task<MatchCollection> MatchesHtmlAndPatternAsync(string url, string pattern)
-        //{
-        //    var htmlText = await DownLoadHtmlAsync(url);
-        //    var matches = Regex.Matches(htmlText.Trim(), pattern);
-        //    return matches;
-        //}
+        public async Task<MatchCollection> MatchesHtmlAndPatternAsync(string url, string pattern)
+        {
+            var htmlText = await DownLoadHtmlAsync(url);
+            var matches = Regex.Matches(htmlText.Trim(), pattern);
+            return matches;
+        }
 
         public async Task<bool> IsMatchHtmlAndPatternAsync(string url, string pattern)
         {
@@ -61,6 +50,12 @@ namespace SpojDebug.Business.Logic
         public async Task<string> DownLoadHtmlAsync(string url)
         {
             return await GetStringAsync(url);
+        }
+
+        public async Task<bool> IsLoginSuccess()
+        {
+            var matches = await MatchesHtmlAndPatternAsync("http://www.spoj.com/", "<a href=\"#\" class=\"username_dropdown dropdown-toggle\" data-toggle=\"dropdown\">");
+            return matches.Count > 0;
         }
     }
 }

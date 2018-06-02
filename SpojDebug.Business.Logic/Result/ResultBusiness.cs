@@ -8,7 +8,7 @@ namespace SpojDebug.Business.Logic.Result
 {
     public class ResultBusiness : Business<IResultRepository, ResultEntity>, IResultBusiness
     {
-        protected ResultBusiness(IResultRepository repository,IMapper mapper) : base(repository, mapper)
+        public ResultBusiness(IResultRepository repository,IMapper mapper) : base(repository, mapper)
         {
         }
     }

@@ -32,18 +32,16 @@ namespace SpojDebug
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            StartingApp.GetAppSettingConfigs(Configuration);
 
             services.AddDbContext<SpojDebugDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("SpojDebug.Data.EF")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("SpojDebug.Data.EF")), ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<SpojDebugDbContext>()
                 .AddDefaultTokenProviders();
 
             services.AddAutoMapper();
-
-            // Add custom app settings
-            services.AddCustomAppSettingConfigs(Configuration);
 
             // Add Repositories / "Scope"
             services.ResolveRepositories();
@@ -98,16 +96,16 @@ namespace SpojDebug
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             var monitor = JobStorage.Current.GetMonitoringApi();
-            AppStartBackGroundJob(adminService, monitor);
-            seedDataService.InitData();
+            //AppStartBackGroundJob(adminService, monitor);
+            //seedDataService.InitData();
         }
 
         private static void AppStartBackGroundJob(IAdminSettingService adminservice, IMonitoringApi monitor)
         {
             PurgeJobs(monitor);
-            BackgroundJob.Enqueue(() => adminservice.GetSpojInfo());
-            BackgroundJob.Enqueue(() => adminservice.DownloadSpojTestCases());
-            BackgroundJob.Enqueue(() => adminservice.GetSubmissionInfo());
+            RecurringJob.AddOrUpdate("GetSpojInfo",() => adminservice.GetSpojInfo(), "*/1 * * * *");
+            RecurringJob.AddOrUpdate("DownloadSpojTestCases",() => adminservice.DownloadSpojTestCases(), "*/1 * * * *");
+            RecurringJob.AddOrUpdate("GetSubmissionInfo", () => adminservice.GetSubmissionInfo(), "*/1 * * * *");
         }
 
         public static void PurgeJobs(IMonitoringApi monitor)

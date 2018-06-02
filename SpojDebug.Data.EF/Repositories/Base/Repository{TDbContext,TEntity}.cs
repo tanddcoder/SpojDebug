@@ -17,13 +17,11 @@ namespace SpojDebug.Data.EF.Base
     {
         protected readonly TDbContext Context;
         protected readonly DbSet<TEntity> DbSet;
-        protected readonly SystemInfo SystemInfo;
 
-        protected Repository(TDbContext context, SystemInfo systemInfo)
+        protected Repository(TDbContext context)
         {
             this.Context = context;
             this.DbSet = context.Set<TEntity>();
-            SystemInfo = systemInfo;
         }
 
         public virtual IQueryable<TEntity> Get(
@@ -31,7 +29,7 @@ namespace SpojDebug.Data.EF.Base
         {
             var query = DbSet.AsNoTracking();
 
-            query = query.Where(x => x.DeletedTime == null);
+            //query = query.Where(x => x.DeletedTime == null);
 
             if (filter != null)
             {
@@ -46,7 +44,7 @@ namespace SpojDebug.Data.EF.Base
         {
             var query = DbSet.AsNoTracking();
 
-            query = query.Where(x => x.DeletedTime == null);
+            //query = query.Where(x => x.DeletedTime == null);
 
             if (filter != null)
             {
@@ -64,8 +62,8 @@ namespace SpojDebug.Data.EF.Base
 
         public virtual TEntity Insert(TEntity entity)
         {
-            entity.DeletedTime = null;
-            entity.LastUpdatedTime = null;
+            //entity.DeletedTime = null;
+            //entity.LastUpdatedTime = null;
 
             entity.CreatedTime = DateTime.Now;
 
@@ -75,16 +73,19 @@ namespace SpojDebug.Data.EF.Base
 
         public virtual void InsertRange(IEnumerable<TEntity> entities)
         {
-            var enumerable = entities as TEntity[] ?? entities.ToArray();
-            foreach (var entity in enumerable)
+            foreach (var entity in entities)
             {
-                Insert(entity);
+                //entity.DeletedTime = null;
+                //entity.LastUpdatedTime = null;
+
+                entity.CreatedTime = DateTime.Now;
             }
+            DbSet.AddRange(entities as TEntity[] ?? entities.ToArray());
         }
 
         public virtual void Delete(TEntity entity)
         {
-            entity.DeletedTime = DateTime.Now;
+            //entity.DeletedTime = DateTime.Now;
             Update(entity);
         }
 
@@ -138,6 +139,39 @@ namespace SpojDebug.Data.EF.Base
             }
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~Repository() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

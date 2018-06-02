@@ -8,7 +8,7 @@ namespace SpojDebug.Data.EF.Repositories.TestCase
 {
     public class TestCaseRepository : Repository<SpojDebugDbContext, TestCaseInfoEntity>, ITestCaseRepository
     {
-        public TestCaseRepository(SpojDebugDbContext context, SystemInfo systemInfo) : base(context, systemInfo)
+        public TestCaseRepository(SpojDebugDbContext context) : base(context)
         {
         }
     }

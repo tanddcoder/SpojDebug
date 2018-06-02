@@ -8,7 +8,7 @@ namespace SpojDebug.Data.EF.Repositories.AdminSetting
 {
     public class AdminSettingRepository : Repository<SpojDebugDbContext, AdminSettingEntity>, IAdminSettingRepository
     {
-        public AdminSettingRepository(SpojDebugDbContext context, SystemInfo systemInfo) : base(context, systemInfo)
+        public AdminSettingRepository(SpojDebugDbContext context) : base(context)
         {
         }
     }

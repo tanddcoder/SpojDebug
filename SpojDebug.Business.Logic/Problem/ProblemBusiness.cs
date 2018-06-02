@@ -8,7 +8,7 @@ namespace SpojDebug.Business.Logic.Problem
 {
     public class ProblemBusiness : Business<IProblemRepository, ProblemEntity>, IProblemBusiness
     {
-        protected ProblemBusiness(IProblemRepository repository, IMapper mapper) : base(repository, mapper)
+        public ProblemBusiness(IProblemRepository repository, IMapper mapper) : base(repository, mapper)
         {
         }
     }

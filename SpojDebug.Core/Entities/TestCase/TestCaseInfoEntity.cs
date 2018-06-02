@@ -8,6 +8,6 @@ namespace SpojDebug.Core.Entities.TestCase
         public int TotalTestCase { get; set; }
         public string Path { get; set; }
 
-        public ProblemEntity Problem { get; set; }
+        public virtual ProblemEntity Problem { get; set; }
     }
 }

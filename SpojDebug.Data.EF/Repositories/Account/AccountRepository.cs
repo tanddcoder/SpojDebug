@@ -8,7 +8,7 @@ namespace SpojDebug.Data.EF.Repositories.Account
 {
     public class AccountRepository : Repository<SpojDebugDbContext, AccountEntity>, IAccountRepository
     {
-        public AccountRepository(SpojDebugDbContext context, SystemInfo systemInfo) : base(context, systemInfo)
+        public AccountRepository(SpojDebugDbContext context) : base(context)
         {
         }
     }

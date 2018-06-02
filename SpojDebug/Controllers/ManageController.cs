@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SpojDebug.Core.ManageViewModels;
+using SpojDebug.Core.Models.Account;
 using SpojDebug.Core.User;
 using SpojDebug.Extensions;
 using SpojDebug.Service.Email;
+using SpojDebug.Service.User;
 
 namespace SpojDebug.Controllers
 {
@@ -24,6 +26,7 @@ namespace SpojDebug.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
         private readonly UrlEncoder _urlEncoder;
+        private readonly IUserService _userService;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
@@ -33,17 +36,21 @@ namespace SpojDebug.Controllers
           SignInManager<ApplicationUser> signInManager,
           IEmailSender emailSender,
           ILogger<ManageController> logger,
-          UrlEncoder urlEncoder)
+          UrlEncoder urlEncoder, 
+          IUserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
             _urlEncoder = urlEncoder;
+            _userService = userService;
         }
 
         [TempData]
         public string StatusMessage { get; set; }
+
+        public IUserService UserService => _userService;
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -323,6 +330,23 @@ namespace SpojDebug.Controllers
             };
 
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult SpojAccountCenter()
+        {
+            var model = UserService.GetCurrentUserSpojAccount(User);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SpojAccountCenter(SpojAccountModel model)
+        {
+            model.UserId = _userManager.GetUserId(User);
+
+            await UserService.UpdateUserSpojAccount(model);
+
+            return View();
         }
 
         [HttpGet]

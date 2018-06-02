@@ -1,14 +1,30 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpojDebug.Core;
+using SpojDebug.Core.User;
+using SpojDebug.Service.Submission;
 
 namespace SpojDebug.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ISubmissionService _submissionService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public HomeController(ISubmissionService submissionService, UserManager<ApplicationUser> userManager)
+        {
+            _submissionService = submissionService;
+            _userManager = userManager;
+        }
+
         public IActionResult Index()
         {
-            return View();
+            var userId = _userManager.GetUserId(User);
+
+            var response = _submissionService.GetUserSubmission(userId);
+
+            return View(response);
         }
 
         public IActionResult About()
