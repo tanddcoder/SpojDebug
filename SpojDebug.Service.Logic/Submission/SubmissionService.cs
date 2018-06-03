@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace SpojDebug.Service.Logic.Submission
 {
-    public class SubmissionService : Service<ISubmissionBusiness, TestCaseEntity>, ISubmissionService
+    public class SubmissionService : Service<ISubmissionBusiness, SubmissionEntity>, ISubmissionService
     {
         private readonly ISubmissionBusiness _submissionBusiness;
 

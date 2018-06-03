@@ -6,11 +6,11 @@ namespace SpojDebug.Core.Entities.Result
 {
     public class ResultEntity : BaseEntity<int>
     {
-        public int SubmmissionId { get; set; }
+        public int SubmissionId { get; set; }
         public int TestCaseSeq { get; set; }
         public Enums.ResultType Result { get; set; }
 
-        public virtual TestCaseEntity Submission { get; set; }
+        public virtual SubmissionEntity Submission { get; set; }
         
     }
 }

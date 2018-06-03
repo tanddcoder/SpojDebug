@@ -50,8 +50,6 @@ namespace SpojDebug.Controllers
         [TempData]
         public string StatusMessage { get; set; }
 
-        public IUserService UserService => _userService;
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -335,18 +333,19 @@ namespace SpojDebug.Controllers
         [HttpGet]
         public IActionResult SpojAccountCenter()
         {
-            var model = UserService.GetCurrentUserSpojAccount(User);
+            var model = _userService.GetCurrentUserSpojAccount(User);
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SpojAccountCenter(SpojAccountModel model)
+        public async Task<IActionResult> SpojAccountCenter([Bind("Username,Password,ConfirmPassword")] SpojAccountModel model)
         {
             model.UserId = _userManager.GetUserId(User);
 
-            await UserService.UpdateUserSpojAccount(model);
+            await _userService.UpdateUserSpojAccount(model);
 
-            return View();
+            var response = _userService.GetCurrentUserSpojAccount(User);
+            return View(response);
         }
 
         [HttpGet]

@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using SpojDebug.Core.AppSetting;
 using SpojDebug.Core.Entities;
-using SpojDebug.Ultil.Logger;
 
 namespace SpojDebug.Data.EF.Base
 {
@@ -16,20 +13,32 @@ namespace SpojDebug.Data.EF.Base
         where TEntity : BaseEntity<int>
     {
         protected readonly TDbContext Context;
-        protected readonly DbSet<TEntity> DbSet;
+
+        private DbSet<TEntity> _dbSet;
+
+        protected DbSet<TEntity> DbSet
+        {
+            get
+            {
+                if (_dbSet != null)
+                    return _dbSet;
+                _dbSet = Context.Set<TEntity>();
+                return _dbSet;
+            }
+        }
 
         protected Repository(TDbContext context)
         {
             this.Context = context;
-            this.DbSet = context.Set<TEntity>();
         }
 
         public virtual IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null)
+            Expression<Func<TEntity, bool>> filter = null, bool isIncludeDeleted = false)
         {
             var query = DbSet.AsNoTracking();
 
-            //query = query.Where(x => x.DeletedTime == null);
+            if (!isIncludeDeleted)
+                query = query.Where(x => x.DeletedTime == null);
 
             if (filter != null)
             {
@@ -39,12 +48,13 @@ namespace SpojDebug.Data.EF.Base
             return query;
         }
 
-        public TEntity GetSingle(
-            Expression<Func<TEntity, bool>> filter = null)
+        public virtual TEntity GetSingle(
+            Expression<Func<TEntity, bool>> filter = null, bool isIncludeDeleted = false)
         {
             var query = DbSet.AsNoTracking();
 
-            //query = query.Where(x => x.DeletedTime == null);
+            if(!isIncludeDeleted)
+                query = query.Where(x => x.DeletedTime == null);
 
             if (filter != null)
             {
@@ -62,8 +72,8 @@ namespace SpojDebug.Data.EF.Base
 
         public virtual TEntity Insert(TEntity entity)
         {
-            //entity.DeletedTime = null;
-            //entity.LastUpdatedTime = null;
+            entity.DeletedTime = null;
+            entity.LastUpdatedTime = null;
 
             entity.CreatedTime = DateTime.Now;
 
@@ -75,8 +85,8 @@ namespace SpojDebug.Data.EF.Base
         {
             foreach (var entity in entities)
             {
-                //entity.DeletedTime = null;
-                //entity.LastUpdatedTime = null;
+                entity.DeletedTime = null;
+                entity.LastUpdatedTime = null;
 
                 entity.CreatedTime = DateTime.Now;
             }
@@ -85,7 +95,7 @@ namespace SpojDebug.Data.EF.Base
 
         public virtual void Delete(TEntity entity)
         {
-            //entity.DeletedTime = DateTime.Now;
+            entity.DeletedTime = DateTime.Now;
             Update(entity);
         }
 
@@ -107,6 +117,9 @@ namespace SpojDebug.Data.EF.Base
         public virtual void Update(TEntity entity, params Expression<Func<TEntity, object>>[] changedProperties)
         {
             TryAttach(entity);
+
+            entity.LastUpdatedTime = DateTime.Now;
+
             changedProperties = changedProperties?.Distinct().ToArray();
 
             if (changedProperties?.Any() == true)
@@ -120,12 +133,13 @@ namespace SpojDebug.Data.EF.Base
                 Context.Entry(entity).State = EntityState.Modified;
         }
 
-        public int SaveChanges()
+        public virtual int SaveChanges()
         {
+
             return Context.SaveChanges();
         }
 
-        private bool TryAttach(TEntity entity)
+        public virtual bool TryAttach(TEntity entity)
         {
             try
             {

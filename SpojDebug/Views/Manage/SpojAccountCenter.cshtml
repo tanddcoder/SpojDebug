@@ -2,7 +2,7 @@
 
 @if (@Model.IsUpdated == false)
 {
-    <form asp-action="UpdateSpojAccount" method="POST">
+    <form asp-action="SpojAccountCenter" method="POST">
         <div class="form-group">
             <label asp-for="@Model.Username">Spoj User Name</label>
             <input type="text" asp-for="@Model.Username" placeholder="Your admin Spoj User Name" />

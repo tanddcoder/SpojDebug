@@ -3,29 +3,124 @@
     ViewData["Title"] = "Home Page";
 }
 
-@if(Model != null)
+@if (Model != null)
 {
-    <table>
-    <tbody>
-        <tr>
-            <th>Submission Id</th>
-            <th>Problemset</th>
-            <th>Accepted</th>
-            <th>Total</th>
-            <th> </th>
-        </tr>
-        @foreach (var submission in Model?.Data)
-        {
-            <tr>
-                <td>@submission.SubmissionId</td>
-                <td>@submission.ProblemCode</td>
-                <td>@submission.AcceptedTestCase</td>
-                <td>@submission.TotalTestCase</td>
-                <td>@submission.FirtFailTestCase</td>
-            </tr>
-        }
+    @*<table>
+            <tbody>
+                <tr>
+                    <th>Submission Id</th>
+                    <th>Problemset</th>
+                    <th>Accepted</th>
+                    <th>Total</th>
+                    <th> </th>
+                </tr>
+                @foreach (var submission in Model?.Data)
+                {
+                    <tr>
+                        <td>@submission.SubmissionId</td>
+                        <td>@submission.ProblemCode</td>
+                        <td>@submission.AcceptedTestCase</td>
+                        <td>@submission.TotalTestCase</td>
+                        <td>@submission.FirtFailTestCase</td>
+                    </tr>
+                }
 
-    </tbody>
-</table>
+            </tbody>
+        </table>*@
+    <div class="limiter">
+        <div class="wrap-table100">
+            <div class="table100 ver1">
+                <div class="table100-firstcol">
+                    <table>
+                        <thead>
+                            <tr class="row100 head">
+                                <th class="cell100 column1">Submission Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var submission in Model?.Data)
+                            {
+                                <tr class="row100 body">
+                                    <td class="cell100 column1">@submission.SubmissionId</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="wrap-table100-nextcols js-pscroll">
+                    <div class="table100-nextcols">
+                        <table>
+                            <thead>
+                                <tr class="row100 head">
+                                    <th class="cell100 column2">Problemset</th>
+                                    <th class="cell100 column3">Accepted</th>
+                                    <th class="cell100 column4">Total</th>
+                                    <th class="cell100 column5">First Test Fail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var submission in Model?.Data)
+                                {
+                                    <tr class="row100 body">
+                                        <td class="cell100 column2">@submission.ProblemCode</td>
+                                        <td class="cell100 column3">@submission.AcceptedTestCase</td>
+                                        <td class="cell100 column4">@submission.TotalTestCase</td>
+                                        @if (submission.FirtFailTestCase == -1)
+                                        {
+                                            <td class="cell100 column5">@submission.FirtFailTestCase</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="cell100 column5"><a asp-controller="TestCase" asp-action="Detail" asp-route-id="@submission.FirtFailTestCase">@submission.FirtFailTestCase</a></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+
+    <!--===============================================================================================-->
+    <script src="~/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/vendor/bootstrap/js/popper.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script>
+        $('.js-pscroll').each(function () {
+            var ps = new PerfectScrollbar(this);
+
+            $(window).on('resize', function () {
+                ps.update();
+            })
+
+            $(this).on('ps-x-reach-start', function () {
+                $(this).parent().find('.table100-firstcol').removeClass('shadow-table100-firstcol');
+            });
+
+            $(this).on('ps-scroll-x', function () {
+                $(this).parent().find('.table100-firstcol').addClass('shadow-table100-firstcol');
+            });
+
+        });
+
+
+
+
+    </script>
+    <!--===============================================================================================-->
+    <script src="~/js/main.js"></script>
+
 
 }

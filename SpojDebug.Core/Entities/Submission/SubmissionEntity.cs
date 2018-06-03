@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SpojDebug.Core.Entities.Submission
 {
-    public class TestCaseEntity : BaseEntity<int>
+    public class SubmissionEntity : BaseEntity<int>
     {
         public int? AccountId { get; set; }
         public int? ProblemId { get; set; }

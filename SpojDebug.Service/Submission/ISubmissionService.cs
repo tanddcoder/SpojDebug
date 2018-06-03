@@ -6,8 +6,9 @@ using System.Collections.Generic;
 
 namespace SpojDebug.Service.Submission
 {
-    public interface ISubmissionService : IService<TestCaseEntity>
+    public interface ISubmissionService : IService<SubmissionEntity>
     {
         ApplicationResult<List<SubmissionHomeModel>> GetUserSubmission(string userId);
+        ApplicationResult<SubmissionFirstFailModel> GetFirstFailForFailer(int submissionId);
     }
 }

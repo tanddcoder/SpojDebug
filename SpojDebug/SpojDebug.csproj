@@ -32,4 +32,9 @@
     <ProjectReference Include="..\SpojDebug.Service\SpojDebug.Service.csproj" />
     <ProjectReference Include="..\SpojDebug.Ultil\SpojDebug.Ultil.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logger\Data\SaveChanges\" />
+    <Folder Include="Logger\System\" />
+  </ItemGroup>
 </Project>

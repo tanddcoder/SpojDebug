@@ -24,12 +24,11 @@ using SpojDebug.Core.Entities.Submission;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Ultil.Logger;
 using SpojDebug.Core;
-using SpojDebug.Data.EF.Contexts;
-using SpojDebug.Data.EF.Repositories.Problem;
-using SpojDebug.Data.EF.Repositories.Submission;
-using SpojDebug.Data.EF.Repositories.Result;
-using SpojDebug.Data.EF.Repositories.TestCase;
-using SpojDebug.Data.EF.Repositories.Account;
+using SpojDebug.Data.Repositories.Result;
+using SpojDebug.Data.Repositories.Submission;
+using SpojDebug.Data.Repositories.Problem;
+using SpojDebug.Data.Repositories.TestCase;
+using SpojDebug.Data.Repositories.Account;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -57,12 +56,28 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private static readonly object LockDowloadTestCase = new object();
 
+        private readonly IResultRepository _resultRepository;
+        private readonly ISubmissionRepository _submissionRepository;
+        private readonly IProblemRepository _problemRepository;
+        private readonly ITestCaseRepository _testCaseRepository;
+        private readonly IAccountRepository _accountRepository;
+
         public AdminSettingBusiness(
             IAdminSettingRepository repository,
-            IMapper mapper) : base(repository, mapper)
+            IMapper mapper,
+            IResultRepository resultRepository,
+            ISubmissionRepository submissionRepository,
+            IProblemRepository problemRepository,
+            ITestCaseRepository testCaseRepository,
+            IAccountRepository accountRepository) : base(repository, mapper)
         {
             _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
             _rankUrl = $"http://www.spoj.com/{ApplicationConfigs.SpojInfo.ContestName}/ranks/";
+            _resultRepository = resultRepository;
+            _submissionRepository = submissionRepository;
+            _problemRepository = problemRepository;
+            _testCaseRepository = testCaseRepository;
+            _accountRepository = accountRepository;
         }
 
         public void GetSpojInfo()
@@ -80,7 +95,11 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                     var (username, password) = GetAdminUsernameAndPassword();
                     if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    {
+                        JobLocker.IsDownloadSpojInfoInProcess = false;
                         return;
+                    }
+
                     var result = client.LoginAsync(username, password);
                     result.Wait();
                     text = client.GetText(_rankUrl);
@@ -123,14 +142,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 };
 
                 Repository.Insert(setting);
-                try
-                {
-                    Repository.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    LogHepler.WriteDataErrorLog(e, setting, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                }
+
+                Repository.SaveChanges();
                 return;
             }
 
@@ -138,14 +151,9 @@ namespace SpojDebug.Business.Logic.AdminSetting
             setting.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, ApplicationConfigs.SpojKey.ForUserName);
             setting.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.Password, ApplicationConfigs.SpojKey.ForPassword);
             Repository.Update(setting, x => x.SpojPasswordEncode, x => x.SpojUserNameEncode);
-            try
-            {
-                Repository.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                LogHepler.WriteDataErrorLog(e, setting, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-            }
+
+            Repository.SaveChanges();
+
         }
 
         public void DownloadSpojTestCases()
@@ -156,91 +164,73 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
             try
             {
-                using (var context = new SpojDebugDbContext())
+                using (var client = new SpojClient())
                 {
-                    using (var problemRepository = new ProblemRepository(context))
-                    using (var testCaseRepository = new TestCaseRepository(context))
+                    var (username, password) = GetAdminUsernameAndPassword();
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                     {
-                        using (var client = new SpojClient())
-                        {
-                            var (username, password) = GetAdminUsernameAndPassword();
-                            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                                return;
-                            var result = client.LoginAsync(username, password);
-                            result.Wait();
-                            Thread.Sleep(1000);
-                            var problem = problemRepository.Get().FirstOrDefault(x => x.IsDownloadedTestCase != true && x.IsSkip != true);
-                            if (problem == null)
-                                return;
-                            if (!Regex.IsMatch(problem.Code, "^EI\\w+"))
-                            {
-                                problem.IsSkip = true;
-                                problemRepository.Update(problem, x => x.IsSkip);
-
-                                try
-                                {
-                                    problemRepository.SaveChanges();
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteDataErrorLog(e, problem, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                                }
-                                return;
-                            }
-
-                            var maxTestCase = 0;
-                            try
-                            {
-                                maxTestCase = client.GetTotalTestCase(problem.Code);
-                            }
-                            catch (Exception e)
-                            {
-                                LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
-                            }
-
-                            var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
-                            Directory.CreateDirectory(path);
-
-                            testCaseRepository.Insert(new TestCaseInfoEntity
-                            {
-                                ProblemId = problem.Id,
-                                TotalTestCase = maxTestCase,
-                                Path = path
-                            });
-
-                            for (var i = 0; i <= maxTestCase; i++)
-                            {
-                                var input = "";
-                                var output = "";
-                                try
-                                {
-                                    input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
-                                    output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
-                                    File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
-                                    File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
-                                }
-                                Thread.Sleep(200);
-                            }
-
-                            problem.IsDownloadedTestCase = true;
-                            problem.DownloadTestCaseTime = DateTime.Now;
-                            problemRepository.Update(problem, x => x.IsDownloadedTestCase, x => x.DownloadTestCaseTime);
-                            try
-                            {
-                                problemRepository.SaveChanges();
-                            }
-                            catch (Exception e)
-                            {
-                                LogHepler.WriteDataErrorLog(e, problem, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                            }
-                        }
+                        JobLocker.IsDownloadTestCasesInProcess = false;
+                        return;
                     }
-                }
 
+                    var result = client.LoginAsync(username, password);
+                    result.Wait();
+                    Thread.Sleep(1000);
+                    var problem = _problemRepository.Get().FirstOrDefault(x => x.IsDownloadedTestCase != true && x.IsSkip != true);
+                    if (problem == null)
+                    {
+                        JobLocker.IsDownloadTestCasesInProcess = false;
+                        return;
+                    }
+                    if (!Regex.IsMatch(problem.Code, "^EI\\w+"))
+                    {
+                        problem.IsSkip = true;
+                        _problemRepository.Update(problem, x => x.IsSkip);
+
+                        _problemRepository.SaveChanges();
+
+                        JobLocker.IsDownloadTestCasesInProcess = false;
+                        return;
+                    }
+
+                    var maxTestCase = 0;
+                    maxTestCase = client.GetTotalTestCase(problem.Code);
+
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+                    Directory.CreateDirectory(path);
+
+                    _testCaseRepository.Insert(new TestCaseInfoEntity
+                    {
+                        ProblemId = problem.Id,
+                        TotalTestCase = maxTestCase,
+                        Path = path
+                    });
+
+                    for (var i = 0; i <= maxTestCase; i++)
+                    {
+                        var input = "";
+                        var output = "";
+                        try
+                        {
+                            input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
+                            output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                            File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
+                            File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
+                        }
+                        catch (Exception e)
+                        {
+                            LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
+                        }
+                        Thread.Sleep(200);
+                    }
+
+                    problem.IsDownloadedTestCase = true;
+                    problem.DownloadTestCaseTime = DateTime.Now;
+                    _problemRepository.Update(problem, x => x.IsDownloadedTestCase, x => x.DownloadTestCaseTime);
+
+                    _problemRepository.SaveChanges();
+
+                }
             }
             catch (Exception e)
             {
@@ -258,100 +248,68 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
             try
             {
-                using (var context = new SpojDebugDbContext())
+
+                using (var client = new SpojClient())
                 {
-                    using (var problemRepository = new ProblemRepository(context))
-                    using (var submissionRepository = new SubmissionRepository(context))
-                    using (var resultRepository = new ResultRepository(context))
+                    var (username, password) = GetAdminUsernameAndPassword();
+                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                     {
-                        using (var client = new SpojClient())
+                        JobLocker.IsDownloadSubmissionInfoInProcess = false;
+                        return;
+                    }
+                    var result = client.LoginAsync(username, password);
+                    result.Wait();
+                    var submissions = _submissionRepository.Get(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true &&
+                                    x.Problem.IsSkip != true).Include(x => x.Problem).Take(1000).ToList();
+                    foreach (var submission in submissions)
+                    {
+                        if (submission == null) continue;
+                        if (submission.Problem == null)
                         {
-                            var (username, password) = GetAdminUsernameAndPassword();
-                            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                                return;
-                            var result = client.LoginAsync(username, password);
-                            result.Wait();
-                            var submissions = submissionRepository.Get()
-                                .Where(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true &&
-                                            x.Problem.IsSkip != true).Include(x => x.Problem).Take(1000);
+                            submission.IsNotHaveEnoughInfo = true;
+                            _submissionRepository.Update(submission, x => x.IsNotHaveEnoughInfo);
 
-                            foreach (var submission in submissions)
-                            {
-                                if (submission == null) continue;
-                                if (submission.Problem == null)
-                                {
-                                    submission.IsNotHaveEnoughInfo = true;
-                                    submissionRepository.Update(submission, x => x.IsNotHaveEnoughInfo);
-
-                                    try
-                                    {
-                                        submissionRepository.SaveChanges();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        LogHepler.WriteDataErrorLog(e, submission, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                                    }
-                                    continue;
-                                }
-                                if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
-                                {
-                                    submission.Problem.IsSkip = true;
-                                    problemRepository.Update(submission.Problem, x => x.IsSkip);
-                                    try
-                                    {
-                                        problemRepository.SaveChanges();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        LogHepler.WriteDataErrorLog(e, submission.Problem, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                                    }
-                                    continue;
-                                }
-
-                                var plaintext = client.GetText(string.Format(_submissionInfoUrl, ApplicationConfigs.SpojInfo.ContestName, submission.SpojId));
-                                var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
-
-                                var listResultEnities = new List<ResultEntity>();
-
-                                foreach (Match match in matches)
-                                {
-                                    var resultType = GetResultType(match.Groups[2].Value);
-
-                                    listResultEnities.Add(new ResultEntity
-                                    {
-                                        SubmmissionId = submission.Id,
-                                        TestCaseSeq = int.Parse(match.Groups[1].Value),
-                                        Result = resultType
-                                    });
-                                }
-
-                                resultRepository.InsertRange(listResultEnities);
-
-                                try
-                                {
-                                    resultRepository.SaveChanges();
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteCustomErrorLog(e, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                                }
-                                Thread.Sleep(5000);
-
-                                submission.IsDownloadedInfo = true;
-                                submission.DownloadedTime = DateTime.Now;
-                                submissionRepository.Update(submission, x => x.IsDownloadedInfo, x => x.DownloadedTime);
-                                try
-                                {
-                                    submissionRepository.SaveChanges();
-                                }
-                                catch (Exception e)
-                                {
-                                    LogHepler.WriteDataErrorLog(e, submission, ApplicationConfigs.SystemInfo.DataError + "/SaveChanges");
-                                }
-                            }
+                            _submissionRepository.SaveChanges();
+                            continue;
                         }
+                        if (!Regex.IsMatch(submission.Problem.Code, "^EI\\w+"))
+                        {
+                            submission.Problem.IsSkip = true;
+                            _problemRepository.Update(submission.Problem);
+                            _problemRepository.SaveChanges();
+                            continue;
+                        }
+
+                        var plaintext = client.GetText(string.Format(_submissionInfoUrl, ApplicationConfigs.SpojInfo.ContestName, submission.SpojId));
+                        var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
+
+                        var listResultEnities = new List<ResultEntity>();
+
+                        foreach (Match match in matches)
+                        {
+                            var resultType = GetResultType(match.Groups[2].Value);
+                            listResultEnities.Add(new ResultEntity
+                            {
+                                SubmissionId = submission.Id,
+                                TestCaseSeq = int.Parse(match.Groups[1].Value),
+                                Result = resultType
+                            });
+                        }
+
+                        _resultRepository.InsertRange(listResultEnities);
+                        _resultRepository.SaveChanges();
+
+                        Thread.Sleep(5000);
+
+                        submission.IsDownloadedInfo = true;
+                        submission.DownloadedTime = DateTime.Now;
+                        _submissionRepository.Update(submission, x => x.IsDownloadedInfo, x => x.DownloadedTime);
+                        _submissionRepository.SaveChanges();
+
+                        listResultEnities = new List<ResultEntity>();
                     }
                 }
+
             }
             catch (Exception e)
             {
@@ -415,60 +373,55 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private Dictionary<int, SpojProblemInfoModel> ParseProblems(SpojDataTokenizer tokenizer)
         {
             var prolems = new Dictionary<int, SpojProblemInfoModel>();
-            using (var context = new SpojDebugDbContext())
+            var nProblems = tokenizer.GetInt();
+            var nLines = tokenizer.GetInt();
+
+            var listCheckingIds = new List<int>();
+
+            var listChunk = new List<SpojProblemInfoModel>();
+            var chunkSteps = (int)Math.Ceiling((double)nProblems / _chunkSize);
+            for (int i = 0; i < chunkSteps; i++)
             {
-                using (var problemRepository = new ProblemRepository(context))
+                for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nProblems; j++)
                 {
-                    var nProblems = tokenizer.GetInt();
-                    var nLines = tokenizer.GetInt();
-
-                    var listCheckingIds = new List<int>();
-
-                    var listChunk = new List<SpojProblemInfoModel>();
-                    var chunkSteps = (int)Math.Ceiling((double)nProblems / _chunkSize);
-                    for (int i = 0; i < chunkSteps; i++)
+                    var problemModel = new SpojProblemInfoModel()
                     {
-                        for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nProblems; j++)
-                        {
-                            var problemModel = new SpojProblemInfoModel()
-                            {
-                                Id = tokenizer.GetInt(),
-                                TimeLimit = tokenizer.GetFloat(),
-                                Code = tokenizer.GetNext(),
-                                Name = tokenizer.GetNext(),
-                                Type = tokenizer.GetInt(),
-                                ProblemSet = tokenizer.GetNext()
-                            };
+                        Id = tokenizer.GetInt(),
+                        TimeLimit = tokenizer.GetFloat(),
+                        Code = tokenizer.GetNext(),
+                        Name = tokenizer.GetNext(),
+                        Type = tokenizer.GetInt(),
+                        ProblemSet = tokenizer.GetNext()
+                    };
 
-                            listChunk.Add(problemModel);
-                            listCheckingIds.Add(problemModel.Id);
+                    listChunk.Add(problemModel);
+                    listCheckingIds.Add(problemModel.Id);
 
-                            tokenizer.Skip(nLines - 6);
-                            prolems[problemModel.Id] = problemModel;
-                        }
-
-                        var ids = listCheckingIds;
-                        var listExisting = problemRepository.Get(x => ids.Contains(x.SpojId.Value)).Select(x => x.Id).ToList();
-                        var listEntitties = listChunk.Where(x => !listExisting.Contains(x.Id)).Select(model => new ProblemEntity
-                        {
-                            SpojId = model.Id,
-                            TimeLimit = model.TimeLimit,
-                            Code = model.Code,
-                            Name = model.Name,
-                            Type = model.Type,
-                            SpojProblemSet = model.ProblemSet
-                        })
-                        .ToList();
-
-                        problemRepository.InsertRange(listEntitties);
-                        problemRepository.SaveChanges();
-                        listChunk = new List<SpojProblemInfoModel>();
-                        listCheckingIds = new List<int>();
-                        Thread.Sleep(5000);
-                    }
-                    problemRepository.SaveChanges();
+                    tokenizer.Skip(nLines - 6);
+                    prolems[problemModel.Id] = problemModel;
                 }
+
+                var ids = listCheckingIds;
+                var listExisting = _problemRepository.Get(x => ids.Contains(x.SpojId.Value)).Select(x => x.Id).ToList();
+                var listEntitties = listChunk.Where(x => !listExisting.Contains(x.Id)).Select(model => new ProblemEntity
+                {
+                    SpojId = model.Id,
+                    TimeLimit = model.TimeLimit,
+                    Code = model.Code,
+                    Name = model.Name,
+                    Type = model.Type,
+                    SpojProblemSet = model.ProblemSet
+                })
+                .ToList();
+
+                _problemRepository.InsertRange(listEntitties);
+                _problemRepository.SaveChanges();
+                listChunk = new List<SpojProblemInfoModel>();
+                listCheckingIds = new List<int>();
+                Thread.Sleep(5000);
             }
+            _problemRepository.SaveChanges();
+
 
             return prolems;
         }
@@ -476,158 +429,146 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private Dictionary<int, SpojUserModel> ParseUsers(SpojDataTokenizer tokenizer)
         {
             var users = new Dictionary<int, SpojUserModel>();
-            using (var context = new SpojDebugDbContext())
+            var nUsers = tokenizer.GetInt();
+            var nLines = tokenizer.GetInt();
+
+            var listChunk = new List<SpojUserModel>();
+            var listChunkIds = new List<int>();
+
+            var chunkSteps = (int)Math.Ceiling((double)nUsers / _chunkSize);
+
+            for (int i = 0; i < chunkSteps; i++)
             {
-                using (var accountRepository = new AccountRepository(context))
+                for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nUsers; j++)
                 {
-                    var nUsers = tokenizer.GetInt();
-                    var nLines = tokenizer.GetInt();
-
-                    var listChunk = new List<SpojUserModel>();
-                    var listChunkIds = new List<int>();
-
-                    var chunkSteps = (int)Math.Ceiling((double)nUsers / _chunkSize);
-
-                    for (int i = 0; i < chunkSteps; i++)
+                    var user = new SpojUserModel()
                     {
-                        for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nUsers; j++)
-                        {
-                            var user = new SpojUserModel()
-                            {
-                                UserId = tokenizer.GetInt(),
-                                Username = tokenizer.GetNext(),
-                                DisplayName = tokenizer.GetNext(),
-                                Email = tokenizer.GetNext()
-                            };
-                            tokenizer.Skip(nLines - 4);
-                            users[user.UserId] = user;
+                        UserId = tokenizer.GetInt(),
+                        Username = tokenizer.GetNext(),
+                        DisplayName = tokenizer.GetNext(),
+                        Email = tokenizer.GetNext()
+                    };
+                    tokenizer.Skip(nLines - 4);
+                    users[user.UserId] = user;
 
-                            listChunk.Add(user);
-                            listChunkIds.Add(user.UserId);
-                        }
-                        var ids = listChunkIds;
-                        var listExist = accountRepository.Get(x => ids.Contains(x.SpojUserId)).Select(x => x.SpojUserId);
-                        var listEntites = listChunk.Where(x => !listExist.Contains(x.UserId)).Select(x => new AccountEntity
-                        {
-                            SpojUserId = x.UserId,
-                            UserName = x.Username,
-                            DisplayName = x.DisplayName,
-                            Email = x.Email
-                        });
-
-                        accountRepository.InsertRange(listEntites);
-                        accountRepository.SaveChanges();
-
-                        listChunk = new List<SpojUserModel>();
-                        listChunkIds = new List<int>();
-                        Thread.Sleep(5000);
-                    }
+                    listChunk.Add(user);
+                    listChunkIds.Add(user.UserId);
                 }
+                var ids = listChunkIds;
+                var listExist = _accountRepository.Get(x => ids.Contains(x.SpojUserId)).Select(x => x.SpojUserId).ToList();
+                var listEntites = listChunk.Where(x => !listExist.Contains(x.UserId)).Select(x => new AccountEntity
+                {
+                    SpojUserId = x.UserId,
+                    UserName = x.Username,
+                    DisplayName = x.DisplayName,
+                    Email = x.Email
+                });
+
+                _accountRepository.InsertRange(listEntites);
+                _accountRepository.SaveChanges();
+
+                listChunk = new List<SpojUserModel>();
+                listChunkIds = new List<int>();
+                Thread.Sleep(5000);
             }
+
             return users;
         }
 
         private void ParseUserSubmissions(SpojDataTokenizer tokenizer, Dictionary<int, SpojUserModel> users, Dictionary<int, SpojProblemInfoModel> problemsInfo)
         {
 
-            using (var context = new SpojDebugDbContext())
+            var nSeries = tokenizer.GetInt();
+            var nLine = tokenizer.GetInt();
+            tokenizer.Skip(1);
+            var nSubmissions = tokenizer.GetInt();
+
+            var listChunk = new List<SpojSubmissionModel>();
+            var listChunkIds = new List<int>();
+
+            var chunkSteps = (int)Math.Ceiling((double)nSubmissions / _chunkSize);
+            for (int i = 0; i < chunkSteps; i++)
             {
-                using (var submissionRepository = new SubmissionRepository(context))
-                using (var problemRepository = new ProblemRepository(context))
-                using (var accountRepository = new AccountRepository(context))
+                for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nSubmissions; j++)
                 {
-                    var nSeries = tokenizer.GetInt();
-                    var nLine = tokenizer.GetInt();
+                    var userId = tokenizer.GetInt();
+                    var spojProblemId = tokenizer.GetInt();
+                    var time = tokenizer.GetUnixTime();
+                    var status = tokenizer.GetInt();
+                    var language = tokenizer.GetInt();
+                    var score = tokenizer.GetFloat();
+                    var runTime = tokenizer.GetFloat();
                     tokenizer.Skip(1);
-                    var nSubmissions = tokenizer.GetInt();
+                    var id = tokenizer.GetInt();
 
-                    var listChunk = new List<SpojSubmissionModel>();
-                    var listChunkIds = new List<int>();
-
-                    var chunkSteps = (int)Math.Ceiling((double)nSubmissions / _chunkSize);
-                    for (int i = 0; i < chunkSteps; i++)
+                    var languageText = "";
+                    switch (language)
                     {
-                        for (int j = i * _chunkSize; j < (i + 1) * _chunkSize && j < nSubmissions; j++)
+                        case 10: languageText = "Java"; break;
+                        case 27: languageText = "C#"; break;
+                        case 32: languageText = "JS2"; break;
+                        default: languageText = "Other Languages"; break;
+                    }
+                    tokenizer.Skip(nLine - 9);
+
+                    if (!problemsInfo.ContainsKey(spojProblemId)) continue;
+                    var problemInfo = problemsInfo[spojProblemId];
+
+                    var submission = new SpojSubmissionModel
+                    {
+                        Id = id,
+                        Time = time,
+                        Score = status == 15 && problemInfo.Type == 2 ? score : (status == 15 && problemInfo.Type == 0 ? 100 : 0),
+                        RunTime = runTime,
+                        Language = languageText,
+                        UserId = userId,
+                        ProblemId = spojProblemId
+                    };
+
+                    listChunk.Add(submission);
+                    listChunkIds.Add(submission.Id);
+
+                    SpojUserModel user = null;
+                    if (users.TryGetValue(userId, out user))
+                    {
+                        SpojProblemModel problem = null;
+                        if (!user.Problems.TryGetValue(spojProblemId, out problem))
                         {
-                            var userId = tokenizer.GetInt();
-                            var spojProblemId = tokenizer.GetInt();
-                            var time = tokenizer.GetUnixTime();
-                            var status = tokenizer.GetInt();
-                            var language = tokenizer.GetInt();
-                            var score = tokenizer.GetFloat();
-                            var runTime = tokenizer.GetFloat();
-                            tokenizer.Skip(1);
-                            var id = tokenizer.GetInt();
-
-                            var languageText = "";
-                            switch (language)
-                            {
-                                case 10: languageText = "Java"; break;
-                                case 27: languageText = "C#"; break;
-                                case 32: languageText = "JS2"; break;
-                                default: languageText = "Other Languages"; break;
-                            }
-                            tokenizer.Skip(nLine - 9);
-
-                            if (!problemsInfo.ContainsKey(spojProblemId)) continue;
-                            var problemInfo = problemsInfo[spojProblemId];
-
-                            var submission = new SpojSubmissionModel
-                            {
-                                Id = id,
-                                Time = time,
-                                Score = status == 15 && problemInfo.Type == 2 ? score : (status == 15 && problemInfo.Type == 0 ? 100 : 0),
-                                RunTime = runTime,
-                                Language = languageText,
-                                UserId = userId,
-                                ProblemId = spojProblemId
-                            };
-
-                            listChunk.Add(submission);
-                            listChunkIds.Add(submission.Id);
-
-                            SpojUserModel user = null;
-                            if (users.TryGetValue(userId, out user))
-                            {
-                                SpojProblemModel problem = null;
-                                if (!user.Problems.TryGetValue(spojProblemId, out problem))
-                                {
-                                    problem = new SpojProblemModel() { Id = spojProblemId, Code = problemInfo.Code };
-                                    user.Problems[spojProblemId] = problem;
-                                }
-                                problem.Submissions.Add(submission);
-                            }
+                            problem = new SpojProblemModel() { Id = spojProblemId, Code = problemInfo.Code };
+                            user.Problems[spojProblemId] = problem;
                         }
-
-                        var ids = listChunkIds;
-                        var listExist = submissionRepository.Get(x => ids.Contains(x.SpojId))
-                            .Select(x => x.SpojId);
-
-                        var listNotExist = listChunk.Where(x => !listExist.Contains(x.Id));
-
-                        var listEntities = (from item in listNotExist
-                                            let internalProblemId = problemRepository.Get(x => x.SpojId == item.ProblemId).Select(x => x.Id).FirstOrDefault()
-                                            let internalAccountId = accountRepository.Get(x => x.SpojUserId == item.UserId).Select(x => x.Id).FirstOrDefault()
-                                            select new TestCaseEntity
-                                            {
-                                                SpojId = item.Id,
-                                                SubmitTime = item.Time,
-                                                Score = item.Score,
-                                                RunTime = item.RunTime,
-                                                Language = item.Language,
-                                                ProblemId = internalProblemId == 0 ? (int?)null : internalProblemId,
-                                                AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
-                                            }).ToList();
-                        submissionRepository.InsertRange(listEntities);
-                        submissionRepository.SaveChanges();
-
-                        listChunk = new List<SpojSubmissionModel>();
-                        listChunkIds = new List<int>();
-
-                        Thread.Sleep(5000);
+                        problem.Submissions.Add(submission);
                     }
                 }
+
+                var ids = listChunkIds;
+                var listExist = _submissionRepository.Get(x => ids.Contains(x.SpojId))
+                    .Select(x => x.SpojId);
+
+                var listNotExist = listChunk.Where(x => !listExist.Contains(x.Id));
+
+                var listEntities = (from item in listNotExist
+                                    let internalProblemId = _problemRepository.Get(x => x.SpojId == item.ProblemId).Select(x => x.Id).FirstOrDefault()
+                                    let internalAccountId = _accountRepository.Get(x => x.SpojUserId == item.UserId).Select(x => x.Id).FirstOrDefault()
+                                    select new SubmissionEntity
+                                    {
+                                        SpojId = item.Id,
+                                        SubmitTime = item.Time,
+                                        Score = item.Score,
+                                        RunTime = item.RunTime,
+                                        Language = item.Language,
+                                        ProblemId = internalProblemId == 0 ? (int?)null : internalProblemId,
+                                        AccountId = internalAccountId == 0 ? (int?)null : internalAccountId
+                                    }).ToList();
+                _submissionRepository.InsertRange(listEntities);
+                _submissionRepository.SaveChanges();
+
+                listChunk = new List<SpojSubmissionModel>();
+                listChunkIds = new List<int>();
+
+                Thread.Sleep(5000);
             }
+
         }
 
         #endregion

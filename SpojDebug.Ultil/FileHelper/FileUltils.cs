@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using SpojDebug.Ultil.Exception;
 
 namespace SpojDebug.Ultil.FileHelper
@@ -14,6 +15,12 @@ namespace SpojDebug.Ultil.FileHelper
                 path = path + Path.DirectorySeparatorChar;
 
             File.WriteAllText(path + fileName, content);
+        }
+
+        public static string ReadFileAllText(string path)
+        {
+            var buffer = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), path));
+            return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         }
     }
 }

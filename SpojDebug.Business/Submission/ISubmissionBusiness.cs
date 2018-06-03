@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SpojDebug.Business.Submission
 {
-    public interface ISubmissionBusiness : IBusiness<TestCaseEntity>
+    public interface ISubmissionBusiness : IBusiness<SubmissionEntity>
     {
         List<SubmissionHomeModel> GetUserSubmission(string userId);
     }

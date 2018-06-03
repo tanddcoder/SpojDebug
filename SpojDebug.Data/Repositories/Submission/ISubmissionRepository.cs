@@ -4,7 +4,7 @@ using System;
 
 namespace SpojDebug.Data.Repositories.Submission
 {
-    public interface ISubmissionRepository : IRepository<TestCaseEntity>
+    public interface ISubmissionRepository : IRepository<SubmissionEntity>
     {
 
     }

@@ -14,7 +14,7 @@ namespace SpojDebug.Core.Entities.Account
         public string Phone { get; set; }   
         public string UserId { get; set; }
 
-        public virtual ICollection<TestCaseEntity> Submissions { get; set; }
+        public virtual ICollection<SubmissionEntity> Submissions { get; set; }
         public virtual ApplicationUser User { get; set; }
     }
 }

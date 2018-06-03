@@ -17,7 +17,7 @@ namespace SpojDebug.Core.Entities.Problem
         public DateTime? DownloadTestCaseTime { get; set; }
         public bool? IsSkip { get; set; }
 
-        public virtual ICollection<TestCaseEntity> Submissions { get; set; }
+        public virtual ICollection<SubmissionEntity> Submissions { get; set; }
         public virtual ICollection<TestCaseInfoEntity> TestCaseInfos { get; set; }
     }
 }

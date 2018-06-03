@@ -17,6 +17,7 @@ using Hangfire.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using SpojDebug.Service;
+using SpojDebug.Core.AppSetting;
 
 namespace SpojDebug
 {
@@ -35,7 +36,7 @@ namespace SpojDebug
             StartingApp.GetAppSettingConfigs(Configuration);
 
             services.AddDbContext<SpojDebugDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly("SpojDebug.Data.EF")), ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+                options.UseSqlServer(ApplicationConfigs.ConnectionStrings.DefaultConnection, x => x.MigrationsAssembly("SpojDebug.Data.EF")), ServiceLifetime.Scoped);
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<SpojDebugDbContext>()
@@ -96,8 +97,8 @@ namespace SpojDebug
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             var monitor = JobStorage.Current.GetMonitoringApi();
-            //AppStartBackGroundJob(adminService, monitor);
-            //seedDataService.InitData();
+            seedDataService.InitData();
+            AppStartBackGroundJob(adminService, monitor);
         }
 
         private static void AppStartBackGroundJob(IAdminSettingService adminservice, IMonitoringApi monitor)

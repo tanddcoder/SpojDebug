@@ -9,10 +9,10 @@ namespace SpojDebug.Data.Base
     public interface IRepository<TEntity> : IDisposable where TEntity : BaseEntity<int>
     {
         IQueryable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null);
+            Expression<Func<TEntity, bool>> filter = null, bool isIncludeDeleted = false);
 
         TEntity GetSingle(
-            Expression<Func<TEntity, bool>> filter = null);
+            Expression<Func<TEntity, bool>> filter = null, bool isIncludeDeleted = false);
 
         TEntity GetById(object id);
 
