@@ -17,6 +17,11 @@ namespace SpojDebug.Service.Logic.Submission
             _submissionBusiness = submissionBusiness;
         }
 
+        public ApplicationResult<SubmissionFirstFailModel> GetFirstFailForFailer(int submissionId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public ApplicationResult<List<SubmissionHomeModel>> GetUserSubmission(string userId)
         {
             var response = _submissionBusiness.GetUserSubmission(userId);
