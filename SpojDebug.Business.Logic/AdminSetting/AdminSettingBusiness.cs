@@ -38,15 +38,15 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private readonly string _rankUrl;
 
-        private readonly string _inputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.in";
+        private readonly string _inputTestCaseUrl = "/problems/{0}/{1}.in";
 
-        private readonly string _outputTestCaseUrl = "http://www.spoj.com/problems/{0}/{1}.out";
+        private readonly string _outputTestCaseUrl = "/problems/{0}/{1}.out";
 
-        private readonly string _spojProblemInfoUrl = "http://www.spoj.com/problems/{0}/edit/";
+        private readonly string _spojProblemInfoUrl = "/problems/{0}/edit/";
 
-        private readonly string _submissionInfoUrl = "http://www.spoj.com/{0}/files/psinfo/{1}/";
+        private readonly string _submissionInfoUrl = "/{0}/files/psinfo/{1}/";
 
-        private readonly string _testCasePostUrl = "http://www.spoj.com/problems/{0}/edit2/";
+        private readonly string _testCasePostUrl = "/problems/{0}/edit2/";
 
         private const int _chunkSize = 1000;
 
@@ -71,8 +71,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
             ITestCaseRepository testCaseRepository,
             IAccountRepository accountRepository) : base(repository, mapper)
         {
-            _downloadUrl = string.Format("http://www.spoj.com/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
-            _rankUrl = $"http://www.spoj.com/{ApplicationConfigs.SpojInfo.ContestName}/ranks/";
+            _downloadUrl = string.Format("/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
+            _rankUrl = $"/{ApplicationConfigs.SpojInfo.ContestName}/ranks/";
             _resultRepository = resultRepository;
             _submissionRepository = submissionRepository;
             _problemRepository = problemRepository;

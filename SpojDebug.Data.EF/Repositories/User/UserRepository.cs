@@ -33,7 +33,7 @@ namespace SpojDebug.Data.EF.Repositories.User
                 query = query.Where(filter);
             }
 
-            return _userManager.Users;
+            return query;
         }
 
         public string GetUserId(ClaimsPrincipal user)

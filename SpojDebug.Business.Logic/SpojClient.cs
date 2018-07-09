@@ -9,7 +9,12 @@ namespace SpojDebug.Business.Logic
     public class SpojClient : HttpClient
     {
 
-        private readonly string _spojLoginUri = @"http://www.spoj.com/login/";
+        private readonly string _spojLoginUri = @"/login/";
+
+        public SpojClient()
+        {
+            AddHeaders();
+        }
 
         public async Task<HttpResponseMessage> LoginAsync(string username, string password)
         {
@@ -23,6 +28,15 @@ namespace SpojDebug.Business.Logic
 
             var result = await PostAsync(_spojLoginUri, content);
             return result;
+        }
+
+        public void AddHeaders()
+        {
+            //DefaultRequestHeaders.Add("Referrer","https://www.spoj.com");
+            // DefaultRequestHeaders.Add("Host","https://www.spoj.com");
+            BaseAddress = new System.Uri("https://www.spoj.com");
+            DefaultRequestHeaders.Add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/apng,*/*;q=0.8");
+            DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36");
         }
 
         public string GetText(string url)
