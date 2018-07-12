@@ -345,7 +345,7 @@ namespace SpojDebug.Controllers
             await _userService.UpdateUserSpojAccount(model);
 
             var response = _userService.GetCurrentUserSpojAccount(User);
-            return View(response);
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

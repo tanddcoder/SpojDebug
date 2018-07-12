@@ -26,11 +26,11 @@ namespace SpojDebug.Business.Logic.Submission
             var account = _accountRepository.Get(x => x.UserId == userId).FirstOrDefault();
             if (account == null) return new List<SubmissionHomeModel>();
 
-            var availableSubmission = Repository.Get(x => x.AccountId == account.Id && x.Results.Any()).Include(x => x.Results).Include(x => x.Problem).ToList();
+            var availableSubmission = Repository.Get(x => x.AccountId == account.Id && x.Results.Any()).OrderByDescending(x => x.SpojId).Include(x => x.Results).Include(x => x.Problem).Take(2).ToList();
             var finalResult = new List<SubmissionHomeModel>();
             foreach (var submission in availableSubmission)
             {
-                var resultEntity = submission.Results.FirstOrDefault(y => y.Result != Enums.ResultType.Accepted);
+                var resultEntity = submission.Results.OrderBy(x => x.TestCaseSeq).FirstOrDefault(y => y.Result != Enums.ResultType.Accepted);
 
                 finalResult.Add(new SubmissionHomeModel
                 {
@@ -42,7 +42,7 @@ namespace SpojDebug.Business.Logic.Submission
                 });
             }
 
-            return finalResult;
+            return finalResult.OrderByDescending(x => x.SubmissionId).ToList();
         }
     }
 }

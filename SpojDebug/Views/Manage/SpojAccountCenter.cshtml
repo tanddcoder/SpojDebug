@@ -1,7 +1,5 @@
 ﻿@model SpojDebug.Core.Models.Account.SpojAccountModel
 
-@if (@Model.IsUpdated == false)
-{
     <form asp-action="SpojAccountCenter" method="POST">
         <div class="form-group">
             <label asp-for="@Model.Username">Spoj User Name</label>
@@ -19,4 +17,3 @@
             <input type="submit" value="Update" />
         </div>
     </form>
-}

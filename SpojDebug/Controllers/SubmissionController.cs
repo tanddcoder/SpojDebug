@@ -17,6 +17,7 @@ namespace SpojDebug.Controllers
             _submissionService = submissionService;
         }
         
+        [HttpGet]
         public IActionResult WhereFailerTakePlaceLoL(int? id)
         {
             if (id == null)

@@ -28,7 +28,7 @@ namespace SpojDebug.Business.Logic.TestCase
 
         public TestCaseResponseModel GetFirstFailForFailer(int submissionId, string userId)
         {
-            var submission = _submissionRepository.Get(x => x.Id == submissionId && x.Account.UserId == userId)
+            var submission = _submissionRepository.Get(x => x.SpojId == submissionId && x.Account.UserId == userId)
                 .Include(x => x.Account)
                 .Include(x => x.Problem)
                 .Include(x => x.Results)
@@ -37,14 +37,31 @@ namespace SpojDebug.Business.Logic.TestCase
                 throw new SpojDebugException("Submission not found");
             var firstFailResult = submission.Results.OrderBy(x => x.TestCaseSeq).FirstOrDefault(x => x.Result != Enums.ResultType.Accepted);
 
+            var input = "Test case has not downloaded!";
+            var output = "Test case has not downloaded!";
+            var testSeq = firstFailResult == null ? int.MaxValue: firstFailResult.TestCaseSeq;
+            var inputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{testSeq}.in"));
+            var outputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{testSeq}.out"));
+            if (File.Exists(inputPath))
+                input = FileUltils.ReadFileAllText(inputPath);
+
+            if (File.Exists(outputPath))
+                output = FileUltils.ReadFileAllText(outputPath);
+
+            if (input.Length > 2000)
+                input = input.Substring(0, 2000) + "...";
+
+            if (output.Length > 2000)
+                output = output.Substring(0, 2000) + "...";
+
             var model = new TestCaseResponseModel
             {
                 SubmissionId = submission.Id,
                 ProblemCode = submission.Problem.Code,
-                ResultName = firstFailResult == null ? Enums.ResultType.Accepted.GetDisplayName(): firstFailResult.Result.GetDisplayName(),
+                ResultName = firstFailResult == null ? Enums.ResultType.Accepted.GetDisplayName() : firstFailResult.Result.GetDisplayName(),
                 TestCaseSeq = firstFailResult == null ? -1 : firstFailResult.TestCaseSeq,
-                Input = firstFailResult == null ? "" : FileUltils.ReadFileAllText(Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{firstFailResult.TestCaseSeq}.in"))).Substring(0, 1000),
-                Output = firstFailResult == null ? "" : FileUltils.ReadFileAllText(Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{firstFailResult.TestCaseSeq}.out"))).Substring(0, 1000)
+                Input = input,
+                Output = output
             };
 
             return model;

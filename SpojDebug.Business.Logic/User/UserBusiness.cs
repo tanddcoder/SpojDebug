@@ -49,7 +49,7 @@ namespace SpojDebug.Business.Logic.User
             if (account == null)
                 throw new SpojDebugException("Spoj Account has not existed in system");
 
-            if(account.UserId != null)
+            if(account.UserId != null && account.UserId != model.UserId)
                 throw new SpojDebugException("Sorry. This Spoj account was used by another user");
             using (var client = new SpojClient())
             {
@@ -64,6 +64,13 @@ namespace SpojDebug.Business.Logic.User
 
                 _accountRepository.Update(account, x => x.UserId);
                 _accountRepository.SaveChanges();
+            }
+
+            var oldAccounts = _accountRepository.Get(x => x.UserId == model.UserId);
+            foreach (var acc in oldAccounts.ToList())
+            {
+                acc.UserId = null;
+                _accountRepository.Update(acc, x => x.UserId);
             }
         }
     }

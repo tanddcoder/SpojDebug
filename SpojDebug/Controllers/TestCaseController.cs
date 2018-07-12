@@ -17,17 +17,16 @@ namespace SpojDebug.Controllers
             _userManager = userManager;
         }
         
-        [HttpPost]
-        [Route("WhereFailerTakePlace/{submissionId}")]
-        public IActionResult WhereFailerTakePlace(int? submissionId)
+        [HttpGet]
+        public IActionResult WhereFailerTakePlace(int? id)
         {
-            if (submissionId == null)
+            if (id == null)
                 throw new SpojDebugException("Id Null");
 
             var userId = _userManager.GetUserId(User); 
-            var response = _testCaseService.GetFirstFailForFailer(submissionId.Value, userId);
+            var response = _testCaseService.GetFirstFailForFailer(id.Value, userId);
 
-            return View();
+            return View(response);
         }
     }
 }

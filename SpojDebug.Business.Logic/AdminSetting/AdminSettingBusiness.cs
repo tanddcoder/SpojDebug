@@ -120,7 +120,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
             }
 
-            JobLocker.IsDownloadSpojInfoInProcess = true;
+            JobLocker.IsDownloadSpojInfoInProcess = false;
         }
 
         public void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model)
@@ -175,61 +175,56 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                     var result = client.LoginAsync(username, password);
                     result.Wait();
-                    Thread.Sleep(1000);
-                    var problem = _problemRepository.Get().FirstOrDefault(x => x.IsDownloadedTestCase != true && x.IsSkip != true);
-                    if (problem == null)
+                    var problems = _problemRepository.Get().Where(x => x.IsDownloadedTestCase != true && x.IsSkip != true).Take(100);
+                    foreach (var problem in problems)
                     {
-                        JobLocker.IsDownloadTestCasesInProcess = false;
-                        return;
-                    }
-                    if (!Regex.IsMatch(problem.Code, "^EI\\w+"))
-                    {
-                        problem.IsSkip = true;
-                        _problemRepository.Update(problem, x => x.IsSkip);
+
+                        if (!Regex.IsMatch(problem.Code, "^EI\\w+"))
+                        {
+                            problem.IsSkip = true;
+                            _problemRepository.Update(problem, x => x.IsSkip);
+
+                            _problemRepository.SaveChanges();
+                            
+                            continue;
+                        }
+
+                        var maxTestCase = 0;
+                        maxTestCase = client.GetTotalTestCase(problem.Code);
+
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
+                        Directory.CreateDirectory(path);
+
+                        _testCaseRepository.Insert(new TestCaseInfoEntity
+                        {
+                            ProblemId = problem.Id,
+                            TotalTestCase = maxTestCase,
+                            Path = path
+                        });
+
+                        for (var i = 0; i <= maxTestCase; i++)
+                        {
+                            var input = "";
+                            var output = "";
+                            try
+                            {
+                                input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
+                                output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
+                                File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
+                                File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
+                            }
+                            catch (Exception e)
+                            {
+                                LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
+                            }
+                        }
+
+                        problem.IsDownloadedTestCase = true;
+                        problem.DownloadTestCaseTime = DateTime.Now;
+                        _problemRepository.Update(problem, x => x.IsDownloadedTestCase, x => x.DownloadTestCaseTime);
 
                         _problemRepository.SaveChanges();
-
-                        JobLocker.IsDownloadTestCasesInProcess = false;
-                        return;
                     }
-
-                    var maxTestCase = 0;
-                    maxTestCase = client.GetTotalTestCase(problem.Code);
-
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{problem.Code}");
-                    Directory.CreateDirectory(path);
-
-                    _testCaseRepository.Insert(new TestCaseInfoEntity
-                    {
-                        ProblemId = problem.Id,
-                        TotalTestCase = maxTestCase,
-                        Path = path
-                    });
-
-                    for (var i = 0; i <= maxTestCase; i++)
-                    {
-                        var input = "";
-                        var output = "";
-                        try
-                        {
-                            input = client.GetText(string.Format(_inputTestCaseUrl, problem.Code, i));
-                            output = client.GetText(string.Format(_outputTestCaseUrl, problem.Code, i));
-                            File.WriteAllText(Path.Combine(path, $"{i}.in"), input);
-                            File.WriteAllText(Path.Combine(path, $"{i}.out"), output);
-                        }
-                        catch (Exception e)
-                        {
-                            LogHepler.WriteSystemErrorLog(e, ApplicationConfigs.SystemInfo.ErrorLogFolderPath);
-                        }
-                        Thread.Sleep(200);
-                    }
-
-                    problem.IsDownloadedTestCase = true;
-                    problem.DownloadTestCaseTime = DateTime.Now;
-                    _problemRepository.Update(problem, x => x.IsDownloadedTestCase, x => x.DownloadTestCaseTime);
-
-                    _problemRepository.SaveChanges();
-
                 }
             }
             catch (Exception e)
@@ -260,7 +255,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     var result = client.LoginAsync(username, password);
                     result.Wait();
                     var submissions = _submissionRepository.Get(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true &&
-                                    x.Problem.IsSkip != true).Include(x => x.Problem).Take(1000).ToList();
+                                    x.Problem.IsSkip != true).Include(x => x.Problem).OrderByDescending(x => x.SubmitTime).Take(50).ToList();
                     foreach (var submission in submissions)
                     {
                         if (submission == null) continue;
@@ -298,8 +293,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                         _resultRepository.InsertRange(listResultEnities);
                         _resultRepository.SaveChanges();
-
-                        Thread.Sleep(5000);
 
                         submission.IsDownloadedInfo = true;
                         submission.DownloadedTime = DateTime.Now;
@@ -418,7 +411,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 _problemRepository.SaveChanges();
                 listChunk = new List<SpojProblemInfoModel>();
                 listCheckingIds = new List<int>();
-                Thread.Sleep(5000);
             }
             _problemRepository.SaveChanges();
 
@@ -469,7 +461,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 listChunk = new List<SpojUserModel>();
                 listChunkIds = new List<int>();
-                Thread.Sleep(5000);
             }
 
             return users;
@@ -565,8 +556,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 listChunk = new List<SpojSubmissionModel>();
                 listChunkIds = new List<int>();
-
-                Thread.Sleep(5000);
             }
 
         }
