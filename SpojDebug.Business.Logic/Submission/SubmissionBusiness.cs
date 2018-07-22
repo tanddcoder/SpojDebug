@@ -26,7 +26,7 @@ namespace SpojDebug.Business.Logic.Submission
             var account = _accountRepository.Get(x => x.UserId == userId).FirstOrDefault();
             if (account == null) return new List<SubmissionHomeModel>();
 
-            var availableSubmission = Repository.Get(x => x.AccountId == account.Id && x.Results.Any()).OrderByDescending(x => x.SpojId).Include(x => x.Results).Include(x => x.Problem).Take(2).ToList();
+            var availableSubmission = Repository.Get(x => x.AccountId == account.Id && x.Results.Any()).OrderByDescending(x => x.SpojId).Include(x => x.Results).Include(x => x.Problem).Take(50).ToList();
             var finalResult = new List<SubmissionHomeModel>();
             foreach (var submission in availableSubmission)
             {

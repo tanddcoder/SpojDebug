@@ -175,7 +175,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                     var result = client.LoginAsync(username, password);
                     result.Wait();
-                    var problems = _problemRepository.Get().Where(x => x.IsDownloadedTestCase != true && x.IsSkip != true).Take(100);
+                    var problems = _problemRepository.Get().Where(x => x.IsDownloadedTestCase != true && x.IsSkip != true).Take(100).ToList();
                     foreach (var problem in problems)
                     {
 

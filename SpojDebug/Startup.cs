@@ -62,8 +62,13 @@ namespace SpojDebug
                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                config.Filters.Add(new AuthorizeFilter(policy));
            });
+            services.AddHangfire(configuration => configuration.UseSqlServerStorage(Configuration["ConnectionStrings:DefaultConnection"]));
+            //services.AddHangfire(option => option.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddHangfire(option => option.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+            services.Configure<IISOptions>(options =>
+            {
+                options.ForwardClientCertificate = false;
+            });
 
         }
 
@@ -104,8 +109,8 @@ namespace SpojDebug
         private static void AppStartBackGroundJob(IAdminSettingService adminservice, IMonitoringApi monitor)
         {
             PurgeJobs(monitor);
-            RecurringJob.AddOrUpdate("GetSpojInfo",() => adminservice.GetSpojInfo(), "*/1 * * * *");
-            RecurringJob.AddOrUpdate("DownloadSpojTestCases",() => adminservice.DownloadSpojTestCases(), "*/1 * * * *");
+            RecurringJob.AddOrUpdate("GetSpojInfo", () => adminservice.GetSpojInfo(), "*/1 * * * *");
+            RecurringJob.AddOrUpdate("DownloadSpojTestCases", () => adminservice.DownloadSpojTestCases(), "*/1 * * * *");
             RecurringJob.AddOrUpdate("GetSubmissionInfo", () => adminservice.GetSubmissionInfo(), "*/1 * * * *");
         }
 
