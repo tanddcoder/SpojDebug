@@ -1,19 +1,15 @@
 ﻿@model ApplicationResult<TestCaseResponseModel>
-========================= <br>
-ProblemCode: @Model.Data.ProblemCode <br>
-=========================<br>
-Result: @Model.Data.ResultName<br>
-=========================<br>
-Result at test case: @Model.Data.TestCaseSeq<br>
-=========================<br>
-Spoj Submission Id: @Model.Data.SubmissionId<br>
-======================================================================<br>
+<br>
+<br>
+<div style="text-align:center; font-size: 22px; font-family: Arial">
+    @Model.Data.ProblemCode <br>
+    @Model.Data.ResultName<br>
+    Test No.@Model.Data.TestCaseSeq<br>
+    @Model.Data.SubmissionId<br>
+</div>
+<hr />
 INPUT<br>
-======================================================================<br>
-@Model.Data.Input<br>
-//////////////////////////////////////////////////////////////////////<br>
-======================================================================<br>
+<pre>@Model.Data.Input</pre><br>
+<hr>
 OUTPUT<br>
-======================================================================<br>
-//////////////////////////////////////////////////////////////////////<br>
-@Model.Data.Output<br>
+<pre>@Model.Data.Output</pre><br>

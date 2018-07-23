@@ -29,19 +29,26 @@ namespace SpojDebug.Business.Logic.TestCase
         public TestCaseResponseModel GetFirstFailForFailer(int submissionId, string userId)
         {
             var submission = _submissionRepository.Get(x => x.SpojId == submissionId && x.Account.UserId == userId)
-                .Include(x => x.Account)
-                .Include(x => x.Problem)
-                .Include(x => x.Results)
+                .Select(x => new
+                {
+                    FirtFail = x.Results.OrderBy(y => y.TestCaseSeq).Select(y => new
+                    {
+                        y.Result,
+                        y.TestCaseSeq,
+                    }).FirstOrDefault(y => y.Result != Enums.ResultType.Accepted),
+                    ProblemCode = x.Problem.Code,
+                    x.SpojId
+                })
                 .FirstOrDefault();
             if (submission == null)
                 throw new SpojDebugException("Submission not found");
-            var firstFailResult = submission.Results.OrderBy(x => x.TestCaseSeq).FirstOrDefault(x => x.Result != Enums.ResultType.Accepted);
+            var firstFailResult = submission.FirtFail;
 
             var input = "Test case has not downloaded!";
             var output = "Test case has not downloaded!";
             var testSeq = firstFailResult == null ? int.MaxValue: firstFailResult.TestCaseSeq;
-            var inputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{testSeq}.in"));
-            var outputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.Problem.Code, $"{testSeq}.out"));
+            var inputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.ProblemCode, $"{testSeq}.in"));
+            var outputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.ProblemCode, $"{testSeq}.out"));
             if (File.Exists(inputPath))
                 input = FileUltils.ReadFileAllText(inputPath);
 
@@ -49,15 +56,19 @@ namespace SpojDebug.Business.Logic.TestCase
                 output = FileUltils.ReadFileAllText(outputPath);
 
             if (input.Length > 2000)
-                input = input.Substring(0, 2000) + "...";
+                input = input.Substring(0, 2000)
+                    .Replace("\r\n", "\n").Replace("\n", "\r\n") 
+                    + "...";
 
             if (output.Length > 2000)
-                output = output.Substring(0, 2000) + "...";
+                output = output.Substring(0, 2000)
+                    .Replace("\r\n", "\n").Replace("\n", "\r\n") 
+                    + "...";
 
             var model = new TestCaseResponseModel
             {
-                SubmissionId = submission.Id,
-                ProblemCode = submission.Problem.Code,
+                SubmissionId = submission.SpojId,
+                ProblemCode = submission.ProblemCode,
                 ResultName = firstFailResult == null ? Enums.ResultType.Accepted.GetDisplayName() : firstFailResult.Result.GetDisplayName(),
                 TestCaseSeq = firstFailResult == null ? -1 : firstFailResult.TestCaseSeq,
                 Input = input,

@@ -47,6 +47,8 @@ using SpojDebug.Service;
 using SpojDebug.Service.Logic;
 using SpojDebug.Service.Logic.User;
 using SpojDebug.Service.User;
+using SpojDebug.Business.Cache;
+using SpojDebug.Business.Logic.Cache;
 
 namespace SpojDebug.Extensions
 {
@@ -90,6 +92,10 @@ namespace SpojDebug.Extensions
             services.AddScoped<IAdminSettingBusiness, AdminSettingBusiness>();
             services.AddScoped<ISeedDataBusiness, SeedDataBusiness>();
             services.AddScoped<IUserBusiness, UserBusiness>();
+
+            //Cache
+            services.AddScoped<ISubmissionCacheBusiness, SubmissionCacheBusiness>();
+            services.AddScoped<IProblemCacheBusiness, ProblemCacheBusiness>();
         }
         
     }

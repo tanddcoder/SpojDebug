@@ -18,6 +18,7 @@ namespace SpojDebug.Controllers
         }
         
         [HttpGet]
+        [ResponseCache(Duration = 1440)]
         public IActionResult WhereFailerTakePlace(int? id)
         {
             if (id == null)

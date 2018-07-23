@@ -29,6 +29,7 @@ using SpojDebug.Data.Repositories.Submission;
 using SpojDebug.Data.Repositories.Problem;
 using SpojDebug.Data.Repositories.TestCase;
 using SpojDebug.Data.Repositories.Account;
+using SpojDebug.Business.Cache;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -61,6 +62,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private readonly IProblemRepository _problemRepository;
         private readonly ITestCaseRepository _testCaseRepository;
         private readonly IAccountRepository _accountRepository;
+        private readonly ISubmissionCacheBusiness _submissionCacheBusiness;
+        private readonly IProblemCacheBusiness _problemCacheBusiness;
 
         public AdminSettingBusiness(
             IAdminSettingRepository repository,
@@ -69,7 +72,10 @@ namespace SpojDebug.Business.Logic.AdminSetting
             ISubmissionRepository submissionRepository,
             IProblemRepository problemRepository,
             ITestCaseRepository testCaseRepository,
-            IAccountRepository accountRepository) : base(repository, mapper)
+            IAccountRepository accountRepository,
+            ISubmissionCacheBusiness submissionCacheBusiness,
+            IProblemCacheBusiness problemCacheBusiness
+            ) : base(repository, mapper)
         {
             _downloadUrl = string.Format("/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
             _rankUrl = $"/{ApplicationConfigs.SpojInfo.ContestName}/ranks/";
@@ -78,6 +84,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _problemRepository = problemRepository;
             _testCaseRepository = testCaseRepository;
             _accountRepository = accountRepository;
+            _submissionCacheBusiness = submissionCacheBusiness;
+            _problemCacheBusiness = problemCacheBusiness;
         }
 
         public void GetSpojInfo()
@@ -395,8 +403,16 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
 
                 var ids = listCheckingIds;
-                var listExisting = _problemRepository.Get(x => ids.Contains(x.SpojId.Value)).Select(x => x.Id).ToList();
-                var listEntitties = listChunk.Where(x => !listExisting.Contains(x.Id)).Select(model => new ProblemEntity
+                //var listExisting = _problemRepository.Get(x => ids.Contains(x.SpojId.Value)).Select(x => x.Id).ToList();
+                var listIdsCache = _problemCacheBusiness.GetIds();
+                List<int> listNonExisting = new List<int>();
+                foreach (var id in listCheckingIds)
+                {
+                    if (!listIdsCache.Contains(id))
+                        listNonExisting.Add(id);
+                }
+
+                var listEntitties = listChunk.Where(x => listNonExisting.Contains(x.Id)).Select(model => new ProblemEntity
                 {
                     SpojId = model.Id,
                     TimeLimit = model.TimeLimit,
@@ -406,11 +422,22 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     SpojProblemSet = model.ProblemSet
                 })
                 .ToList();
+                //listChunk.Where(x => !listExisting.Contains(x.Id)).Select(model => new ProblemEntity
+                //{
+                //    SpojId = model.Id,
+                //    TimeLimit = model.TimeLimit,
+                //    Code = model.Code,
+                //    Name = model.Name,
+                //    Type = model.Type,
+                //    SpojProblemSet = model.ProblemSet
+                //})
+                //.ToList();
 
                 _problemRepository.InsertRange(listEntitties);
                 _problemRepository.SaveChanges();
                 listChunk = new List<SpojProblemInfoModel>();
                 listCheckingIds = new List<int>();
+                _problemCacheBusiness.AddRangeIds(listNonExisting);
             }
             _problemRepository.SaveChanges();
 
@@ -533,10 +560,15 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
 
                 var ids = listChunkIds;
-                var listExist = _submissionRepository.Get(x => ids.Contains(x.SpojId))
-                    .Select(x => x.SpojId);
+                var listIdsCache = _submissionCacheBusiness.GetIds();
+                List<int> listNonExisting = new List<int>();
+                foreach (var id in listChunkIds)
+                {
+                    if (!listIdsCache.Contains(id))
+                        listNonExisting.Add(id);
+                }
 
-                var listNotExist = listChunk.Where(x => !listExist.Contains(x.Id));
+                var listNotExist = listChunk.Where(x => listNonExisting.Contains(x.Id));
 
                 var listEntities = (from item in listNotExist
                                     let internalProblemId = _problemRepository.Get(x => x.SpojId == item.ProblemId).Select(x => x.Id).FirstOrDefault()
@@ -556,6 +588,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 listChunk = new List<SpojSubmissionModel>();
                 listChunkIds = new List<int>();
+                _submissionCacheBusiness.AddRangeIds(listNonExisting);
             }
 
         }
