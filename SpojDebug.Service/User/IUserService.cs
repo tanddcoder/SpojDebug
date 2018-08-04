@@ -10,7 +10,7 @@ namespace SpojDebug.Service.User
     {
         ApplicationResult<ApplicationUser> GetCurrentUser(ClaimsPrincipal user);
 
-        SpojAccountModel GetCurrentUserSpojAccount(ClaimsPrincipal user);
-        Task UpdateUserSpojAccount(SpojAccountModel model);
+        Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user);
+        Task UpdateUserSpojAccountAsync(SpojAccountModel model);
     }
 }

@@ -20,4 +20,8 @@
     <Folder Include="Extensions\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.6.20" />
+  </ItemGroup>
+
 </Project>

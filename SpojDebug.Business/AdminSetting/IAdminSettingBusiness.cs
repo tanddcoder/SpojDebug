@@ -15,5 +15,7 @@ namespace SpojDebug.Business.AdminSetting
         void DownloadSpojTestCases();
 
         void GetSubmissionInfo();
+
+        (string, string) GetAdminUsernameAndPassword();
     }
 }

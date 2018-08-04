@@ -331,9 +331,9 @@ namespace SpojDebug.Controllers
         }
 
         [HttpGet]
-        public IActionResult SpojAccountCenter()
+        public async Task<IActionResult> SpojAccountCenter()
         {
-            var model = _userService.GetCurrentUserSpojAccount(User);
+            var model = await _userService.GetCurrentUserSpojAccountAsync(User);
             return View(model);
         }
 
@@ -342,9 +342,9 @@ namespace SpojDebug.Controllers
         {
             model.UserId = _userManager.GetUserId(User);
 
-            await _userService.UpdateUserSpojAccount(model);
+            await _userService.UpdateUserSpojAccountAsync(model);
 
-            var response = _userService.GetCurrentUserSpojAccount(User);
+            //var response = await _userService.GetCurrentUserSpojAccount(User);
             return RedirectToAction("Index", "Home");
         }
 

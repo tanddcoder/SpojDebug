@@ -13,6 +13,8 @@ using SpojDebug.Core.Constant;
 using SpojDebug.Ultil.Reflection;
 using System.IO;
 using SpojDebug.Core.AppSetting;
+using System.Threading.Tasks;
+using SpojDebug.Core.Models.Submission;
 
 namespace SpojDebug.Business.Logic.TestCase
 {
@@ -26,27 +28,55 @@ namespace SpojDebug.Business.Logic.TestCase
             _submissionRepository = submissionRepository;
         }
 
-        public TestCaseResponseModel GetFirstFailForFailer(int submissionId, string userId)
+        public async Task<TestCaseResponseModel> GetFirstFailForFailerAsync(int submissionId, string userId)
         {
-            var submission = _submissionRepository.Get(x => x.SpojId == submissionId && x.Account.UserId == userId)
-                .Select(x => new
-                {
-                    FirtFail = x.Results.OrderBy(y => y.TestCaseSeq).Select(y => new
-                    {
-                        y.Result,
-                        y.TestCaseSeq,
-                    }).FirstOrDefault(y => y.Result != Enums.ResultType.Accepted),
-                    ProblemCode = x.Problem.Code,
-                    x.SpojId
-                })
-                .FirstOrDefault();
+            var submission = await GetSubmissionFailDetail(submissionId, userId);
+
             if (submission == null)
                 throw new SpojDebugException("Submission not found");
-            var firstFailResult = submission.FirtFail;
+
+            return ParseTestCase(submission);
+        }
+
+        public async Task<TestCaseDetailResonseModel> GetTestCaseDetailAsync(int testCaseSeq)
+        {
+            var model = new TestCaseDetailResonseModel { TestCaseSeq = testCaseSeq };
+            return new TestCaseDetailResonseModel();
+        }
+
+        public async Task<TestCaseResponseModel> SearchFirstFailForFailerAsync(int submissionId, string userId)
+        {
+            var submission = await GetSubmissionFailDetail(submissionId, userId);
+
+            if (submission == null)
+                return null;
+
+            return ParseTestCase(submission);
+        }
+
+        private async Task<SubmissionGetFirstFailModel> GetSubmissionFailDetail(int submissionId, string userId)
+        {
+            return await _submissionRepository.Get(x => x.SpojId == submissionId && x.Account.UserId == userId)
+                .Select(x => new SubmissionGetFirstFailModel
+                {
+                    FirstFailTestCase = x.Results.OrderBy(y => y.TestCaseSeq).Select(y => new TestCaseResultSeqPairModel
+                    {
+                        Result = y.Result,
+                        SeqNum = y.TestCaseSeq,
+                    }).FirstOrDefault(y => y.Result != Enums.ResultType.Accepted),
+                    ProblemCode = x.Problem.Code,
+                    SubmissionSpojId = x.SpojId
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        private TestCaseResponseModel ParseTestCase(SubmissionGetFirstFailModel submission)
+        {
+            var firstFailResult = submission.FirstFailTestCase;
 
             var input = "Test case has not downloaded!";
             var output = "Test case has not downloaded!";
-            var testSeq = firstFailResult == null ? int.MaxValue: firstFailResult.TestCaseSeq;
+            var testSeq = firstFailResult == null ? int.MaxValue : firstFailResult.SeqNum;
             var inputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.ProblemCode, $"{testSeq}.in"));
             var outputPath = Path.Combine(ApplicationConfigs.SystemInfo.TestCaseFolder, Path.Combine(submission.ProblemCode, $"{testSeq}.out"));
             if (File.Exists(inputPath))
@@ -57,31 +87,25 @@ namespace SpojDebug.Business.Logic.TestCase
 
             if (input.Length > 2000)
                 input = input.Substring(0, 2000)
-                    .Replace("\r\n", "\n").Replace("\n", "\r\n") 
+                    .Replace("\r\n", "\n").Replace("\n", "\r\n")
                     + "...";
 
             if (output.Length > 2000)
                 output = output.Substring(0, 2000)
-                    .Replace("\r\n", "\n").Replace("\n", "\r\n") 
+                    .Replace("\r\n", "\n").Replace("\n", "\r\n")
                     + "...";
 
             var model = new TestCaseResponseModel
             {
-                SubmissionId = submission.SpojId,
+                SubmissionId = submission.SubmissionSpojId,
                 ProblemCode = submission.ProblemCode,
                 ResultName = firstFailResult == null ? Enums.ResultType.Accepted.GetDisplayName() : firstFailResult.Result.GetDisplayName(),
-                TestCaseSeq = firstFailResult == null ? -1 : firstFailResult.TestCaseSeq,
+                TestCaseSeq = firstFailResult == null ? -1 : firstFailResult.SeqNum,
                 Input = input,
                 Output = output
             };
 
             return model;
-        }
-
-        public TestCaseDetailResonseModel GetTestCaseDetail(int testCaseSeq)
-        {
-            var model = new TestCaseDetailResonseModel { TestCaseSeq = testCaseSeq };
-            return new TestCaseDetailResonseModel();
         }
     }
 }

@@ -15,19 +15,24 @@ namespace SpojDebug.Core.Models.ApplicationResponse
         public Error? ErrorCode { get; set; }
 
         [Display(Name = "Error Message")]
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
 
-        private ApplicationResult(bool isSuccess, object model = null, Error? errorCode = null, string errorMessage = null)
+        private ApplicationResult(bool isSuccess, object model = null, Error? errorCode = null, string message = null)
         {
             Data = model;
-            IsSuccess = true;
+            IsSuccess = isSuccess;
             ErrorCode = errorCode;
-            ErrorMessage = ErrorMessage;
+            Message = message;
         }
 
         public static ApplicationResult Ok()
         {
             return new ApplicationResult(true);
+        }
+
+        public static ApplicationResult Ok(string message)
+        {
+            return new ApplicationResult(true, null,null, message);
         }
 
         public static ApplicationResult Ok(object model)

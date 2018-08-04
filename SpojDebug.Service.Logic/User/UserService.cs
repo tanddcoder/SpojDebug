@@ -24,15 +24,15 @@ namespace SpojDebug.Service.Logic.User
             throw new NotImplementedException();
         }
 
-        public SpojAccountModel GetCurrentUserSpojAccount(ClaimsPrincipal user)
+        public async Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user)
         {
 
-            return _userBusiness.GetCurrentUserSpojAccount(user);
+            return await _userBusiness.GetCurrentUserSpojAccountAsync(user);
         }
 
-        public async Task UpdateUserSpojAccount(SpojAccountModel model)
+        public async Task UpdateUserSpojAccountAsync(SpojAccountModel model)
         {
-            await _userBusiness.UpdateUSerSpojAccountAsync(model);
+            await _userBusiness.UpdateUSerSpojAccountAsyncAsync(model);
         }
     }
 }

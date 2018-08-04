@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpojDebug.Core.User;
 using SpojDebug.Service.TestCase;
 using SpojDebug.Ultil.Exception;
+using System.Threading.Tasks;
 
 namespace SpojDebug.Controllers
 {
@@ -19,13 +20,13 @@ namespace SpojDebug.Controllers
         
         [HttpGet]
         [ResponseCache(Duration = 1440)]
-        public IActionResult WhereFailerTakePlace(int? id)
+        public async Task<IActionResult> WhereFailerTakePlace(int? id)
         {
             if (id == null)
                 throw new SpojDebugException("Id Null");
 
             var userId = _userManager.GetUserId(User); 
-            var response = _testCaseService.GetFirstFailForFailer(id.Value, userId);
+            var response = await _testCaseService.GetFirstFailForFailer(id.Value, userId);
 
             return View(response);
         }

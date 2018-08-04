@@ -9,6 +9,17 @@
 <h5 style="text-align:center;color:red">Hiện chỉ hiển thị 20 bài chưa 100</h5>
 <br />
 
+
+<form asp-controller="Submission" asp-action="Search" method="POST">
+    <div class="form-group">
+        <label>Submission Id</label>
+        <input type="text" name="submissionId" placeholder="Submission Id" />
+    </div>
+    <p style="color:orangered">Dùng box này để search submission của mình, nếu submission chưa được download thì hệ thống sẽ tiếng hành download ngay lập tức</p>
+    <div class="form-group">
+        <input type="submit" value="Search" />
+    </div>
+</form>
 <div>
     @if (Model != null)
     {

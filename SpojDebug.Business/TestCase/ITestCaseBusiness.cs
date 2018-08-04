@@ -1,12 +1,14 @@
 ﻿using SpojDebug.Business.Base;
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Core.Models.TestCase;
+using System.Threading.Tasks;
 
 namespace SpojDebug.Business.TestCase
 {
     public interface ITestCaseBusiness : IBusiness<TestCaseInfoEntity>
     {
-        TestCaseDetailResonseModel GetTestCaseDetail(int testCaseSeq);
-        TestCaseResponseModel GetFirstFailForFailer(int submissionId, string userId);
+        Task<TestCaseDetailResonseModel> GetTestCaseDetailAsync(int testCaseSeq);
+        Task<TestCaseResponseModel> GetFirstFailForFailerAsync(int submissionId, string userId);
+        Task<TestCaseResponseModel> SearchFirstFailForFailerAsync(int submissionId, string userId);
     }
 }

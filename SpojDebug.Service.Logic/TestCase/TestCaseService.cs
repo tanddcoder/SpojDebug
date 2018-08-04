@@ -4,6 +4,7 @@ using SpojDebug.Business.TestCase;
 using SpojDebug.Service.TestCase;
 using SpojDebug.Core.Models.ApplicationResponse;
 using SpojDebug.Core.Models.TestCase;
+using System.Threading.Tasks;
 
 namespace SpojDebug.Service.Logic.TestCase
 {
@@ -16,16 +17,16 @@ namespace SpojDebug.Service.Logic.TestCase
             _testCaseBusiness = testCaseBusiness;
         }
 
-        public ApplicationResult<TestCaseResponseModel> GetFirstFailForFailer(int submissionId, string userId)
+        public async Task<ApplicationResult<TestCaseResponseModel>> GetFirstFailForFailer(int submissionId, string userId)
         {
-            var response = _testCaseBusiness.GetFirstFailForFailer(submissionId, userId);
+            var response = await _testCaseBusiness.GetFirstFailForFailerAsync(submissionId, userId);
 
             return ApplicationResult<TestCaseResponseModel>.Ok(response);
         }
 
-        public ApplicationResult<TestCaseDetailResonseModel> GetTestCaseDetail(int testCaseSeq)
+        public async Task<ApplicationResult<TestCaseDetailResonseModel>> GetTestCaseDetail(int testCaseSeq)
         {
-            var response = _testCaseBusiness.GetTestCaseDetail(testCaseSeq);
+            var response = await _testCaseBusiness.GetTestCaseDetailAsync(testCaseSeq);
 
             return ApplicationResult<TestCaseDetailResonseModel>.Ok(response);
         }

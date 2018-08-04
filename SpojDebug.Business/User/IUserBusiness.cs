@@ -6,7 +6,7 @@ namespace SpojDebug.Business.User
 {
     public interface IUserBusiness
     {
-        SpojAccountModel GetCurrentUserSpojAccount(ClaimsPrincipal user);
-        Task UpdateUSerSpojAccountAsync(SpojAccountModel model);
+        Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user);
+        Task UpdateUSerSpojAccountAsyncAsync(SpojAccountModel model);
     }
 }

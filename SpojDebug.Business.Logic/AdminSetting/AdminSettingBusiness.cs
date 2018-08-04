@@ -351,7 +351,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
         }
 
         #region Private
-        private (string, string) GetAdminUsernameAndPassword()
+        public  (string, string) GetAdminUsernameAndPassword()
         {
             var setting = Repository.GetSingle();
             return setting == null ? (null, null) : (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, ApplicationConfigs.SpojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, ApplicationConfigs.SpojKey.ForPassword));

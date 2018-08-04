@@ -2,12 +2,13 @@
 using SpojDebug.Core.Entities.TestCase;
 using SpojDebug.Core.Models.ApplicationResponse;
 using SpojDebug.Core.Models.TestCase;
+using System.Threading.Tasks;
 
 namespace SpojDebug.Service.TestCase
 {
     public interface ITestCaseService : IService<TestCaseInfoEntity>
     {
-        ApplicationResult<TestCaseDetailResonseModel> GetTestCaseDetail(int testCaseSeq);
-        ApplicationResult<TestCaseResponseModel> GetFirstFailForFailer(int submissionId, string userId);
+        Task<ApplicationResult<TestCaseDetailResonseModel>> GetTestCaseDetail(int testCaseSeq);
+        Task<ApplicationResult<TestCaseResponseModel>> GetFirstFailForFailer(int submissionId, string userId);
     }
 }

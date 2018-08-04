@@ -21,11 +21,11 @@ namespace SpojDebug.Business.Logic.User
             _accountRepository = accountRepository;
         }
 
-        public SpojAccountModel GetCurrentUserSpojAccount(ClaimsPrincipal user)
+        public async Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user)
         {
             var userId = _userRepository.GetUserId(user);
 
-            var account = _userRepository.Get(x => x.Id == userId).Include(x => x.Accounts).SelectMany(x => x.Accounts).FirstOrDefault();
+            var account = await _userRepository.Get(x => x.Id == userId).Include(x => x.Accounts).SelectMany(x => x.Accounts).FirstOrDefaultAsync();
 
             if (account == null)
                 return new SpojAccountModel
@@ -39,7 +39,7 @@ namespace SpojDebug.Business.Logic.User
             };
         }
 
-        public async Task UpdateUSerSpojAccountAsync(SpojAccountModel model)
+        public async Task UpdateUSerSpojAccountAsyncAsync(SpojAccountModel model)
         {
             if (model.Password != model.ConfirmPassword)
                 throw new SpojDebugException("Password and confirm password must equal");

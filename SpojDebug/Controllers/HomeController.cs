@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpojDebug.Core;
@@ -18,11 +19,11 @@ namespace SpojDebug.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
 
-            var response = _submissionService.GetUserSubmission(userId);
+            var response = await _submissionService.GetUserSubmissionAsync(userId);
 
             return View(response);
         }
