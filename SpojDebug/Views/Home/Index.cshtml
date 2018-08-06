@@ -5,19 +5,18 @@
 <br />
 <br />
 <h3 style="text-align:center">Vô chỗ <a href="/Manage/SpojAccountCenter">này</a> set up acc SPOJ mới lấy submission được nha</h3>
-<h5 style="text-align:center;color:red">Bài mới submit bên Spoj thì khoảng 10 phút mới cập nhật bên này</h5>
-<h5 style="text-align:center;color:red">Hiện chỉ hiển thị 20 bài chưa 100</h5>
+<h5 style="text-align:center;color:red">Dùng search box để tìm cho nhanh</h5>
+<h5 style="text-align:center;color:red">Hiện chỉ hiển thị 10 bài chưa 100 ở list bên dưới, bài mới submit sẽ không cập nhật ngay trừ khi bạn search, không thì 10 phút bài mới được down</h5>
 <br />
 
 
 <form asp-controller="Submission" asp-action="Search" method="POST">
     <div class="form-group">
-        <label>Submission Id</label>
-        <input type="text" name="submissionId" placeholder="Submission Id" />
+        <input class="form-control" style="border: 1px solid green !important;" type="text" name="submissionId" placeholder="Submission Id" />
     </div>
-    <p style="color:orangered">Dùng box này để search submission của mình, nếu submission chưa được download thì hệ thống sẽ tiếng hành download ngay lập tức</p>
+    <p style="color:green">Dùng box này để search submission của mình, nếu submission chưa được download thì hệ thống sẽ tiến hành download trong 10s, nếu sau 10s mà không có chứng tỏ bạn không thể xem được hoặc đó là bug</p>
     <div class="form-group">
-        <input type="submit" value="Search" />
+        <input class="btn btn-dark" type="submit" value="Search" />
     </div>
 </form>
 <div>

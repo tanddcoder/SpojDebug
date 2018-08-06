@@ -159,7 +159,7 @@ namespace SpojDebug.Business.Logic.Submission
             var availableSubmission = await Repository.Get(x => x.AccountId == account.Id && x.Results.Any() && x.Score < 100).OrderByDescending(x => x.SpojId)
                 .Include(x => x.Results)
                 .Include(x => x.Problem)
-                .Take(20)
+                .Take(10)
                 .Select(x => new
                 {
                     Result = x.Results.OrderBy(y => y.TestCaseSeq).FirstOrDefault(y => y.Result != Enums.ResultType.Accepted),

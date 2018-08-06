@@ -8,17 +8,17 @@
 <form asp-action="UpdateSpojAccount" method="POST">
     <div class="form-group">
         <label asp-for="@Model.UserName">Spoj User Name</label>
-        <input type="text" asp-for="@Model.UserName" placeholder="Your admin Spoj User Name" />
+        <input class="form-control" type="text" asp-for="@Model.UserName" placeholder="Your admin Spoj User Name" />
     </div>
     <div class="form-group">
         <label asp-for="@Model.Password">Your</label>
-        <input type="password" asp-for="@Model.Password" placeholder="Password" />
+        <input class="form-control" type="password" asp-for="@Model.Password" placeholder="Password" />
     </div>
     <div class="form-group">
         <label asp-for="@Model.ConfirmPassword">Confirm Your Password</label>
-        <input type="password" asp-for="@Model.ConfirmPassword" placeholder="Confirm Password" />
+        <input class="form-control" type="password" asp-for="@Model.ConfirmPassword" placeholder="Confirm Password" />
     </div>
     <div class="form-group">
-        <input type="submit" value="Update" />
+        <input class="btn btn-dark" type="submit" value="Update" />
     </div>
 </form>
