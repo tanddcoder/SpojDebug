@@ -55,6 +55,8 @@ namespace SpojDebug.Business.Logic.Cache
             if (id <= 0)
             {
                 var idSelected = _problemRepository.Get(x => x.Code == code).Select(x => x.Id).FirstOrDefault();
+                if (idSelected == 0)
+                    return 0;
                 id = _memoryCache.Set(code, idSelected);
             }
             return id;

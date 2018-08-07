@@ -11,18 +11,14 @@ using SpojDebug.Core.Constant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Threading.Tasks;
-using SpojDebug.Core.Models.TestCase;
 using SpojDebug.Core.AppSetting;
 using SpojDebug.Business.AdminSetting;
 using System.Text.RegularExpressions;
-using SpojDebug.Ultil.Exception;
 using System.Text;
 using SpojDebug.Core.Entities.Result;
-using SpojDebug.Business.Result;
 using System;
 using SpojDebug.Data.Repositories.Result;
 using SpojDebug.Business.Cache;
-using SpojDebug.Data.Repositories.Problem;
 
 namespace SpojDebug.Business.Logic.Submission
 {
@@ -113,6 +109,7 @@ namespace SpojDebug.Business.Logic.Submission
                 var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
 
                 var problemId = _problemCacheBusiness.GetProblemIdByCode(problemCode);
+                if (problemId == 0) return;
                 var submissionEntity = new SubmissionEntity
                 {
                     ProblemId = problemId,
