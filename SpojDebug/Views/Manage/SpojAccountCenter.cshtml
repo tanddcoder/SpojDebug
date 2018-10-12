@@ -1,5 +1,8 @@
 ﻿@model SpojDebug.Core.Models.Account.SpojAccountModel
 
+<form asp-action="DeleteSpojAccount" method="GET">
+    <input  class="btn btn-danger" type="submit" value="Remove Current Spoj Account"/>
+</form>
     <form asp-action="SpojAccountCenter" method="POST">
         <div class="form-group">
             <label asp-for="@Model.Username">Spoj Username</label>

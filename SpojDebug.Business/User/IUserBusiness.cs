@@ -8,5 +8,6 @@ namespace SpojDebug.Business.User
     {
         Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user);
         Task UpdateUSerSpojAccountAsyncAsync(SpojAccountModel model);
+        Task DeleteSpojAccount(string userId);
     }
 }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SpojDebug.Business.User;
+using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Models.Account;
 using SpojDebug.Data.Repositories.Account;
 using SpojDebug.Data.Repositories.User;
@@ -19,6 +20,18 @@ namespace SpojDebug.Business.Logic.User
         {
             _userRepository = userRepository;
             _accountRepository = accountRepository;
+        }
+
+        public async Task DeleteSpojAccount(string userId)
+        {
+            var accounts = await _accountRepository.Get(x => x.UserId == userId).Select(x => new AccountEntity{Id = x.Id, UserId = null}).ToListAsync();
+
+            foreach (var account in accounts)
+            {
+                _accountRepository.Update(account, x => x.UserId);
+            }
+
+            _accountRepository.SaveChanges();
         }
 
         public async Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user)
@@ -51,6 +64,7 @@ namespace SpojDebug.Business.Logic.User
 
             if(account.UserId != null && account.UserId != model.UserId)
                 throw new SpojDebugException("Sorry. This Spoj account was used by another user");
+
             using (var client = new SpojClient())
             {
                 await client.LoginAsync(model.Username, model.Password);
@@ -62,15 +76,15 @@ namespace SpojDebug.Business.Logic.User
 
                 account.UserId = model.UserId;
 
+                var oldAccounts = _accountRepository.Get(x => x.UserId == model.UserId);
+                foreach (var acc in oldAccounts.ToList())
+                {
+                    acc.UserId = null;
+                    _accountRepository.Update(acc, x => x.UserId);
+                }
+
                 _accountRepository.Update(account, x => x.UserId);
                 _accountRepository.SaveChanges();
-            }
-
-            var oldAccounts = _accountRepository.Get(x => x.UserId == model.UserId);
-            foreach (var acc in oldAccounts.ToList())
-            {
-                acc.UserId = null;
-                _accountRepository.Update(acc, x => x.UserId);
             }
         }
     }

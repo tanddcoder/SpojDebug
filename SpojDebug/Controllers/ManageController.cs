@@ -349,6 +349,16 @@ namespace SpojDebug.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> DeleteSpojAccount()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            await _userService.DeleteSpojAccount(userId);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+       [HttpGet]
         public async Task<IActionResult> Disable2faWarning()
         {
             var user = await _userManager.GetUserAsync(User);

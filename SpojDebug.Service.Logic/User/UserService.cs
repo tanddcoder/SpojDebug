@@ -18,6 +18,10 @@ namespace SpojDebug.Service.Logic.User
             _userBusiness = userBusiness;
         }
 
+        public async Task DeleteSpojAccount(string userId)
+        {
+            await _userBusiness.DeleteSpojAccount(userId);
+        }
 
         public ApplicationResult<ApplicationUser> GetCurrentUser(ClaimsPrincipal user)
         {

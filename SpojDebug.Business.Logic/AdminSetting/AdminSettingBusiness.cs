@@ -30,6 +30,10 @@ using SpojDebug.Data.Repositories.Problem;
 using SpojDebug.Data.Repositories.TestCase;
 using SpojDebug.Data.Repositories.Account;
 using SpojDebug.Business.Cache;
+using System.Net;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SpojDebug.Business.Logic.AdminSetting
 {
@@ -87,7 +91,9 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _submissionCacheBusiness = submissionCacheBusiness;
             _problemCacheBusiness = problemCacheBusiness;
         }
-
+        /// <summary>
+        ///     Get general information
+        /// </summary>
         public void GetSpojInfo()
         {
             if (JobLocker.IsDownloadSpojInfoInProcess) return;
@@ -131,6 +137,10 @@ namespace SpojDebug.Business.Logic.AdminSetting
             JobLocker.IsDownloadSpojInfoInProcess = false;
         }
 
+        /// <summary>
+        ///     Update admin SPOJ Account
+        /// </summary>
+        /// <param name="model"></param>
         public void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model)
         {
             if (model == null || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.ConfirmPassword))
@@ -164,6 +174,9 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         }
 
+        /// <summary>
+        ///     Cron job download TestCase
+        /// </summary>
         public void DownloadSpojTestCases()
         {
             if (JobLocker.IsDownloadTestCasesInProcess) return;
@@ -193,7 +206,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             _problemRepository.Update(problem, x => x.IsSkip);
 
                             _problemRepository.SaveChanges();
-                            
+
                             continue;
                         }
 
@@ -243,6 +256,9 @@ namespace SpojDebug.Business.Logic.AdminSetting
             JobLocker.IsDownloadTestCasesInProcess = false;
         }
 
+        /// <summary>
+        ///     Down load submission details
+        /// </summary>
         public void GetSubmissionInfo()
         {
             if (JobLocker.IsDownloadSubmissionInfoInProcess) return;
@@ -351,7 +367,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
         }
 
         #region Private
-        public  (string, string) GetAdminUsernameAndPassword()
+        public (string, string) GetAdminUsernameAndPassword()
         {
             var setting = Repository.GetSingle();
             return setting == null ? (null, null) : (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, ApplicationConfigs.SpojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, ApplicationConfigs.SpojKey.ForPassword));

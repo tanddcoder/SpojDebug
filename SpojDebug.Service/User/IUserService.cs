@@ -12,5 +12,6 @@ namespace SpojDebug.Service.User
 
         Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user);
         Task UpdateUserSpojAccountAsync(SpojAccountModel model);
+        Task DeleteSpojAccount(string userId);
     }
 }
