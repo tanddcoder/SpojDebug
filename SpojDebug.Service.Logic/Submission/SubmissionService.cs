@@ -29,8 +29,8 @@ namespace SpojDebug.Service.Logic.Submission
         public async Task<ApplicationResult> EnqueueToDownloadAsync(string userId, int submissionId)
         {
             var (acountId, accountName) = await _accountBusiness.GetSpojAccountUsernameAsync(userId);
-            BackgroundJob.Enqueue(() => _submissionBusiness.InstantDownLoadSubmission(acountId, accountName, submissionId)) ;
-            return ApplicationResult.Ok("Your submission is not in our system right now, we will download it instantly if it's valid (make sure the submission is belong to you and the problem is belong to your lecturer), please try to refresh home page after 10s (if it valid, it must be there), if it not appear after 10s, that mean you cannot see it due to lack of permission or that is a bug");
+            await _submissionBusiness.InstantDownLoadSubmissionAsync(acountId, accountName, submissionId) ;
+            return ApplicationResult.Ok();
         }
 
         public async Task<ApplicationResult<SubmissionFirstFailModel>> GetFirstFailForFailerAsync(int submissionId)

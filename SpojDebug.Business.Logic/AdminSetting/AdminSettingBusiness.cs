@@ -30,9 +30,6 @@ using SpojDebug.Data.Repositories.Problem;
 using SpojDebug.Data.Repositories.TestCase;
 using SpojDebug.Data.Repositories.Account;
 using SpojDebug.Business.Cache;
-using System.Net;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SpojDebug.Business.Logic.AdminSetting
@@ -55,8 +52,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         private const int _chunkSize = 1000;
 
-        private static readonly object LockSubmission = new object();
-
         private static readonly object LockSpojInfo = new object();
 
         private static readonly object LockDowloadTestCase = new object();
@@ -68,6 +63,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
         private readonly IAccountRepository _accountRepository;
         private readonly ISubmissionCacheBusiness _submissionCacheBusiness;
         private readonly IProblemCacheBusiness _problemCacheBusiness;
+        private readonly IAdminSettingCacheBusiness _adminSettingCacheBusiness;
 
         public AdminSettingBusiness(
             IAdminSettingRepository repository,
@@ -78,7 +74,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
             ITestCaseRepository testCaseRepository,
             IAccountRepository accountRepository,
             ISubmissionCacheBusiness submissionCacheBusiness,
-            IProblemCacheBusiness problemCacheBusiness
+            IProblemCacheBusiness problemCacheBusiness,
+            IAdminSettingCacheBusiness adminSettingCacheBusiness
             ) : base(repository, mapper)
         {
             _downloadUrl = string.Format("/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
@@ -90,6 +87,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             _accountRepository = accountRepository;
             _submissionCacheBusiness = submissionCacheBusiness;
             _problemCacheBusiness = problemCacheBusiness;
+            _adminSettingCacheBusiness = adminSettingCacheBusiness;
         }
         /// <summary>
         ///     Get general information
@@ -107,14 +105,16 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 using (var client = new SpojClient())
                 {
 
-                    var (username, password) = GetAdminUsernameAndPassword();
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    adminAccountTask.Wait();
+                    var adminAccount = adminAccountTask.Result;
+                    if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
                     {
                         JobLocker.IsDownloadSpojInfoInProcess = false;
                         return;
                     }
 
-                    var result = client.LoginAsync(username, password);
+                    var result = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                     result.Wait();
                     text = client.GetText(_rankUrl);
                     Thread.Sleep(1000);
@@ -187,14 +187,16 @@ namespace SpojDebug.Business.Logic.AdminSetting
             {
                 using (var client = new SpojClient())
                 {
-                    var (username, password) = GetAdminUsernameAndPassword();
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    adminAccountTask.Wait();
+                    var adminAccount = adminAccountTask.Result;
+                    if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
                     {
                         JobLocker.IsDownloadTestCasesInProcess = false;
                         return;
                     }
 
-                    var result = client.LoginAsync(username, password);
+                    var result = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                     result.Wait();
                     var problems = _problemRepository.Get().Where(x => x.IsDownloadedTestCase != true && x.IsSkip != true).Take(100).ToList();
                     foreach (var problem in problems)
@@ -270,13 +272,15 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 using (var client = new SpojClient())
                 {
-                    var (username, password) = GetAdminUsernameAndPassword();
-                    if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    adminAccountTask.Wait();
+                    var adminAccount = adminAccountTask.Result;
+                    if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
                     {
                         JobLocker.IsDownloadSubmissionInfoInProcess = false;
                         return;
                     }
-                    var result = client.LoginAsync(username, password);
+                    var result = client.LoginAsync(adminAccount.Password, adminAccount.Password);
                     result.Wait();
                     var submissions = _submissionRepository.Get(x => x.IsDownloadedInfo != true && x.IsNotHaveEnoughInfo != true &&
                                     x.Problem.IsSkip != true).Include(x => x.Problem).OrderByDescending(x => x.SubmitTime).Take(50).ToList();
@@ -356,22 +360,17 @@ namespace SpojDebug.Business.Logic.AdminSetting
             return Enums.ResultType.Unknown;
         }
 
-        public AdminSettingSpojAccountResponseModel GetSpojAccount()
+        public async Task<AdminSettingSpojAccountResponseModel> GetSpojAccountAsync()
         {
-            var (username, password) = GetAdminUsernameAndPassword();
+            var data = await _adminSettingCacheBusiness.GetAdminAccount();
 
             return new AdminSettingSpojAccountResponseModel
             {
-                UserName = username
+                UserName = data.Username
             };
         }
 
         #region Private
-        public (string, string) GetAdminUsernameAndPassword()
-        {
-            var setting = Repository.GetSingle();
-            return setting == null ? (null, null) : (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, ApplicationConfigs.SpojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, ApplicationConfigs.SpojKey.ForPassword));
-        }
 
         private SpojContestModel ParseContest(SpojDataTokenizer tokenizer)
         {
@@ -419,7 +418,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
 
                 var ids = listCheckingIds;
-                //var listExisting = _problemRepository.Get(x => ids.Contains(x.SpojId.Value)).Select(x => x.Id).ToList();
+
                 var listIdsCache = _problemCacheBusiness.GetIds();
                 List<int> listNonExisting = new List<int>();
                 foreach (var id in listCheckingIds)
@@ -438,16 +437,6 @@ namespace SpojDebug.Business.Logic.AdminSetting
                     SpojProblemSet = model.ProblemSet
                 })
                 .ToList();
-                //listChunk.Where(x => !listExisting.Contains(x.Id)).Select(model => new ProblemEntity
-                //{
-                //    SpojId = model.Id,
-                //    TimeLimit = model.TimeLimit,
-                //    Code = model.Code,
-                //    Name = model.Name,
-                //    Type = model.Type,
-                //    SpojProblemSet = model.ProblemSet
-                //})
-                //.ToList();
 
                 _problemRepository.InsertRange(listEntitties);
                 _problemRepository.SaveChanges();
@@ -607,6 +596,35 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 _submissionCacheBusiness.AddRangeIds(listNonExisting);
             }
 
+        }
+
+        public async Task<AdminSettingModel> UpdateAdminSetting(AdminSettingUpdateModel model)
+        {
+            var adminCache = await _adminSettingCacheBusiness.GetAdminAccount();
+            if ((model.UserName == adminCache.Username) && adminCache.Password != model.OldPassword)
+            {
+
+            }
+            // login to verify
+            var entity = new AdminSettingEntity
+            {
+                Id = adminCache.Id,
+                ContestName = model.ContestName,
+                TestCaseLimit = model.TestCaseLimitation,
+                SpojPasswordEncode = DataSecurityUltils.Encrypt(model.NewPassword, ApplicationConfigs.SpojKey.ForPassword),
+                SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, ApplicationConfigs.SpojKey.ForUserName)
+            };
+
+            Repository.Update(entity, x => x.SpojPasswordEncode,
+                x => x.SpojUserNameEncode,
+                x => x.TestCaseLimit,
+                x => x.ContestName);
+
+            Repository.SaveChanges();
+
+            _adminSettingCacheBusiness.RemoveCache();
+
+            return await _adminSettingCacheBusiness.GetCache();
         }
 
         #endregion

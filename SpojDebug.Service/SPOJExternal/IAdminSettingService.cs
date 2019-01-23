@@ -1,4 +1,5 @@
 ﻿
+using System.Threading.Tasks;
 using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Models.AdminSetting;
 using SpojDebug.Core.Models.ApplicationResponse;
@@ -10,12 +11,16 @@ namespace SpojDebug.Service.SPOJExternal
     {
         void GetSpojInfo();
 
-        ApplicationResult<AdminSettingSpojAccountResponseModel> GetSpojAccount();
+        Task<ApplicationResult<AdminSettingSpojAccountResponseModel>> GetSpojAccountAsync();
 
         ApplicationResult UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
 
         void DownloadSpojTestCases();
 
         void GetSubmissionInfo();
+
+        Task<AdminSettingModel> GetAdminSetting();
+
+        Task<AdminSettingModel> UpdateAdminSetting(AdminSettingUpdateModel model);
     }
 }

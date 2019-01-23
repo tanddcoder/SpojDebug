@@ -1,4 +1,5 @@
-﻿using SpojDebug.Business.Base;
+﻿using System.Threading.Tasks;
+using SpojDebug.Business.Base;
 using SpojDebug.Core.Entities.AdminSetting;
 using SpojDebug.Core.Models.AdminSetting;
 
@@ -8,7 +9,7 @@ namespace SpojDebug.Business.AdminSetting
     {
         void GetSpojInfo();
 
-        AdminSettingSpojAccountResponseModel GetSpojAccount();
+        Task<AdminSettingSpojAccountResponseModel> GetSpojAccountAsync();
 
         void UpdateSpojAccount(AdminSettingSpojAccountUpdateModel model);
 
@@ -16,6 +17,6 @@ namespace SpojDebug.Business.AdminSetting
 
         void GetSubmissionInfo();
 
-        (string, string) GetAdminUsernameAndPassword();
+        Task<AdminSettingModel> UpdateAdminSetting(AdminSettingUpdateModel model);
     }
 }

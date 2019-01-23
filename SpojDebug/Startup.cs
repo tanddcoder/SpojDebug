@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using SpojDebug.Service;
 using SpojDebug.Core.AppSetting;
+using static SpojDebug.Service.Logic.EmailSender;
 
 namespace SpojDebug
 {
@@ -71,6 +72,9 @@ namespace SpojDebug
             });
 
             services.AddMemoryCache();
+            
+
+            services.AddScoped<IEmailSender, EmailSender>();
 
         }
 
@@ -81,6 +85,12 @@ namespace SpojDebug
 
             app.UseHangfireDashboard();
             app.UseHangfireServer();
+
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<SpojDebugDbContext>();
+                context.Database.Migrate();
+            }
 
             if (env.IsDevelopment())
             {

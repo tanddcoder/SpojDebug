@@ -30,5 +30,10 @@ namespace SpojDebug.Service.Logic.TestCase
 
             return ApplicationResult<TestCaseDetailResonseModel>.Ok(response);
         }
+
+        public async Task SyncTestCase(int problemId)
+        {
+            await _testCaseBusiness.SyncTestCase(problemId);
+        }
     }
 }

@@ -12,9 +12,10 @@ using System;
 namespace SpojDebug.Data.EF.Migrations
 {
     [DbContext(typeof(SpojDebugDbContext))]
-    partial class SpojDebugDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190123145041_AddEmailAdmin")]
+    partial class AddEmailAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

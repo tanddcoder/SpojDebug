@@ -9,6 +9,6 @@ namespace SpojDebug.Business.Submission
     public interface ISubmissionBusiness : IBusiness<SubmissionEntity>
     {
         Task<List<SubmissionHomeModel>> GetUserSubmissionAsync(string userId);
-        void InstantDownLoadSubmission(int accountId, string accountName, int submissionId);
+        Task InstantDownLoadSubmissionAsync(int accountId, string accountName, int submissionId);
     }
 }

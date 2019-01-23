@@ -12,9 +12,10 @@ using System;
 namespace SpojDebug.Data.EF.Migrations
 {
     [DbContext(typeof(SpojDebugDbContext))]
-    partial class SpojDebugDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190120082500_TestCaseLimitation")]
+    partial class TestCaseLimitation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,10 +176,6 @@ namespace SpojDebug.Data.EF.Migrations
                     b.Property<string>("SpojPasswordEncode");
 
                     b.Property<string>("SpojUserNameEncode");
-
-                    b.Property<string>("SystemEmail");
-
-                    b.Property<string>("SystemEmailPasswordEncode");
 
                     b.Property<int?>("TestCaseLimit");
 

@@ -27,6 +27,7 @@ namespace SpojDebug.Business.Logic.Submission
         private readonly IAccountRepository _accountRepository;
         private readonly IMemoryCache _memoryCache;
         private readonly IAdminSettingBusiness _adminSettingBusiness;
+        private readonly IAdminSettingCacheBusiness _adminSettingCacheBusiness;
         private readonly IResultRepository _resultRepository;
         private readonly ISubmissionCacheBusiness _submissionCacheBusiness;
         private readonly IProblemCacheBusiness _problemCacheBusiness;
@@ -42,7 +43,8 @@ namespace SpojDebug.Business.Logic.Submission
             IAdminSettingBusiness adminSettingBusiness,
             IResultRepository resultRepository,
             ISubmissionCacheBusiness submissionCacheBusiness,
-            IProblemCacheBusiness problemCacheBusiness) : base(repository, mapper)
+            IProblemCacheBusiness problemCacheBusiness,
+            IAdminSettingCacheBusiness adminSettingCacheBusiness) : base(repository, mapper)
         {
             _accountRepository = accountRepository;
             _memoryCache = memoryCache;
@@ -50,15 +52,16 @@ namespace SpojDebug.Business.Logic.Submission
             _resultRepository = resultRepository;
             _submissionCacheBusiness = submissionCacheBusiness;
             _problemCacheBusiness = problemCacheBusiness;
+            _adminSettingCacheBusiness = adminSettingCacheBusiness;
         }
 
-        public void InstantDownLoadSubmission(int accountId, string accountName, int submissionId)
+        public async Task InstantDownLoadSubmissionAsync(int accountId, string accountName, int submissionId)
         {
             var listTask = new List<Task<byte[]>>();
             using (var client = new SpojClient())
             {
-                var (username, password) = _adminSettingBusiness.GetAdminUsernameAndPassword();
-                var loginTask = client.LoginAsync(username, password);
+                var adminAccount = await _adminSettingCacheBusiness.GetAdminAccount();
+                var loginTask = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                 loginTask.Wait();
                 for (int i = 0; i < 5; i++)
                 {

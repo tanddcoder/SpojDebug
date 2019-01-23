@@ -1,0 +1,69 @@
+﻿@model AdminSettingUpdateModel
+
+@{
+    ViewData["Title"] = "Admin Setting";
+}
+
+@Model.TestCaseLimitation
+<br />
+@Model.UserName
+<br />
+@Model.ContestName
+<br />
+@Model.SystemEmail
+
+
+<h2>Update Admin Setting</h2>
+<form asp-action="UpdateSpojAccount" method="POST">
+    <div class="form-group">
+        <label asp-for="@Model.UserName">Spoj User Name</label>
+        <input class="form-control" type="text" asp-for="@Model.UserName" placeholder="Your admin Spoj User Name" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.OldPassword">Old Password</label>
+        <input class="form-control" type="password" asp-for="@Model.OldPassword" placeholder="Old Password" />
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.NewPassword">New Password</label>
+        <input class="form-control" type="password" asp-for="@Model.NewPassword" placeholder="New Password" />
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.ConfirmPassword">Confirm Password</label>
+        <input class="form-control" type="password" asp-for="@Model.ConfirmPassword" placeholder="Confirm Password" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.ContestName">Contest Name</label>
+        <input class="form-control" type="text" asp-for="@Model.ContestName" placeholder="Contest Name" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.TestCaseLimitation">Testcase Limitation</label>
+        <input class="form-control" type="number" asp-for="@Model.TestCaseLimitation" placeholder="Testcase Limitation" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.SystemEmail">System Email</label>
+        <input class="form-control" type="text" asp-for="@Model.SystemEmail" placeholder="System Email" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.OldEmailPassword">Old Email Password</label>
+        <input class="form-control" type="password" asp-for="@Model.OldEmailPassword" placeholder="Old Email Password" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.NewEmailPassword">New Email Password</label>
+        <input class="form-control" type="password" asp-for="@Model.NewEmailPassword" placeholder="New Email Password" />
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.ConfirmEmailPassword">Confirm Email Password</label>
+        <input class="form-control" type="password" asp-for="@Model.ConfirmEmailPassword" placeholder="Confirm Email Password" />
+    </div>
+
+
+    <div class="form-group">
+        <input class="btn btn-dark" type="submit" value="Update" />
+    </div>
+</form>
