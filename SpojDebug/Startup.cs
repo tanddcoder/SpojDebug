@@ -72,25 +72,21 @@ namespace SpojDebug
             });
 
             services.AddMemoryCache();
-            
 
             services.AddScoped<IEmailSender, EmailSender>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IAdminSettingService adminService, ISeedDataService seedDataService)
+        public void Configure(IApplicationBuilder app,
+            IHostingEnvironment env,
+            IAdminSettingService adminService,
+            ISeedDataService seedDataService,
+            SpojDebugDbContext dbContext)
         {
-            //GlobalConfiguration.Configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+            dbContext.Database.Migrate();
 
             app.UseHangfireDashboard();
             app.UseHangfireServer();
-
-            using (var serviceScope = app.ApplicationServices.CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<SpojDebugDbContext>();
-                context.Database.Migrate();
-            }
 
             if (env.IsDevelopment())
             {
