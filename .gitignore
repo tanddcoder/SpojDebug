@@ -1,8 +1,9 @@
 .vs
-*/obj
-*/bin
-*/TestCases
-bin/
-obj/
-*/bin
-*/obj
+TestCases/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
