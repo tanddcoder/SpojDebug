@@ -32,7 +32,7 @@ namespace SpojDebug.Business.Logic.Cache
             var model = new AdminSettingModel
             {
                 TestCaseLimitation = raw.TestCaseLimitation,
-                UserName = (DataSecurityUltils.Decrypt(raw.UserName, ApplicationConfigs.SpojKey.ForUserName)),
+                UserName = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
                 Id = raw.Id,
                 ContestName = raw.ContestName,
                 SystemEmail = raw.SystemEmail
@@ -47,7 +47,7 @@ namespace SpojDebug.Business.Logic.Cache
             _memoryCache.Remove(CacheKey);
         }
 
-        public Task<AdminAccountModel> GetAdminAccount()
+        public Task<AdminAccountModel> GetAdminAccountAsync()
         {
             _memoryCache.TryGetValue(CacheKey, out AdminSettingCacheModel raw);
             if (raw == null)
@@ -57,8 +57,8 @@ namespace SpojDebug.Business.Logic.Cache
             var model = new AdminAccountModel
             {
                 Id = raw.Id,
-                Password = (DataSecurityUltils.Decrypt(raw.Password, ApplicationConfigs.SpojKey.ForPassword)),
-                Username = (DataSecurityUltils.Decrypt(raw.UserName, ApplicationConfigs.SpojKey.ForUserName))
+                Password = (DataSecurityUltils.Decrypt(raw.Password ?? "", ApplicationConfigs.SpojKey.ForPassword)),
+                Username = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName))
             };
 
 
@@ -71,7 +71,7 @@ namespace SpojDebug.Business.Logic.Cache
             {
                 Id = x.Id,
                 Password = x.SpojPasswordEncode,
-                TestCaseLimitation = x.TestCaseLimit ?? 0,
+                TestCaseLimitation = x.TestCaseLimit ,
                 UserName = x.SpojUserNameEncode,
                 ContestName = x.ContestName,
                 SystemEmail = x.SystemEmail,
@@ -93,11 +93,51 @@ namespace SpojDebug.Business.Logic.Cache
             var model = new AdminSystemEmailInfoModel
             {
                 Id = raw.Id,
-                Password = (DataSecurityUltils.Decrypt(raw.SystemEmailPasswordEncode, ApplicationConfigs.SpojKey.ForPassword)),
+                Password = (DataSecurityUltils.Decrypt(raw.SystemEmailPasswordEncode ?? "", ApplicationConfigs.SpojKey.ForPassword)),
                 Email = raw.SystemEmail
             };
 
             return Task.FromResult(model);
+        }
+
+        public Task<AdminSettingFullInfoModel> GetFullInfo()
+        {
+            _memoryCache.TryGetValue(CacheKey, out AdminSettingCacheModel raw);
+            if (raw == null)
+            {
+                raw = SetToCache();
+            }
+
+            var model = new AdminSettingFullInfoModel
+            {
+                Id = raw.Id,
+                EmailPassword = (DataSecurityUltils.Decrypt(raw.SystemEmailPasswordEncode ?? "", ApplicationConfigs.SpojKey.ForPassword)),
+                SystemEmail = raw.SystemEmail,
+                UserName = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
+                Password = (DataSecurityUltils.Decrypt(raw.Password ?? "", ApplicationConfigs.SpojKey.ForPassword)),
+                TestCaseLimitation = raw.TestCaseLimitation,
+                ContestName = raw.ContestName,
+            };
+
+            return Task.FromResult(model);
+        }
+
+        public AdminAccountModel GetAdminAccount()
+        {
+            _memoryCache.TryGetValue(CacheKey, out AdminSettingCacheModel raw);
+            if (raw == null)
+            {
+                raw = SetToCache();
+            }
+            var model = new AdminAccountModel
+            {
+                Id = raw.Id,
+                Password = (DataSecurityUltils.Decrypt(raw.Password ?? "", ApplicationConfigs.SpojKey.ForPassword)),
+                Username = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName))
+            };
+
+
+            return model;
         }
     }
 }

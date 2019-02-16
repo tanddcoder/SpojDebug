@@ -7,7 +7,7 @@
         
         public string Password { get; set; }
 
-        public int TestCaseLimitation { get; set; }
+        public int? TestCaseLimitation { get; set; }
         public string ContestName { get; set; }
         public string SystemEmail { get; set; }
         public string SystemEmailPasswordEncode { get; set; }

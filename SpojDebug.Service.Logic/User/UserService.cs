@@ -1,10 +1,8 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using SpojDebug.Business.User;
 using SpojDebug.Core.Models.Account;
-using SpojDebug.Core.Models.ApplicationResponse;
-using SpojDebug.Core.User;
+using SpojDebug.Core.Models.User;
 using SpojDebug.Service.User;
 
 namespace SpojDebug.Service.Logic.User
@@ -23,9 +21,9 @@ namespace SpojDebug.Service.Logic.User
             await _userBusiness.DeleteSpojAccount(userId);
         }
 
-        public ApplicationResult<ApplicationUser> GetCurrentUser(ClaimsPrincipal user)
+        public UserInfoModel GetCurrentUser(ClaimsPrincipal user)
         {
-            throw new NotImplementedException();
+            return _userBusiness.GetCurrentUser(user);
         }
 
         public async Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user)

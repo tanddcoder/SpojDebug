@@ -105,7 +105,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 using (var client = new SpojClient())
                 {
 
-                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccountAsync();
                     adminAccountTask.Wait();
                     var adminAccount = adminAccountTask.Result;
                     if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
@@ -187,7 +187,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
             {
                 using (var client = new SpojClient())
                 {
-                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccountAsync();
                     adminAccountTask.Wait();
                     var adminAccount = adminAccountTask.Result;
                     if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
@@ -272,7 +272,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 using (var client = new SpojClient())
                 {
-                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccount();
+                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccountAsync();
                     adminAccountTask.Wait();
                     var adminAccount = adminAccountTask.Result;
                     if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
@@ -362,7 +362,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         public async Task<AdminSettingSpojAccountResponseModel> GetSpojAccountAsync()
         {
-            var data = await _adminSettingCacheBusiness.GetAdminAccount();
+            var data = await _adminSettingCacheBusiness.GetAdminAccountAsync();
 
             return new AdminSettingSpojAccountResponseModel
             {
@@ -600,23 +600,89 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
         public async Task<AdminSettingModel> UpdateAdminSetting(AdminSettingUpdateModel model)
         {
-            var adminCache = await _adminSettingCacheBusiness.GetAdminAccount();
-            if ((model.UserName == adminCache.Username) && adminCache.Password != model.OldPassword)
+            var adminInfo = await _adminSettingCacheBusiness.GetFullInfo();
+            var entityToUpdate = new AdminSettingEntity
             {
-
-            }
-            // login to verify
-            var entity = new AdminSettingEntity
-            {
-                Id = adminCache.Id,
-                ContestName = model.ContestName,
-                TestCaseLimit = model.TestCaseLimitation,
-                SpojPasswordEncode = DataSecurityUltils.Encrypt(model.NewPassword, ApplicationConfigs.SpojKey.ForPassword),
-                SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, ApplicationConfigs.SpojKey.ForUserName)
+                Id = adminInfo.Id,
+                TestCaseLimit = adminInfo.TestCaseLimitation,
+                ContestName = adminInfo.ContestName,
+                SpojUserNameEncode = DataSecurityUltils.Encrypt(adminInfo.UserName, ApplicationConfigs.SpojKey.ForUserName),
+                SpojPasswordEncode = DataSecurityUltils.Encrypt(adminInfo.Password, ApplicationConfigs.SpojKey.ForPassword),
+                SystemEmail = adminInfo.SystemEmail,
+                SystemEmailPasswordEncode = DataSecurityUltils.Encrypt(adminInfo.EmailPassword, ApplicationConfigs.SpojKey.ForPassword)
             };
 
-            Repository.Update(entity, x => x.SpojPasswordEncode,
+
+            // If update spoj account
+            if (model.IsUpdateAccount)
+            {
+                if(model.IsNewAccount)
+                {
+                    if(model.NewPassword != model.ConfirmPassword)
+                        throw new SpojDebugException("New password and confirmed password not match");
+
+                }
+                else
+                {
+                    if(model.OldPassword != adminInfo.Password)
+                    {
+                        throw new SpojDebugException("Wrong password");
+
+                    }
+
+                    if(model.NewPassword != model.ConfirmPassword)
+                    {
+                        throw new SpojDebugException("New password and confirmed password not match");
+                    }
+                }
+
+
+                entityToUpdate.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, ApplicationConfigs.SpojKey.ForUserName);
+                entityToUpdate.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.NewPassword, ApplicationConfigs.SpojKey.ForPassword);
+            }
+
+
+            if (model.IsUpdateEmail)
+            {
+                if (model.IsNewEmail)
+                {
+                    if (model.NewEmailPassword != model.ConfirmEmailPassword)
+                        throw new SpojDebugException("New email password and confirmed email password not match");
+                }
+                else
+                {
+                    if(model.OldEmailPassword != adminInfo.EmailPassword)
+                    {
+                        throw new SpojDebugException("Wrong email password");
+                    }
+
+                    if(model.NewEmailPassword != model.ConfirmEmailPassword)
+                    {
+                        throw new SpojDebugException("Email new password and confirmed password not match");
+                    }
+                }
+
+                entityToUpdate.SystemEmail = model.SystemEmail;
+                entityToUpdate.SystemEmailPasswordEncode = DataSecurityUltils.Encrypt(model.NewEmailPassword, ApplicationConfigs.SpojKey.ForPassword);
+
+            }
+
+            if (model.IsUpdateConfig)
+            {
+                entityToUpdate.ContestName = model.ContestName;
+
+                if (model.Unlimited)
+                    entityToUpdate.TestCaseLimit = null;
+                else
+                    entityToUpdate.TestCaseLimit = model.TestCaseLimitation;
+            }
+            
+
+            Repository.Update(entityToUpdate, 
                 x => x.SpojUserNameEncode,
+                x => x.SpojPasswordEncode,
+                x => x.SystemEmail,
+                x => x.SystemEmailPasswordEncode,
                 x => x.TestCaseLimit,
                 x => x.ContestName);
 

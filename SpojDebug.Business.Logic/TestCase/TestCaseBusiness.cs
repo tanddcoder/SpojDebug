@@ -21,6 +21,8 @@ using SpojDebug.Ultil.DataSecurity;
 using SpojDebug.Data.Repositories.AdminSetting;
 using System;
 using SpojDebug.Ultil.Logger;
+using SpojDebug.Business.Cache;
+using SpojDebug.Core.Models.AdminSetting;
 
 namespace SpojDebug.Business.Logic.TestCase
 {
@@ -30,6 +32,7 @@ namespace SpojDebug.Business.Logic.TestCase
         private readonly IProblemRepository _problemRepository;
         private readonly ITestCaseRepository _testCaseRepository;
         private readonly IAdminSettingRepository _adminSettingRepository;
+        private readonly IAdminSettingCacheBusiness _adminSettingCacheBusiness;
 
         private readonly string _inputTestCaseUrl = "/problems/{0}/{1}.in";
 
@@ -39,12 +42,14 @@ namespace SpojDebug.Business.Logic.TestCase
             ISubmissionRepository submissionRepository,
             IProblemRepository problemRepository,
             ITestCaseRepository testCaseRepository,
-            IAdminSettingRepository adminSettingRepository) : base(repository, mapper)
+            IAdminSettingRepository adminSettingRepository,
+            IAdminSettingCacheBusiness adminSettingCacheBusiness) : base(repository, mapper)
         {
             _submissionRepository = submissionRepository;
             _problemRepository = problemRepository;
             _testCaseRepository = testCaseRepository;
             _adminSettingRepository = adminSettingRepository;
+            _adminSettingCacheBusiness = adminSettingCacheBusiness;
         }
 
         public async Task<TestCaseResponseModel> GetFirstFailForFailerAsync(int submissionId, string userId)
@@ -54,7 +59,7 @@ namespace SpojDebug.Business.Logic.TestCase
             if (submission == null)
                 throw new SpojDebugException("Submission not found");
 
-            return ParseTestCase(submission);
+            return await ParseTestCase(submission);
         }
 
         public async Task<TestCaseDetailResonseModel> GetTestCaseDetailAsync(int testCaseSeq)
@@ -70,26 +75,27 @@ namespace SpojDebug.Business.Logic.TestCase
             if (submission == null)
                 return null;
 
-            return ParseTestCase(submission);
+            return await ParseTestCase(submission);
         }
-        private (string, string) GetAdminUsernameAndPassword()
+        private AdminAccountModel GetAdminUsernameAndPassword()
         {
-            var setting = _adminSettingRepository.GetSingle();
-            return setting == null ? (null, null) : (DataSecurityUltils.Decrypt(setting.SpojUserNameEncode, ApplicationConfigs.SpojKey.ForUserName), DataSecurityUltils.Decrypt(setting.SpojPasswordEncode, ApplicationConfigs.SpojKey.ForPassword));
+            var setting = _adminSettingCacheBusiness.GetAdminAccount();
+            return setting;
         }
 
-        public async Task SyncTestCase(int problemId)
+        public void SyncTestCase(string problemCode)
         {
             using (var client = new SpojClient())
             {
-                var (username, password) = GetAdminUsernameAndPassword();
-                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                var adminAccount = GetAdminUsernameAndPassword();
+                if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
                 {
                     return;
                 }
 
-                var result = await client.LoginAsync(username, password);
-                var thisProblem = await _problemRepository.Get(x => x.Id == problemId).FirstOrDefaultAsync();
+                var loginTask = client.LoginAsync(adminAccount.Username, adminAccount.Password);
+                loginTask.Wait();
+                var thisProblem = _problemRepository.Get(x => x.Code == problemCode).FirstOrDefault();
                 if (thisProblem == null)
                     throw new System.Exception();
                 if (!Regex.IsMatch(thisProblem.Code, "^EI\\w+"))
@@ -103,10 +109,10 @@ namespace SpojDebug.Business.Logic.TestCase
                 }
                 var numberOfTestCase = client.GetTotalTestCase(thisProblem.Code);
                 var path = Path.Combine(Directory.GetCurrentDirectory(), $"TestCases/{thisProblem.Code}");
-                if(!Directory.Exists(path))
+                if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
-                var testCaseEntity = await _testCaseRepository.Get(x => x.ProblemId == problemId).FirstOrDefaultAsync();
-                if(testCaseEntity == null)
+                var testCaseEntity = _testCaseRepository.Get(x => x.ProblemId == thisProblem.Id).FirstOrDefault();
+                if (testCaseEntity == null)
                 {
                     testCaseEntity = new TestCaseInfoEntity
                     {
@@ -159,10 +165,10 @@ namespace SpojDebug.Business.Logic.TestCase
                 .FirstOrDefaultAsync();
         }
 
-        private TestCaseResponseModel ParseTestCase(SubmissionGetFirstFailModel submission)
+        private async Task<TestCaseResponseModel> ParseTestCase(SubmissionGetFirstFailModel submission)
         {
             var firstFailResult = submission.FirstFailTestCase;
-
+            var configs = await _adminSettingCacheBusiness.GetCache();
             var input = "Test case has not downloaded!";
             var output = "Test case has not downloaded!";
             var testSeq = firstFailResult == null ? int.MaxValue : firstFailResult.SeqNum;
@@ -174,15 +180,18 @@ namespace SpojDebug.Business.Logic.TestCase
             if (File.Exists(outputPath))
                 output = FileUltils.ReadFileAllText(outputPath);
 
-            if (input.Length > 2000)
-                input = input.Substring(0, 2000)
-                    .Replace("\r\n", "\n").Replace("\n", "\r\n")
-                    + "...";
+            if (configs?.TestCaseLimitation != null)
+            {
+                if (input.Length > configs.TestCaseLimitation)
+                    input = input.Substring(0, configs.TestCaseLimitation.Value)
+                        .Replace("\r\n", "\n").Replace("\n", "\r\n")
+                        + "...";
 
-            if (output.Length > 2000)
-                output = output.Substring(0, 2000)
-                    .Replace("\r\n", "\n").Replace("\n", "\r\n")
-                    + "...";
+                if (output.Length > configs.TestCaseLimitation)
+                    output = output.Substring(0, configs.TestCaseLimitation.Value)
+                        .Replace("\r\n", "\n").Replace("\n", "\r\n")
+                        + "...";
+            }
 
             var model = new TestCaseResponseModel
             {

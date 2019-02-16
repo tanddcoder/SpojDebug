@@ -8,7 +8,10 @@ namespace SpojDebug.Business.Cache
         Task<AdminSettingModel> GetCache();
         void RemoveCache();
 
-        Task<AdminAccountModel> GetAdminAccount();
+        Task<AdminAccountModel> GetAdminAccountAsync();
+        AdminAccountModel GetAdminAccount();
         Task<AdminSystemEmailInfoModel> GetEmailInfo();
+
+        Task<AdminSettingFullInfoModel> GetFullInfo();
     }
 }

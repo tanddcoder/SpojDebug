@@ -5,6 +5,7 @@ using SpojDebug.Service.TestCase;
 using SpojDebug.Core.Models.ApplicationResponse;
 using SpojDebug.Core.Models.TestCase;
 using System.Threading.Tasks;
+using Hangfire;
 
 namespace SpojDebug.Service.Logic.TestCase
 {
@@ -31,9 +32,9 @@ namespace SpojDebug.Service.Logic.TestCase
             return ApplicationResult<TestCaseDetailResonseModel>.Ok(response);
         }
 
-        public async Task SyncTestCase(int problemId)
+        public void SyncTestCase(string problemCode)
         {
-            await _testCaseBusiness.SyncTestCase(problemId);
+            BackgroundJob.Enqueue(() => _testCaseBusiness.SyncTestCase(problemCode));
         }
     }
 }

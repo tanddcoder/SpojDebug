@@ -39,19 +39,19 @@ namespace SpojDebug.Controllers
 
 
         [HttpPost]
-        public IActionResult UpdateSpojAccount([Bind("UserName,Password,ConfirmPassword")] AdminSettingSpojAccountUpdateModel model)
+        public IActionResult UpdateSpojAccount([FromBody] AdminSettingSpojAccountUpdateModel model)
         {
             _adminSettingService.UpdateSpojAccount(model);
 
             return View();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> SyncTestCase([FromRoute] int problemId)
+        [HttpPost]
+        public async Task<IActionResult> SyncTestCase([FromForm] string problemCode)
         {
-            await _testCaseService.SyncTestCase(problemId);
+            _testCaseService.SyncTestCase(problemCode);
 
-            return NoContent();
+            return RedirectToAction("AdminSetting");
         }
 
 
@@ -59,15 +59,33 @@ namespace SpojDebug.Controllers
         public async Task<IActionResult> AdminSetting()
         {
             var response = await _adminSettingService.GetAdminSetting();
-
-            return View(response);
+            var data = new AdminSettingUpdateModel
+            {
+                ContestName = response.ContestName,
+                Id = response.Id,
+                UserName = response.UserName,
+                TestCaseLimitation = response.TestCaseLimitation,
+                SystemEmail = response.SystemEmail,
+                Unlimited = response.TestCaseLimitation == null ? true : false
+            };
+            return View(data);
         }
 
-        public async Task<IActionResult> AdminSetting(AdminSettingUpdateModel model)
+        [HttpPost]
+        public async Task<IActionResult> AdminSetting([FromForm] AdminSettingUpdateModel model)
         {
             var response = await _adminSettingService.UpdateAdminSetting(model);
 
-            return View(response);
+            var data = new AdminSettingUpdateModel
+            {
+                ContestName = response.ContestName,
+                Id = response.Id,
+                UserName = response.UserName,
+                TestCaseLimitation = response.TestCaseLimitation,
+                SystemEmail = response.SystemEmail
+            };
+
+            return View(data);
         }
     }
 }

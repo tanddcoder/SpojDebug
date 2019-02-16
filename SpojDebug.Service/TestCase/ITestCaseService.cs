@@ -10,6 +10,6 @@ namespace SpojDebug.Service.TestCase
     {
         Task<ApplicationResult<TestCaseDetailResonseModel>> GetTestCaseDetail(int testCaseSeq);
         Task<ApplicationResult<TestCaseResponseModel>> GetFirstFailForFailer(int submissionId, string userId);
-        Task SyncTestCase(int problemId);
+        void SyncTestCase(string problemCode);
     }
 }

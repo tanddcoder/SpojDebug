@@ -60,7 +60,7 @@ namespace SpojDebug.Business.Logic.Submission
             var listTask = new List<Task<byte[]>>();
             using (var client = new SpojClient())
             {
-                var adminAccount = await _adminSettingCacheBusiness.GetAdminAccount();
+                var adminAccount = await _adminSettingCacheBusiness.GetAdminAccountAsync();
                 var loginTask = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                 loginTask.Wait();
                 for (int i = 0; i < 5; i++)

@@ -2,105 +2,64 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<br />
-<br />
-<h3 style="text-align:center">Vô chỗ <a href="/Manage/SpojAccountCenter">này</a> set up acc SPOJ mới lấy submission được nha</h3>
-<h5 style="text-align:center;color:red">Dùng search box để tìm cho nhanh</h5>
-<h5 style="text-align:center;color:red">Hiện chỉ hiển thị 10 bài chưa 100 ở list bên dưới, bài mới submit sẽ không cập nhật ngay trừ khi bạn search, không thì 10 phút bài mới được down</h5>
+@*<h3 style="text-align:center">Vô chỗ <a href="/Manage/SpojAccountCenter">này</a> set up acc SPOJ mới lấy submission được nha</h3>
+    <h5 style="text-align:center;color:red">Dùng search box để tìm cho nhanh</h5>
+    <h5 style="text-align:center;color:red">Hiện chỉ hiển thị 10 bài chưa 100 ở list bên dưới, bài mới submit sẽ không cập nhật ngay trừ khi bạn search, không thì 10 phút bài mới được down</h5>*@
 <br />
 
 
-<form asp-controller="Submission" asp-action="Search" method="POST">
-    <div class="form-group">
-        <input class="form-control" style="border: 1px solid green !important;" type="text" name="submissionId" placeholder="Submission Id" />
-    </div>
-    <p style="color:green">Dùng box này để search submission của mình, nếu submission chưa được download thì hệ thống sẽ tiến hành download trong 10s, nếu sau 10s mà không có chứng tỏ bạn không thể xem được hoặc đó là bug</p>
-    <div class="form-group">
-        <input class="btn btn-dark" type="submit" value="Search" />
-    </div>
-</form>
-<div>
-    @if (Model != null)
-    {
-        @*<table>
-                <tbody>
-                    <tr>
-                        <th>Submission Id</th>
-                        <th>Problemset</th>
-                        <th>Accepted</th>
-                        <th>Total</th>
-                        <th> </th>
-                    </tr>
-                    @foreach (var submission in Model?.Data)
-                    {
-                        <tr>
-                            <td>@submission.SubmissionId</td>
-                            <td>@submission.ProblemCode</td>
-                            <td>@submission.AcceptedTestCase</td>
-                            <td>@submission.TotalTestCase</td>
-                            <td>@submission.FirtFailTestCase</td>
-                        </tr>
-                    }
-
-                </tbody>
-            </table>*@
-        <div class="limiter">
-            <div class="wrap-table100">
-                <div class="table100 ver1">
-                    <div class="table100-firstcol">
-                        <table>
-                            <thead>
-                                <tr class="row100 head">
-                                    <th class="cell100 column1">Submission Id</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var submission in Model?.Data)
-                                {
-                                    <tr class="row100 body">
-                                        <td class="cell100 column1">@submission.SubmissionId</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="wrap-table100-nextcols js-pscroll">
-                        <div class="table100-nextcols">
-                            <table>
-                                <thead>
-                                    <tr class="row100 head">
-                                        <th class="cell100 column2">Problemset</th>
-                                        <th class="cell100 column3">Accepted</th>
-                                        <th class="cell100 column4">Total</th>
-                                        <th class="cell100 column5">First Test Fail</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var submission in Model?.Data)
-                                    {
-                                        <tr class="row100 body">
-                                            <td class="cell100 column2">@submission.ProblemCode</td>
-                                            <td class="cell100 column3">@submission.AcceptedTestCase</td>
-                                            <td class="cell100 column4">@submission.TotalTestCase</td>
-                                            @if (submission.FirtFailTestCase == -1)
-                                            {
-                                                <td class="cell100 column5">@submission.FirtFailTestCase</td>
-                                            }
-                                            else
-                                            {
-                                                <td class="cell100 column5"><a asp-controller="TestCase" asp-action="WhereFailerTakePlace" asp-route-id="@submission.SubmissionId">@submission.FirtFailTestCase</a></td>
-                                            }
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="section">
+    <form asp-controller="Submission" asp-action="Search" method="POST">
+        <div class="form-group">
+            <label>Cannot find your submission? Search here!</label>
+            <input class="form-control" type="number" name="submissionId" placeholder="Submission Id" />
         </div>
-    }
+        @*<p style="color:green">Dùng box này để search submission của mình, nếu submission chưa được download thì hệ thống sẽ tiến hành download trong 10s, nếu sau 10s mà không có chứng tỏ bạn không thể xem được hoặc đó là bug</p>*@
+        <div class="form-group">
+            <input class="btn btn-dark" type="submit" value="Search" />
+        </div>
+    </form>
+</div>
+<div class="section">
+
+    <div class="table-wrapper">
+        <table class="table sortable table-responsive table-spoj-debug center table-hover table-multiple-head-rows table-compact">
+            <thead>
+                <tr>
+                    <th class="nowrap">SUBMISSION ID</th>
+                    <th class="nowrap">PROBLEMSET</th>
+                    <th class="nowrap">ACCEPTED</th>
+                    <th class="nowrap">TOTAL</th>
+                    <th class="nowrap">FIRST TEST FAIL</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var count = 1;
+                    foreach (var row in Model?.Data)
+                    {
+                        var cssClass = count % 2 == 1 ? "odd" : "even";
+                        <tr class="@cssClass">
+                            <td>@row.SubmissionId</td>
+                            <td>@row.ProblemCode     </td>
+                            <td>@row.AcceptedTestCase</td>
+                            <td>@row.TotalTestCase</td>
+                            @if (row.FirtFailTestCase == -1)
+                            {
+                                <td>@row.FirtFailTestCase</td>
+                            }
+                            else
+                            {
+                                <td style="font-weight:bold"><a asp-controller="TestCase" asp-action="WhereFailerTakePlace" asp-route-id="@row.SubmissionId">@row.FirtFailTestCase</a></td>
+                            }
+                        </tr>
+                        count++;
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

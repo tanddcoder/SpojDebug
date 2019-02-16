@@ -3,67 +3,280 @@
 @{
     ViewData["Title"] = "Admin Setting";
 }
-
-@Model.TestCaseLimitation
-<br />
-@Model.UserName
-<br />
-@Model.ContestName
-<br />
-@Model.SystemEmail
-
-
+@section Style {
+    <style>
+        .checkbox-label {
+            display: inline-block;
+        }
+    </style>
+}
 <h2>Update Admin Setting</h2>
-<form asp-action="UpdateSpojAccount" method="POST">
-    <div class="form-group">
-        <label asp-for="@Model.UserName">Spoj User Name</label>
-        <input class="form-control" type="text" asp-for="@Model.UserName" placeholder="Your admin Spoj User Name" />
-    </div>
+<div class="section">
+    <form asp-controller="AdminSetting" asp-action="SyncTestCase" method="post">
+        <div class="form-group">
+            <label>Sync problem testcases (enqueue background job)</label>
+            <input class="form-control" type="text" name="problemCode" placeholder="Problem Code" />
+        </div>
+        <div class="form-group">
+            <input class="btn btn-dark" type="submit" value="Sync" />
+        </div>
+    </form>
+</div>
 
-    <div class="form-group">
-        <label asp-for="@Model.OldPassword">Old Password</label>
-        <input class="form-control" type="password" asp-for="@Model.OldPassword" placeholder="Old Password" />
-    </div>
-    <div class="form-group">
-        <label asp-for="@Model.NewPassword">New Password</label>
-        <input class="form-control" type="password" asp-for="@Model.NewPassword" placeholder="New Password" />
-    </div>
-    <div class="form-group">
-        <label asp-for="@Model.ConfirmPassword">Confirm Password</label>
-        <input class="form-control" type="password" asp-for="@Model.ConfirmPassword" placeholder="Confirm Password" />
-    </div>
+<div class="section">
+    <form asp-action="AdminSetting" method="POST">
+        <div id="admin-spoj-acc" class="section">
 
-    <div class="form-group">
-        <label asp-for="@Model.ContestName">Contest Name</label>
-        <input class="form-control" type="text" asp-for="@Model.ContestName" placeholder="Contest Name" />
-    </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <input id="IsUpdateAccount"
+                           name="IsUpdateAccount"
+                           type="checkbox"
+                           value="true" onchange='updateAccount(this);' />
 
-    <div class="form-group">
-        <label asp-for="@Model.TestCaseLimitation">Testcase Limitation</label>
-        <input class="form-control" type="number" asp-for="@Model.TestCaseLimitation" placeholder="Testcase Limitation" />
-    </div>
+                    @*<input name="IsUpdateAccount" type="hidden" value="false" />*@
 
-    <div class="form-group">
-        <label asp-for="@Model.SystemEmail">System Email</label>
-        <input class="form-control" type="text" asp-for="@Model.SystemEmail" placeholder="System Email" />
-    </div>
+                    <label for="IsUpdateAccount">Update Admin Spoj Account</label>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-lg-12">
+                    <input id="IsNewAccount"
+                           name="IsNewAccount"
+                           type="checkbox"
+                           value="true" disabled onchange="changeAccount(this);" />
 
-    <div class="form-group">
-        <label asp-for="@Model.OldEmailPassword">Old Email Password</label>
-        <input class="form-control" type="password" asp-for="@Model.OldEmailPassword" placeholder="Old Email Password" />
-    </div>
+                    @*<input name="IsNewAccount" type="hidden" value="false" />*@
 
-    <div class="form-group">
-        <label asp-for="@Model.NewEmailPassword">New Email Password</label>
-        <input class="form-control" type="password" asp-for="@Model.NewEmailPassword" placeholder="New Email Password" />
-    </div>
-    <div class="form-group">
-        <label asp-for="@Model.ConfirmEmailPassword">Confirm Email Password</label>
-        <input class="form-control" type="password" asp-for="@Model.ConfirmEmailPassword" placeholder="Confirm Email Password" />
-    </div>
+                    <label for="IsNewAccount">Change Account</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="UserName">Spoj User Name</label>
+                        <input class="form-control" type="text" asp-for="UserName" placeholder="Your admin Spoj User Name" style="width:75%" disabled />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="OldPassword">Old Password</label>
+                        <input class="form-control" type="password" asp-for="OldPassword" placeholder="Old Password" style="width:75%" disabled />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="NewPassword">New Password</label>
+                        <input class="form-control" type="password" asp-for="NewPassword" placeholder="New Password" style="width:75%" disabled />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword">Confirm Password</label>
+                        <input class="form-control" type="password" asp-for="ConfirmPassword" placeholder="Confirm Password" style="width:75%" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="admin-email" class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <input id="IsUpdateEmail"
+                           name="IsUpdateEmail"
+                           type="checkbox"
+                           value="true" onchange="updateEmail(this);" />
+                    @*<input name="IsUpdateEmail" type="hidden" value="false" />*@
+
+                    <label for="IsUpdateEmail">Update System Email</label>
+                </div>
+
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-lg-12">
+                    <input id="IsNewEmail"
+                           name="IsNewEmail"
+                           type="checkbox"
+                           value="true" disabled onchange="changeEmail(this);" />
+
+                    @*<input name="IsNewEmail" type="hidden" value="false" />*@
+
+                    <label for="IsNewEmail">Change Email</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="SystemEmail">System Email</label>
+                        <input class="form-control" type="text" asp-for="SystemEmail" placeholder="System Email" style="width:75%" disabled />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="OldEmailPassword">Old Email Password</label>
+                        <input class="form-control" type="password" asp-for="OldEmailPassword" placeholder="Old Email Password" style="width:75%" disabled />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="NewEmailPassword">New Email Password</label>
+                        <input class="form-control" type="password" asp-for="NewEmailPassword" placeholder="New Email Password" style="width:75%" disabled />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="ConfirmEmailPassword">Confirm Email Password</label>
+                        <input class="form-control" type="password" asp-for="ConfirmEmailPassword" placeholder="Confirm Email Password" style="width:75%" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="config" class="section">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <input id="IsUpdateConfig"
+                           name="IsUpdateConfig"
+                           type="checkbox"
+                           value="true" onchange="updateConfig(this);" />
+
+                    @*<input name="IsUpdateConfig" type="hidden" value="false" />*@
+
+                    <label for="IsUpdateConfig">Update Config</label>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-lg-6"></div>
+
+                <div class="col-lg-6">
+                    @Html.CheckBoxFor(x => Model.Unlimited, new
+               {
+                   @onchange = "unlimited(this);",
+                   @disabled = ""
+               })
+                    <label for="Unlimited">Unlimited</label>
+                </div>
+
+            </div>
+            <div class="row">
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="ContestName">Contest Name</label>
+                        <input class="form-control" type="text" asp-for="ContestName" placeholder="Contest Name" style="width:75%" disabled />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label asp-for="TestCaseLimitation">Testcase Limitation</label>
+                        <input class="form-control" type="number" asp-for="TestCaseLimitation" placeholder="Testcase Limitation" style="width:75%" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input class="btn btn-dark" type="submit" value="Update" />
+        </div>
+    </form>
+</div>
 
 
-    <div class="form-group">
-        <input class="btn btn-dark" type="submit" value="Update" />
-    </div>
-</form>
+
+@section Scripts
+    {
+    <script>
+        function updateAccount(checkbox) {
+            if (checkbox.checked == true) {
+
+                document.getElementById("IsNewAccount").removeAttribute("disabled");
+                document.getElementById("UserName").removeAttribute("disabled");
+                document.getElementById("OldPassword").removeAttribute("disabled");
+                document.getElementById("NewPassword").removeAttribute("disabled");
+                document.getElementById("ConfirmPassword").removeAttribute("disabled");
+            } else {
+                var isNewAccountCheckBox = document.getElementById("IsNewAccount");
+                isNewAccountCheckBox.checked = false;
+                isNewAccountCheckBox.setAttribute("disabled", "disabled");
+                document.getElementById("UserName").setAttribute("disabled", "disabled");
+                document.getElementById("OldPassword").setAttribute("disabled", "disabled");
+                document.getElementById("NewPassword").setAttribute("disabled", "disabled");
+                document.getElementById("ConfirmPassword").setAttribute("disabled", "disabled");
+            }
+        }
+
+        function changeAccount(checkbox) {
+            if (checkbox.checked == true) {
+                document.getElementById("OldPassword").setAttribute("disabled", "disabled");
+            } else {
+                document.getElementById("OldPassword").removeAttribute("disabled");
+            }
+
+        }
+
+        function updateEmail(checkbox) {
+
+            if (checkbox.checked == true) {
+                document.getElementById("IsNewEmail").removeAttribute("disabled");
+                document.getElementById("SystemEmail").removeAttribute("disabled");
+                document.getElementById("OldEmailPassword").removeAttribute("disabled");
+                document.getElementById("NewEmailPassword").removeAttribute("disabled");
+                document.getElementById("ConfirmEmailPassword").removeAttribute("disabled");
+            } else {
+
+                var isNewEmailCheckBox = document.getElementById("IsNewEmail");
+                isNewEmailCheckBox.checked = false;
+                isNewEmailCheckBox.setAttribute("disabled", "disabled");
+                document.getElementById("SystemEmail").setAttribute("disabled", "disabled");
+                document.getElementById("OldEmailPassword").setAttribute("disabled", "disabled");
+                document.getElementById("NewEmailPassword").setAttribute("disabled", "disabled");
+                document.getElementById("ConfirmEmailPassword").setAttribute("disabled", "disabled");
+            }
+        }
+
+        function changeEmail(checkbox) {
+            if (checkbox.checked == true) {
+                document.getElementById("OldEmailPassword").setAttribute("disabled", "disabled");
+            } else {
+                document.getElementById("OldEmailPassword").removeAttribute("disabled");
+            }
+
+        }
+
+        function updateConfig(checkbox) {
+
+            if (checkbox.checked == true) {
+                document.getElementById("ContestName").removeAttribute("disabled");
+                document.getElementById("Unlimited").removeAttribute("disabled");
+
+                var testCaseLimitation = document.getElementById("TestCaseLimitation");
+                var unlimited = document.getElementById("Unlimited");
+                if (unlimited.checked == false || unlimited.checked != true) {
+                    testCaseLimitation.removeAttribute("disabled");
+                }
+            } else {
+                document.getElementById("ContestName").setAttribute("disabled", "disabled");
+                document.getElementById("Unlimited").setAttribute("disabled", "disabled");
+                document.getElementById("TestCaseLimitation").setAttribute("disabled", "disabled");
+            }
+        }
+
+        function unlimited(checkbox) {
+            if (checkbox.checked == true) {
+                document.getElementById("TestCaseLimitation").setAttribute("disabled", "disabled");
+            } else {
+
+                document.getElementById("TestCaseLimitation").removeAttribute("disabled");
+            }
+
+        }
+    </script>
+}

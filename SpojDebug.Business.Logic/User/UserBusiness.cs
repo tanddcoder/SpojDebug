@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using SpojDebug.Business.User;
 using SpojDebug.Core.Entities.Account;
 using SpojDebug.Core.Models.Account;
+using SpojDebug.Core.Models.ApplicationResponse;
+using SpojDebug.Core.Models.User;
+using SpojDebug.Core.User;
 using SpojDebug.Data.Repositories.Account;
 using SpojDebug.Data.Repositories.User;
 using SpojDebug.Ultil.Exception;
@@ -24,7 +27,7 @@ namespace SpojDebug.Business.Logic.User
 
         public async Task DeleteSpojAccount(string userId)
         {
-            var accounts = await _accountRepository.Get(x => x.UserId == userId).Select(x => new AccountEntity{Id = x.Id, UserId = null}).ToListAsync();
+            var accounts = await _accountRepository.Get(x => x.UserId == userId).Select(x => new AccountEntity { Id = x.Id, UserId = null }).ToListAsync();
 
             foreach (var account in accounts)
             {
@@ -32,6 +35,27 @@ namespace SpojDebug.Business.Logic.User
             }
 
             _accountRepository.SaveChanges();
+        }
+
+        public UserInfoModel GetCurrentUser(ClaimsPrincipal user)
+        {
+            var userId = _userRepository.GetUserId(user);
+
+
+            var userInfo = _userRepository.Get(x => x.Id == userId).Select(x => new UserInfoModel
+            {
+                Accounts = x.Accounts.Select(y => new UserAccount
+                {
+                    SpojUserId = y.SpojUserId,
+                    UserName = y.UserName,
+                    DisplayName = y.DisplayName,
+                    Email = y.Email,
+                    Phone = y.Phone,
+                    UserId = y.UserId
+                }).ToList()
+            }).FirstOrDefault();
+
+            return userInfo;
         }
 
         public async Task<SpojAccountModel> GetCurrentUserSpojAccountAsync(ClaimsPrincipal user)
@@ -62,7 +86,7 @@ namespace SpojDebug.Business.Logic.User
             if (account == null)
                 throw new SpojDebugException("Spoj Account has not existed in system");
 
-            if(account.UserId != null && account.UserId != model.UserId)
+            if (account.UserId != null && account.UserId != model.UserId)
                 throw new SpojDebugException("Sorry. This Spoj account was used by another user");
 
             using (var client = new SpojClient())

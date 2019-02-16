@@ -1,0 +1,275 @@
+﻿
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+.table-spoj-debug{
+    clear: both;
+    position: relative;
+    margin-top:0;
+}
+
+    .table-spoj-debug > thead > tr:first-child > th:first-child {
+        border-radius: 20px 0 0 0;
+    }
+    .table-spoj-debug > thead > tr:last-child > th:last-child {
+        border-radius: 0 20px 0 0;
+    }
+
+/*.table-spoj-debug.center > thead > tr > th:first-child, 
+.table-spoj-debug.center > thead > tr > td:first-child, 
+.table-spoj-debug.center > tbody > tr > th:first-child, 
+.table-spoj-debug.center > tbody > tr > td:first-child, 
+.table-spoj-debug.center > tfoot > tr > th:first-child, 
+.table-spoj-debug.center > tfoot > tr > td:first-child {
+    text-align: left;
+}*/
+
+.table > caption + thead > tr:first-child > td,
+.table > caption + thead > tr:first-child > th,
+.table > colgroup + thead > tr:first-child > td,
+.table > colgroup + thead > tr:first-child > th,
+.table > thead:first-child > tr:first-child > td,
+.table > thead:first-child > tr:first-child > th {
+    border-top: 0;
+}
+
+.table-bottom-0{
+    margin-bottom:0;
+}
+
+.table-spoj-debug > thead > tr:first-child > th {
+    border-top: 1px solid #E7E7E8 !important;
+}
+
+.table-spoj-debug.center > thead > tr > th, 
+.table-spoj-debug.center > thead > tr > td, 
+.table-spoj-debug.center > tbody > tr > th, 
+.table-spoj-debug.center > tbody > tr > td, 
+.table-spoj-debug.center > tfoot > tr > th, 
+.table-spoj-debug.center > tfoot > tr > td {
+    text-align: center;
+}
+.problem_list th.solve_status_wrapper {
+    padding: 0;
+    padding-left: 4px;
+    padding-right: 2px;
+    padding-bottom: 3px;
+}
+
+.table-multiple-head-rows > thead > tr > th {
+    padding: 6px 16px;
+    position: relative;
+}
+
+.table-spoj-debug > tbody > tr > td, 
+.table-spoj-debug > tbody > tr > th, 
+.table-spoj-debug > tfoot > tr > td, 
+.table-spoj-debug > tfoot > tr > th, 
+.table-spoj-debug > thead > tr > th {
+    border: none;
+    border-left: 1px solid #E7E7E8;
+    border-bottom: 1px solid #E7E7E8;
+}
+
+.table-spoj-debug > thead > tr > th {
+    background: #F7F8F9;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 14px;
+    color: #898992;
+    padding: 14px 16px;
+    background-clip: padding-box;
+}
+
+.table > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+}
+
+.table > tbody > tr > td, .table > tbody > tr > th, 
+.table > tfoot > tr > td, .table > tfoot > tr > th, 
+.table > thead > tr > td, .table > thead > tr > th {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+td.name_column, 
+th.name_column {
+    max-width: 320px;
+    word-wrap: break-word;
+}
+
+table.table td.nowrap, 
+table.table th.nowrap {
+    white-space: nowrap;
+}
+
+.table-responsive {
+    min-height: .01%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+}
+
+caption, th, td {
+    text-align: left;
+    font-weight: normal;
+}
+
+th {
+    text-align: left;
+}
+
+td, th {
+    padding: 0;
+}
+
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+
+
+element.style {
+}
+
+/*.table-spoj-debug.center > thead > tr > th:first-child, .table-spoj-debug.center > thead > tr > td:first-child, .table-spoj-debug.center > tbody > tr > th:first-child, .table-spoj-debug.center > tbody > tr > td:first-child, .table-spoj-debug.center > tfoot > tr > th:first-child, .table-spoj-debug.center > tfoot > tr > td:first-child {
+    text-align: left;
+}*/
+
+.table > caption + thead > tr:first-child > td, .table > caption + thead > tr:first-child > th, .table > colgroup + thead > tr:first-child > td, .table > colgroup + thead > tr:first-child > th, .table > thead:first-child > tr:first-child > td, .table > thead:first-child > tr:first-child > th {
+    border-top: 0;
+}
+
+.table-spoj-debug > thead > tr:first-child > th {
+    border-top: 1px solid #E7E7E8 !important;
+}
+/*.table-spoj-debug > thead > tr:last-child > th {
+    border-top: 1px solid #E7E7E8 !important;
+}*/
+
+.table-spoj-debug.center > thead > tr > th, .table-spoj-debug.center > thead > tr > td, .table-spoj-debug.center > tbody > tr > th, .table-spoj-debug.center > tbody > tr > td, .table-spoj-debug.center > tfoot > tr > th, .table-spoj-debug.center > tfoot > tr > td {
+    text-align: center;
+}
+
+table.table td.nowrap, table.table th.nowrap {
+    white-space: nowrap;
+}
+
+.problem_list th.solve_status_wrapper {
+    padding: 0;
+    padding-left: 4px;
+    padding-right: 2px;
+    padding-bottom: 3px;
+}
+
+.table-multiple-head-rows > thead > tr > th {
+    padding: 6px 16px;
+    position: relative;
+}
+
+/*.table-spoj-debug > tbody > tr > td, 
+.table-spoj-debug > tbody > tr > th, 
+.table-spoj-debug > tfoot > tr > td, 
+.table-spoj-debug > tfoot > tr > th, 
+.table-spoj-debug > thead > tr > th {
+    border: none;
+    border-left: 1px solid #E7E7E8;
+    border-bottom: 1px solid #E7E7E8;
+}*/
+
+.table-spoj-debug > tbody > tr > td,
+.table-spoj-debug > tbody > tr > th,
+.table-spoj-debug > tfoot > tr > td,
+.table-spoj-debug > tfoot > tr > th,
+.table-spoj-debug > thead > tr > th {
+    border: none;
+    border-left: 1px solid #E7E7E8;
+    border-right: 1px solid #E7E7E8;
+    border-bottom: 1px solid #E7E7E8;
+}
+
+.table-spoj-debug > thead > tr > th {
+    background: #D4D5D6;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 14px;
+    color: #898992;
+    padding: 14px 16px;
+    background-clip: padding-box;
+}
+
+.table > tbody > .even {
+    background-color: #E4E5E6;
+}
+
+.table > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+}
+
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+td.name_column, th.name_column {
+    max-width: 320px;
+    word-wrap: break-word;
+}
+
+caption, th, td {
+    text-align: left;
+    font-weight: normal;
+}
+
+th {
+    text-align: left;
+}
+
+td, th {
+    padding: 0;
+}
+
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+th {
+    font-weight: bold;
+    text-align: -internal-center;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table {
+    background-color: transparent;
+}
+
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+table {
+    display: table;
+    border-collapse: separate;
+    /*border-spacing: 2px;*/
+    border-color: grey;
+}
