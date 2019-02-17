@@ -20,7 +20,7 @@ namespace SpojDebug.Controllers
             _submissionService = submissionService;
             _userManager = userManager;
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> WhereFailerTakePlaceLoL(int? id)
         {
@@ -38,11 +38,11 @@ namespace SpojDebug.Controllers
 
             var userId = _userManager.GetUserId(User);
             var response = await _submissionService.SearchSubmssionAsync(userId, submissionId.Value);
-            if (response.Data != null)
-                return View("~/Views/TestCase/WhereFailerTakePlace.cshtml", response);
 
-            var response2 = await _submissionService.EnqueueToDownloadAsync(userId, submissionId.Value);
-            return View(response2);
+            if (response.Data == null)
+                throw new SpojDebugException("Submission not exist!");
+
+            return View("~/Views/TestCase/WhereFailerTakePlace.cshtml", response);
         }
     }
 }

@@ -49,6 +49,11 @@ namespace SpojDebug.Service.Logic.Submission
         {
             var response = await _testCaseBusiness.SearchFirstFailForFailerAsync(submissionId, userId);
 
+            if (response == null)
+                await EnqueueToDownloadAsync(userId, submissionId);
+
+            response = await _testCaseBusiness.SearchFirstFailForFailerAsync(submissionId, userId);
+
             return ApplicationResult<TestCaseResponseModel>.Ok(response);
         }
     }
