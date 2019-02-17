@@ -2,10 +2,10 @@
 @{
     if (this.User.IsInRole("Admin") || !this.User.Identity.IsAuthenticated)
     {
-        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+        Layout = "_AdminLayout";
     }
     else
     {
-        Layout = "~/Views/Shared/_Layout.cshtml";
+        Layout = "_Layout";
     }
 }

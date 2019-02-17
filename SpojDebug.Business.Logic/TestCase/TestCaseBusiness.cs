@@ -97,7 +97,7 @@ namespace SpojDebug.Business.Logic.TestCase
                 loginTask.Wait();
                 var thisProblem = _problemRepository.Get(x => x.Code == problemCode).FirstOrDefault();
                 if (thisProblem == null)
-                    throw new System.Exception();
+                    return;
                 if (!Regex.IsMatch(thisProblem.Code, "^EI\\w+"))
                 {
                     thisProblem.IsSkip = true;
