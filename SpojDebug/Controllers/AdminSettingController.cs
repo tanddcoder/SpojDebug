@@ -63,7 +63,7 @@ namespace SpojDebug.Controllers
             {
                 ContestName = response.ContestName,
                 Id = response.Id,
-                UserName = response.UserName,
+                Username = response.Username,
                 TestCaseLimitation = response.TestCaseLimitation,
                 SystemEmail = response.SystemEmail,
                 Unlimited = response.TestCaseLimitation == null ? true : false
@@ -80,7 +80,7 @@ namespace SpojDebug.Controllers
             {
                 ContestName = response.ContestName,
                 Id = response.Id,
-                UserName = response.UserName,
+                Username = response.Username,
                 TestCaseLimitation = response.TestCaseLimitation,
                 SystemEmail = response.SystemEmail
             };

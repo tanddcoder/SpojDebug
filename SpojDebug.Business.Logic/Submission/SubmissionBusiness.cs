@@ -60,13 +60,13 @@ namespace SpojDebug.Business.Logic.Submission
             var listTask = new List<Task<byte[]>>();
             using (var client = new SpojClient())
             {
-                var adminAccount = await _adminSettingCacheBusiness.GetAdminAccountAsync();
+                var adminAccount = await _adminSettingCacheBusiness.GetFullInfo();
                 var loginTask = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                 loginTask.Wait();
                 for (int i = 0; i < 5; i++)
                 {
                     var pageNum = i * 20;
-                    var downloadUrl = string.Format(UserSubmissionHistory, ApplicationConfigs.SpojInfo.ContestName, accountName, pageNum);
+                    var downloadUrl = string.Format(UserSubmissionHistory, adminAccount.ContestName, accountName, pageNum);
                     listTask.Add(client.GetByteArrayAsync(downloadUrl));
                 }
 
@@ -80,7 +80,7 @@ namespace SpojDebug.Business.Logic.Submission
                 var listResult = allTask.Result;
                 foreach (var listByte in listResult)
                 {
-                    var pattern = $"/{ApplicationConfigs.SpojInfo.ContestName}/submit/([0-9A-Z]+)/id={submissionId}";
+                    var pattern = $"/{adminAccount.ContestName}/submit/([0-9A-Z]+)/id={submissionId}";
                     var html = Encoding.UTF8.GetString(listByte);
 
                     var match = Regex.Match(html, pattern);
@@ -101,7 +101,7 @@ namespace SpojDebug.Business.Logic.Submission
 
                 try
                 {
-                    plaintext = client.GetText(string.Format(_submissionInfoUrl, ApplicationConfigs.SpojInfo.ContestName, submissionId));
+                    plaintext = client.GetText(string.Format(_submissionInfoUrl, adminAccount.ContestName, submissionId));
                 }
                 catch (Exception e)
                 {

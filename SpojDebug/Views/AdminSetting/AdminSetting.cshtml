@@ -55,8 +55,8 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="form-group">
-                        <label asp-for="UserName">Spoj User Name</label>
-                        <input class="form-control" type="text" asp-for="UserName" placeholder="Your admin Spoj User Name" style="width:75%" disabled />
+                        <label asp-for="Username">Spoj User Name</label>
+                        <input class="form-control" type="text" asp-for="Username" placeholder="Your admin Spoj User Name" style="width:75%" disabled />
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -198,7 +198,7 @@
             if (checkbox.checked == true) {
 
                 document.getElementById("IsNewAccount").removeAttribute("disabled");
-                document.getElementById("UserName").removeAttribute("disabled");
+                document.getElementById("Username").removeAttribute("disabled");
                 document.getElementById("OldPassword").removeAttribute("disabled");
                 document.getElementById("NewPassword").removeAttribute("disabled");
                 document.getElementById("ConfirmPassword").removeAttribute("disabled");
@@ -206,7 +206,7 @@
                 var isNewAccountCheckBox = document.getElementById("IsNewAccount");
                 isNewAccountCheckBox.checked = false;
                 isNewAccountCheckBox.setAttribute("disabled", "disabled");
-                document.getElementById("UserName").setAttribute("disabled", "disabled");
+                document.getElementById("Username").setAttribute("disabled", "disabled");
                 document.getElementById("OldPassword").setAttribute("disabled", "disabled");
                 document.getElementById("NewPassword").setAttribute("disabled", "disabled");
                 document.getElementById("ConfirmPassword").setAttribute("disabled", "disabled");

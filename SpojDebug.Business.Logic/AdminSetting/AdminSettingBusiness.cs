@@ -78,8 +78,8 @@ namespace SpojDebug.Business.Logic.AdminSetting
             IAdminSettingCacheBusiness adminSettingCacheBusiness
             ) : base(repository, mapper)
         {
-            _downloadUrl = string.Format("/{0}/problems/{0}/0.in", ApplicationConfigs.SpojInfo.ContestName);
-            _rankUrl = $"/{ApplicationConfigs.SpojInfo.ContestName}/ranks/";
+            _downloadUrl = "/{0}/problems/{0}/0.in";
+            _rankUrl = "/{0}/ranks/";
             _resultRepository = resultRepository;
             _submissionRepository = submissionRepository;
             _problemRepository = problemRepository;
@@ -105,8 +105,12 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 using (var client = new SpojClient())
                 {
 
-                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccountAsync();
+                    var adminAccountTask = _adminSettingCacheBusiness.GetFullInfo();
                     adminAccountTask.Wait();
+
+                    var rankUrl = string.Format(_rankUrl, adminAccountTask.Result.ContestName);
+                    var downloadUrl = string.Format(_downloadUrl, adminAccountTask.Result.ContestName);
+
                     var adminAccount = adminAccountTask.Result;
                     if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
                     {
@@ -116,9 +120,10 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                     var result = client.LoginAsync(adminAccount.Username, adminAccount.Password);
                     result.Wait();
-                    text = client.GetText(_rankUrl);
+
+                    text = client.GetText(rankUrl);
                     Thread.Sleep(1000);
-                    text = client.GetText(_downloadUrl);
+                    text = client.GetText(downloadUrl);
                 }
 
                 var tokenizer = new SpojDataTokenizer(text);
@@ -272,7 +277,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
 
                 using (var client = new SpojClient())
                 {
-                    var adminAccountTask = _adminSettingCacheBusiness.GetAdminAccountAsync();
+                    var adminAccountTask = _adminSettingCacheBusiness.GetFullInfo();
                     adminAccountTask.Wait();
                     var adminAccount = adminAccountTask.Result;
                     if (string.IsNullOrEmpty(adminAccount.Username) || string.IsNullOrEmpty(adminAccount.Password))
@@ -303,7 +308,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                             continue;
                         }
 
-                        var plaintext = client.GetText(string.Format(_submissionInfoUrl, ApplicationConfigs.SpojInfo.ContestName, submission.SpojId));
+                        var plaintext = client.GetText(string.Format(_submissionInfoUrl, adminAccountTask.Result.ContestName, submission.SpojId));
                         var matches = Regex.Matches(plaintext, "test (\\d+) - (\\w+)");
 
                         var listResultEnities = new List<ResultEntity>();
@@ -606,7 +611,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 Id = adminInfo.Id,
                 TestCaseLimit = adminInfo.TestCaseLimitation,
                 ContestName = adminInfo.ContestName,
-                SpojUserNameEncode = DataSecurityUltils.Encrypt(adminInfo.UserName, ApplicationConfigs.SpojKey.ForUserName),
+                SpojUserNameEncode = DataSecurityUltils.Encrypt(adminInfo.Username, ApplicationConfigs.SpojKey.ForUserName),
                 SpojPasswordEncode = DataSecurityUltils.Encrypt(adminInfo.Password, ApplicationConfigs.SpojKey.ForPassword),
                 SystemEmail = adminInfo.SystemEmail,
                 SystemEmailPasswordEncode = DataSecurityUltils.Encrypt(adminInfo.EmailPassword, ApplicationConfigs.SpojKey.ForPassword)
@@ -637,7 +642,7 @@ namespace SpojDebug.Business.Logic.AdminSetting
                 }
 
 
-                entityToUpdate.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.UserName, ApplicationConfigs.SpojKey.ForUserName);
+                entityToUpdate.SpojUserNameEncode = DataSecurityUltils.Encrypt(model.Username, ApplicationConfigs.SpojKey.ForUserName);
                 entityToUpdate.SpojPasswordEncode = DataSecurityUltils.Encrypt(model.NewPassword, ApplicationConfigs.SpojKey.ForPassword);
             }
 

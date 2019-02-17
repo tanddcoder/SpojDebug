@@ -109,7 +109,6 @@ namespace SpojDebug.Extensions
         public static void GetAppSettingConfigs(IConfiguration configuration)
         {
             ApplicationConfigs.SpojKey = configuration.GetSection("SpojKey").Get<SpojKey>();
-            ApplicationConfigs.SpojInfo = configuration.GetSection("SpojInfo").Get<SpojInfo>();
             ApplicationConfigs.SystemInfo = configuration.GetSection("SystemInfo").Get<SystemInfo>();
             ApplicationConfigs.ConnectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
         }

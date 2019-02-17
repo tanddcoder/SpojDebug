@@ -32,7 +32,7 @@ namespace SpojDebug.Business.Logic.Cache
             var model = new AdminSettingModel
             {
                 TestCaseLimitation = raw.TestCaseLimitation,
-                UserName = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
+                Username = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
                 Id = raw.Id,
                 ContestName = raw.ContestName,
                 SystemEmail = raw.SystemEmail
@@ -113,7 +113,7 @@ namespace SpojDebug.Business.Logic.Cache
                 Id = raw.Id,
                 EmailPassword = (DataSecurityUltils.Decrypt(raw.SystemEmailPasswordEncode ?? "", ApplicationConfigs.SpojKey.ForPassword)),
                 SystemEmail = raw.SystemEmail,
-                UserName = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
+                Username = (DataSecurityUltils.Decrypt(raw.UserName ?? "", ApplicationConfigs.SpojKey.ForUserName)),
                 Password = (DataSecurityUltils.Decrypt(raw.Password ?? "", ApplicationConfigs.SpojKey.ForPassword)),
                 TestCaseLimitation = raw.TestCaseLimitation,
                 ContestName = raw.ContestName,
