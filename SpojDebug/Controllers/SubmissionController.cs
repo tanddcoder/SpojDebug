@@ -44,5 +44,21 @@ namespace SpojDebug.Controllers
 
             return View("~/Views/TestCase/WhereFailerTakePlace.cshtml", response);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SearchWithoutCheck([Bind("SubmissionId")] int? submissionId)
+        {
+            if (submissionId == null)
+                throw new SpojDebugException("Id cannot be null, please try again!");
+
+            var userId = _userManager.GetUserId(User);
+            var response = await _submissionService.SearchSubmssionAsync(userId, submissionId.Value);
+            await _submissionService.EnqueueToDownloadAsync(userId, submissionId.Value);
+            response = await _submissionService.SearchSubmssionAsync(userId, submissionId.Value);
+            if (response.Data == null)
+                throw new SpojDebugException("Submission not exist!");
+
+            return View("~/Views/TestCase/WhereFailerTakePlace.cshtml", response);
+        }
     }
 }

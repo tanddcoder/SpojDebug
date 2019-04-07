@@ -10,6 +10,7 @@ using SpojDebug.Core.Models.TestCase;
 using SpojDebug.Business.TestCase;
 using SpojDebug.Business.Account;
 using Hangfire;
+using SpojDebug.Business.Cache;
 
 namespace SpojDebug.Service.Logic.Submission
 {
@@ -18,12 +19,17 @@ namespace SpojDebug.Service.Logic.Submission
         private readonly ISubmissionBusiness _submissionBusiness;
         private readonly ITestCaseBusiness _testCaseBusiness;
         private readonly IAccountBusiness _accountBusiness;
+        private readonly ISubmissionCacheBusiness _submissionCacheBusiness;
 
-        public SubmissionService(ISubmissionBusiness submissionBusiness, ITestCaseBusiness testCaseBusiness, IAccountBusiness accountBusiness)
+        public SubmissionService(ISubmissionBusiness submissionBusiness, 
+            ITestCaseBusiness testCaseBusiness, 
+            IAccountBusiness accountBusiness,
+            ISubmissionCacheBusiness submissionCacheBusiness)
         {
             _submissionBusiness = submissionBusiness;
             _testCaseBusiness = testCaseBusiness;
             _accountBusiness = accountBusiness;
+            _submissionCacheBusiness = submissionCacheBusiness;
         }
 
         public async Task<ApplicationResult> EnqueueToDownloadAsync(string userId, int submissionId)
@@ -47,10 +53,12 @@ namespace SpojDebug.Service.Logic.Submission
 
         public async Task<ApplicationResult<TestCaseResponseModel>> SearchSubmssionAsync(string userId, int submissionId)
         {
+            
             var response = await _testCaseBusiness.SearchFirstFailForFailerAsync(submissionId, userId);
 
             if (response == null)
                 await EnqueueToDownloadAsync(userId, submissionId);
+            else return ApplicationResult<TestCaseResponseModel>.Ok(response);
 
             response = await _testCaseBusiness.SearchFirstFailForFailerAsync(submissionId, userId);
 
